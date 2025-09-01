@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VeryVerySimpleFlashcards</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container my-5">
+    <h1 class="text-center mb-4">VeryVerySimpleFlashcards</h1>
+
+    <div id="data-loading-section" class="card p-3 shadow-sm">
+        <div class="card-body">
+            <h2 class="card-title">1. Charger vos données</h2>
+
+            <div class="mb-3">
+                <label for="url-input" class="form-label">URL Google Sheet publique :</label>
+                <input type="url" id="url-input" class="form-control" placeholder="Coller le lien CSV de votre Google Sheet">
+            </div>
+
+            <div class="mb-3">
+                <label for="text-input" class="form-label">Ou coller votre texte ici :</label>
+                <textarea id="text-input" class="form-control" rows="5" placeholder="Question 1, Réponse 1&#10;Question 2, Réponse 2"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="separator-select" class="form-label">Séparateur :</label>
+                <select id="separator-select" class="form-select">
+                    <option value=",">Virgule (,)</option>
+                    <option value=";">Point-virgule (;)</option>
+                    <option value="	">Tabulation</option>
+                </select>
+            </div>
+
+            <button id="load-data-btn" class="btn btn-primary mt-2 w-100">Charger les données</button>
+        </div>
+    </div>
+
+    <div id="data-display-section" class="card p-3 mt-4 shadow-sm" style="display:none;">
+        <div class="card-body">
+            <h2 class="card-title">2. Aperçu des données</h2>
+            <div class="table-responsive">
+                <table id="flashcard-table" class="table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th>Recto</th>
+                        <th>Verso</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-grid gap-2 mt-3">
+                <button id="start-sequential-btn" class="btn btn-success">Commencer la révision (Ordre)</button>
+                <button id="start-random-btn" class="btn btn-warning">Commencer la révision (Aléatoire)</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
