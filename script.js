@@ -1,17 +1,20 @@
-// Partie 1
+// Déclaration des variables globales
+let currentCards = [];
+let cardsToReview = [];
+let learnedCards = [];
+
+// Récupération des éléments du DOM
 const urlInput = document.getElementById('url-input');
 const textInput = document.getElementById('text-input');
 const separatorSelect = document.getElementById('separator-select');
 const loadDataBtn = document.getElementById('load-data-btn');
 
-// Partie 2
 const dataLoadingSection = document.getElementById('data-loading-section');
 const dataDisplaySection = document.getElementById('data-display-section');
 const flashcardTableBody = document.querySelector('#flashcard-table tbody');
 const startSequentialBtn = document.getElementById('start-sequential-btn');
 const startRandomBtn = document.getElementById('start-random-btn');
 
-// Partie 3
 const flashcardSection = document.getElementById('flashcard-section');
 const reviewCountSpan = document.getElementById('review-count');
 const learnedCountSpan = document.getElementById('learned-count');
@@ -21,22 +24,73 @@ const flashcardBack = document.getElementById('flashcard-back');
 const showAnswerBtn = document.getElementById('show-answer-btn');
 const nextBtn = document.getElementById('next-btn');
 
-let currentCards = [];
-let cardsToReview = [];
-let learnedCards = [];
-let currentCardIndex = 0;
 
-// Gérer l'affichage de la carte et la mise à jour des compteurs
-function displayCard() {
-    // Vérifier s'il y a des cartes à revoir
-    if (cardsToReview.length === 0) {
-        alert("Session de révision terminée ! Toutes les cartes ont été apprises.");
-        flashcardSection.style.display = 'none';
-        dataLoadingSection.style.display = 'block';
+// --- Fonctions principales ---
+
+// Fonction pour récupérer les données à partir du texte ou d'une URL
+async function fetchAndParseData() {
+    let rawData;
+    const separator = separatorSelect.value;
+
+    // Si l'URL est remplie
+    if (urlInput.value) {
+        try {
+            const response = await fetch(urlInput.value);
+            rawData = await response.text();
+        } catch (error) {
+            alert("Erreur lors du chargement de l'URL. Vérifiez que c'est un lien public.");
+            return;
+        }
+    }
+    // Sinon, on utilise le texte du champ de saisie
+    else if (textInput.value) {
+        rawData = textInput.value;
+    } else {
+        alert("Veuillez entrer une URL ou du texte.");
         return;
     }
 
-    // On met à jour les compteurs
+    const lines = rawData.split('\n').filter(line => line.trim() !== '');
+
+    // Convertir les lignes en tableau de cartes
+    currentCards = lines.map(line => {
+        const [recto, verso] = line.split(separator).map(s => s.trim());
+        return { recto, verso };
+    }).filter(card => card.recto && card.verso);
+
+    // Mettre à jour l'aperçu dans le tableau
+    flashcardTableBody.innerHTML = '';
+    currentCards.forEach(card => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${card.recto}</td><td>${card.verso}</td>`;
+        flashcardTableBody.appendChild(row);
+    });
+
+    // Afficher la section d'affichage des données
+    dataLoadingSection.classList.add('d-none');
+    dataDisplaySection.classList.remove('d-none');
+
+    // Mettre à jour l'URL du navigateur pour le partage
+    window.history.pushState({}, '', `?url=${encodeURIComponent(urlInput.value)}`);
+}
+
+// Fonction pour mélanger un tableau (algorithme de Fisher-Yates)
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+// Fonction pour afficher une carte et mettre à jour les compteurs
+function displayCard() {
+    if (cardsToReview.length === 0) {
+        alert("Session de révision terminée ! Toutes les cartes ont été apprises.");
+        flashcardSection.classList.add('d-none');
+        dataLoadingSection.classList.remove('d-none');
+        return;
+    }
+
     reviewCountSpan.textContent = cardsToReview.length;
     learnedCountSpan.textContent = learnedCards.length;
 
@@ -44,177 +98,63 @@ function displayCard() {
     flashcardFront.textContent = card.recto;
     flashcardBack.textContent = card.verso;
 
-    // On réinitialise la carte pour qu'elle ne soit pas retournée
     flashcard.classList.remove('flipped');
-    showAnswerBtn.style.display = 'block';
-    nextBtn.style.display = 'none';
+    showAnswerBtn.classList.remove('d-none');
+    nextBtn.classList.add('d-none');
 }
 
-// Gérer le clic sur le bouton "Afficher la réponse"
+
+// --- Écouteurs d'événements ---
+
+// Chargement initial de la page pour le partage d'URL
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sheetUrl = urlParams.get('url');
+
+    if (sheetUrl) {
+        urlInput.value = sheetUrl;
+        fetchAndParseData();
+    }
+});
+
+// Écouteur pour le bouton de chargement des données
+loadDataBtn.addEventListener('click', fetchAndParseData);
+
+// Écouteur pour les boutons "Commencer la révision"
+startSequentialBtn.addEventListener('click', () => {
+    learnedCards = [];
+    cardsToReview = [...currentCards];
+    dataDisplaySection.classList.add('d-none');
+    flashcardSection.classList.remove('d-none');
+    displayCard();
+});
+
+startRandomBtn.addEventListener('click', () => {
+    learnedCards = [];
+    cardsToReview = [...currentCards];
+    shuffleArray(cardsToReview);
+    dataDisplaySection.classList.add('d-none');
+    flashcardSection.classList.remove('d-none');
+    displayCard();
+});
+
+// Écouteur pour le bouton "Afficher la réponse"
 showAnswerBtn.addEventListener('click', () => {
     flashcard.classList.add('flipped');
-    showAnswerBtn.style.display = 'none';
-    nextBtn.style.display = 'block';
+    showAnswerBtn.classList.add('d-none');
+    nextBtn.classList.remove('d-none');
 });
 
-// Gérer le clic sur le bouton "Suivant"
+// Écouteur pour le bouton "Suivant"
 nextBtn.addEventListener('click', () => {
-    // On déplace la carte actuelle du tableau "À revoir" vers "Appris"
     const movedCard = cardsToReview.shift();
     learnedCards.push(movedCard);
-
-    // On affiche la carte suivante
     displayCard();
 });
 
-// Gérer le clic sur les boutons "Commencer la révision"
-startSequentialBtn.addEventListener('click', () => {
-    // Récupérer les cartes du tableau
-    const rows = Array.from(flashcardTableBody.children);
-    currentCards = rows.map(row => {
-        return {
-            recto: row.cells[0].textContent,
-            verso: row.cells[1].textContent
-        };
-    });
-
-    // On vide le tableau learnedCards si l'utilisateur relance une session
-    learnedCards = [];
-    cardsToReview = [...currentCards];
-
-    // On cache le tableau et on affiche la section de révision
-    dataDisplaySection.style.display = 'none';
-    flashcardSection.style.display = 'flex';
-
-    // On affiche la première carte
-    displayCard();
-});
-
-startRandomBtn.addEventListener('click', () => {
-    const rows = Array.from(flashcardTableBody.children);
-    currentCards = rows.map(row => {
-        return {
-            recto: row.cells[0].textContent,
-            verso: row.cells[1].textContent
-        };
-    });
-
-    // Algorithme de Fisher-Yates pour mélanger le tableau
-    for (let i = currentCards.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
-    }
-
-    learnedCards = [];
-    cardsToReview = [...currentCards];
-
-    dataDisplaySection.style.display = 'none';
-    flashcardSection.style.display = 'flex';
-
-    displayCard();
-});
-
-// Gérer le clic sur le bouton "Charger les données"
-loadDataBtn.addEventListener('click', () => {
-    let rawData;
-    const separator = separatorSelect.value;
-
-    // On vérifie d'abord si l'URL est remplie
-    if (urlInput.value) {
-        // Logique de récupération de l'URL Google Sheet (à implémenter)
-        alert('La logique de chargement par URL est à venir !');
-        return;
-    }
-    // Sinon, on utilise le texte du champ de saisie
-    else if (textInput.value) {
-        rawData = textInput.value;
-        const lines = rawData.split('\n');
-
-        flashcardTableBody.innerHTML = ''; // On vide le tableau
-
-        lines.forEach(line => {
-            const [recto, verso] = line.split(separator).map(s => s.trim());
-            if (recto && verso) {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td>${recto}</td><td>${verso}</td>`;
-                flashcardTableBody.appendChild(row);
-            }
-        });
-
-        // On affiche la section des données
-        dataLoadingSection.style.display = 'none';
-        dataDisplaySection.style.display = 'block';
-
-        // On active le mode de partage par URL
-        window.history.pushState({}, '', window.location.pathname);
-    } else {
-        alert('Veuillez entrer une URL ou du texte.');
-    }
-});
-
-// Gérer le clic sur les boutons "Commencer la révision"
-startSequentialBtn.addEventListener('click', () => {
-    // Récupérer les cartes du tableau
-    const rows = Array.from(flashcardTableBody.children);
-    currentCards = rows.map(row => {
-        return {
-            recto: row.cells[0].textContent,
-            verso: row.cells[1].textContent
-        };
-    });
-
-    currentCardIndex = 0;
-
-    // Afficher la section de révision
-    dataDisplaySection.style.display = 'none';
-    flashcardSection.style.display = 'flex';
-
-    // On affiche la première carte
-    displayCard();
-});
-
-startRandomBtn.addEventListener('click', () => {
-    // Récupérer les cartes et les mélanger
-    const rows = Array.from(flashcardTableBody.children);
-    currentCards = rows.map(row => {
-        return {
-            recto: row.cells[0].textContent,
-            verso: row.cells[1].textContent
-        };
-    });
-
-    // Algorithme de Fisher-Yates pour mélanger le tableau
-    for (let i = currentCards.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
-    }
-
-    currentCardIndex = 0;
-
-    // Afficher la section de révision
-    dataDisplaySection.style.display = 'none';
-    flashcardSection.style.display = 'flex';
-
-    // On affiche la première carte
-    displayCard();
-});
-
-// Gérer l'affichage de la carte
-function displayCard() {
-    if (currentCardIndex >= currentCards.length) {
-        alert('Session de révision terminée !');
-        // Revenir à l'écran de chargement ou à l'aperçu
-        flashcardSection.style.display = 'none';
-        dataLoadingSection.style.display = 'flex';
-        return;
-    }
-
-    const card = currentCards[currentCardIndex];
-    flashcardFront.textContent = card.recto;
-    flashcardBack.textContent = card.verso;
-}
-
-// Gérer le clic sur la carte
+// Écouteur pour le clic sur la carte pour la retourner
 flashcard.addEventListener('click', () => {
-    flashcard.classList.toggle('flipped');
+    if (showAnswerBtn.classList.contains('d-none')) {
+        flashcard.classList.toggle('flipped');
+    }
 });
