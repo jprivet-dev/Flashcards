@@ -22,7 +22,97 @@ const showAnswerBtn = document.getElementById('show-answer-btn');
 const nextBtn = document.getElementById('next-btn');
 
 let currentCards = [];
+let cardsToReview = [];
+let learnedCards = [];
 let currentCardIndex = 0;
+
+// Gérer l'affichage de la carte et la mise à jour des compteurs
+function displayCard() {
+    // Vérifier s'il y a des cartes à revoir
+    if (cardsToReview.length === 0) {
+        alert("Session de révision terminée ! Toutes les cartes ont été apprises.");
+        flashcardSection.style.display = 'none';
+        dataLoadingSection.style.display = 'block';
+        return;
+    }
+
+    // On met à jour les compteurs
+    reviewCountSpan.textContent = cardsToReview.length;
+    learnedCountSpan.textContent = learnedCards.length;
+
+    const card = cardsToReview[0];
+    flashcardFront.textContent = card.recto;
+    flashcardBack.textContent = card.verso;
+
+    // On réinitialise la carte pour qu'elle ne soit pas retournée
+    flashcard.classList.remove('flipped');
+    showAnswerBtn.style.display = 'block';
+    nextBtn.style.display = 'none';
+}
+
+// Gérer le clic sur le bouton "Afficher la réponse"
+showAnswerBtn.addEventListener('click', () => {
+    flashcard.classList.add('flipped');
+    showAnswerBtn.style.display = 'none';
+    nextBtn.style.display = 'block';
+});
+
+// Gérer le clic sur le bouton "Suivant"
+nextBtn.addEventListener('click', () => {
+    // On déplace la carte actuelle du tableau "À revoir" vers "Appris"
+    const movedCard = cardsToReview.shift();
+    learnedCards.push(movedCard);
+
+    // On affiche la carte suivante
+    displayCard();
+});
+
+// Gérer le clic sur les boutons "Commencer la révision"
+startSequentialBtn.addEventListener('click', () => {
+    // Récupérer les cartes du tableau
+    const rows = Array.from(flashcardTableBody.children);
+    currentCards = rows.map(row => {
+        return {
+            recto: row.cells[0].textContent,
+            verso: row.cells[1].textContent
+        };
+    });
+
+    // On vide le tableau learnedCards si l'utilisateur relance une session
+    learnedCards = [];
+    cardsToReview = [...currentCards];
+
+    // On cache le tableau et on affiche la section de révision
+    dataDisplaySection.style.display = 'none';
+    flashcardSection.style.display = 'flex';
+
+    // On affiche la première carte
+    displayCard();
+});
+
+startRandomBtn.addEventListener('click', () => {
+    const rows = Array.from(flashcardTableBody.children);
+    currentCards = rows.map(row => {
+        return {
+            recto: row.cells[0].textContent,
+            verso: row.cells[1].textContent
+        };
+    });
+
+    // Algorithme de Fisher-Yates pour mélanger le tableau
+    for (let i = currentCards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
+    }
+
+    learnedCards = [];
+    cardsToReview = [...currentCards];
+
+    dataDisplaySection.style.display = 'none';
+    flashcardSection.style.display = 'flex';
+
+    displayCard();
+});
 
 // Gérer le clic sur le bouton "Charger les données"
 loadDataBtn.addEventListener('click', () => {
