@@ -22,8 +22,6 @@ const flashcard = document.getElementById('flashcard');
 const flashcardFront = document.getElementById('flashcard-front');
 const flashcardBack = document.getElementById('flashcard-back');
 const showAnswerBtn = document.getElementById('show-answer-btn');
-const nextBtn = document.getElementById('next-btn');
-
 
 // --- Fonctions principales ---
 
@@ -32,7 +30,6 @@ async function fetchAndParseData() {
     let rawData;
     const separator = separatorSelect.value;
 
-    // Si l'URL est remplie
     if (urlInput.value) {
         try {
             const response = await fetch(urlInput.value);
@@ -42,7 +39,6 @@ async function fetchAndParseData() {
             return;
         }
     }
-    // Sinon, on utilise le texte du champ de saisie
     else if (textInput.value) {
         rawData = textInput.value;
     } else {
@@ -52,13 +48,11 @@ async function fetchAndParseData() {
 
     const lines = rawData.split('\n').filter(line => line.trim() !== '');
 
-    // Convertir les lignes en tableau de cartes
     currentCards = lines.map(line => {
         const [recto, verso] = line.split(separator).map(s => s.trim());
         return { recto, verso };
     }).filter(card => card.recto && card.verso);
 
-    // Mettre à jour l'aperçu dans le tableau
     flashcardTableBody.innerHTML = '';
     currentCards.forEach(card => {
         const row = document.createElement('tr');
@@ -66,12 +60,14 @@ async function fetchAndParseData() {
         flashcardTableBody.appendChild(row);
     });
 
-    // Afficher la section d'affichage des données
     dataLoadingSection.classList.add('d-none');
     dataDisplaySection.classList.remove('d-none');
 
-    // Mettre à jour l'URL du navigateur pour le partage
-    window.history.pushState({}, '', `?url=${encodeURIComponent(urlInput.value)}`);
+    if (urlInput.value) {
+        window.history.pushState({}, '', `?url=${encodeURIComponent(urlInput.value)}`);
+    } else {
+        window.history.pushState({}, '', window.location.pathname);
+    }
 }
 
 // Fonction pour mélanger un tableau (algorithme de Fisher-Yates)
@@ -85,10 +81,19 @@ function shuffleArray(array) {
 // Fonction pour afficher une carte et mettre à jour les compteurs
 function displayCard() {
     if (cardsToReview.length === 0) {
-        alert("Session de révision terminée ! Toutes les cartes ont été apprises.");
-        flashcardSection.classList.add('d-none');
-        dataLoadingSection.classList.remove('d-none');
-        return;
+        if (currentCards.length > 0) {
+            alert("Cycle de révision terminé ! Les cartes marquées 'À revoir' seront affichées pour un nouveau cycle.");
+            cardsToReview = [...currentCards];
+            currentCards = [];
+            if (startRandomBtn.getAttribute('data-mode') === 'random') {
+                shuffleArray(cardsToReview);
+            }
+        } else {
+            alert("Session de révision terminée ! Toutes les cartes ont été apprises.");
+            flashcardSection.classList.add('d-none');
+            dataLoadingSection.classList.remove('d-none');
+            return;
+        }
     }
 
     reviewCountSpan.textContent = cardsToReview.length;
@@ -99,10 +104,8 @@ function displayCard() {
     flashcardBack.textContent = card.verso;
 
     flashcard.classList.remove('flipped');
-    showAnswerBtn.classList.remove('d-none');
-    nextBtn.classList.add('d-none');
+    flashcard.style.transform = '';
 }
-
 
 // --- Écouteurs d'événements ---
 
@@ -126,6 +129,7 @@ startSequentialBtn.addEventListener('click', () => {
     cardsToReview = [...currentCards];
     dataDisplaySection.classList.add('d-none');
     flashcardSection.classList.remove('d-none');
+    startSequentialBtn.setAttribute('data-mode', 'sequential');
     displayCard();
 });
 
@@ -135,26 +139,79 @@ startRandomBtn.addEventListener('click', () => {
     shuffleArray(cardsToReview);
     dataDisplaySection.classList.add('d-none');
     flashcardSection.classList.remove('d-none');
+    startRandomBtn.setAttribute('data-mode', 'random');
     displayCard();
 });
 
-// Écouteur pour le bouton "Afficher la réponse"
+// Écouteur pour le bouton "Afficher la réponse" (reste pour le clic)
 showAnswerBtn.addEventListener('click', () => {
-    flashcard.classList.add('flipped');
-    showAnswerBtn.classList.add('d-none');
-    nextBtn.classList.remove('d-none');
+    flashcard.classList.toggle('flipped');
 });
 
-// Écouteur pour le bouton "Suivant"
-nextBtn.addEventListener('click', () => {
-    const movedCard = cardsToReview.shift();
-    learnedCards.push(movedCard);
-    displayCard();
+// --- Logique du Swipe avec Hammer.js ---
+const hammer = new Hammer(flashcard);
+
+hammer.get('pan').set({ direction: Hammer.DIRECTION_HORIZONTAL, threshold: 10 });
+
+let startX = 0;
+let cardFlipped = false;
+
+hammer.on('panstart', (e) => {
+    if (flashcard.classList.contains('flipped')) {
+        startX = e.center.x;
+        flashcard.classList.add('swiping');
+        cardFlipped = true;
+    } else {
+        cardFlipped = false;
+    }
 });
 
-// Écouteur pour le clic sur la carte pour la retourner
+hammer.on('panmove', (e) => {
+    if (cardFlipped) {
+        const deltaX = e.center.x - startX;
+        flashcard.style.transform = `translateX(${deltaX}px) rotateY(180deg)`;
+    }
+});
+
+hammer.on('panend', (e) => {
+    if (cardFlipped) {
+        flashcard.classList.remove('swiping');
+
+        const threshold = flashcard.offsetWidth / 3;
+        const deltaX = e.deltaX;
+
+        if (deltaX > threshold) { // Swipe à droite (Appris)
+            flashcard.style.transition = 'transform 0.3s ease-out';
+            flashcard.style.transform = `translateX(${flashcard.offsetWidth * 2}px) rotateY(180deg)`;
+
+            setTimeout(() => {
+                const movedCard = cardsToReview.shift();
+                learnedCards.push(movedCard);
+                displayCard();
+                flashcard.style.transition = '';
+            }, 300);
+        } else if (deltaX < -threshold) { // Swipe à gauche (À revoir)
+            flashcard.style.transition = 'transform 0.3s ease-out';
+            flashcard.style.transform = `translateX(${-flashcard.offsetWidth * 2}px) rotateY(180deg)`;
+
+            setTimeout(() => {
+                const movedCard = cardsToReview.shift();
+                currentCards.push(movedCard);
+                displayCard();
+                flashcard.style.transition = '';
+            }, 300);
+        } else {
+            flashcard.style.transition = 'transform 0.3s ease-out';
+            flashcard.style.transform = 'translateX(0) rotateY(180deg)';
+            setTimeout(() => {
+                flashcard.style.transition = '';
+            }, 300);
+        }
+    }
+});
+
 flashcard.addEventListener('click', () => {
-    if (showAnswerBtn.classList.contains('d-none')) {
-        flashcard.classList.toggle('flipped');
+    if (!flashcard.classList.contains('flipped')) {
+        flashcard.classList.add('flipped');
     }
 });
