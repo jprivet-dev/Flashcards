@@ -1,5 +1,3 @@
-// On ne déclare plus les variables globales ici, elles seront des propriétés de la classe.
-
 // Déclaration de la classe FlashcardApp
 class FlashcardApp {
     constructor() {
@@ -43,7 +41,12 @@ class FlashcardApp {
 
         this.showAnswerBtn.addEventListener('click', () => {
             if (this.currentFlashcardElement) {
-                this.currentFlashcardElement.classList.toggle('flipped');
+                gsap.to(this.currentFlashcardElement, {
+                    rotationY: 180,
+                    duration: 0.2,
+                    ease: "expo.out"
+                });
+                this.currentFlashcardElement.classList.add('flipped');
             }
         });
     }
@@ -62,9 +65,8 @@ class FlashcardApp {
         this.createAndDisplayCard();
     }
 
-    // Méthode pour récupérer et analyser les données (toute la logique actuelle)
+    // Méthode pour récupérer et analyser les données
     async fetchAndParseData() {
-        // ... Logique existante ...
         let rawData;
         const separator = this.separatorSelect.value;
 
@@ -107,9 +109,8 @@ class FlashcardApp {
         }
     }
 
-    // Méthode pour mélanger un tableau (le même que celui qui existe déjà)
+    // Méthode pour mélanger un tableau
     shuffleArray(array) {
-        // ... Logique existante ...
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [array[i], array[j]] = [array[j], array[i]];
@@ -134,12 +135,17 @@ class FlashcardApp {
         this.reviewCountSpan.textContent = this.cardsToReview.length;
         this.learnedCountSpan.textContent = this.learnedCards.length;
 
+        // Supprime l'ancienne carte si elle existe pour éviter les doublons
+        if (this.currentFlashcardElement) {
+            this.flashcardContainer.removeChild(this.currentFlashcardElement);
+        }
+
         // Créer une nouvelle carte
         const cardData = this.cardsToReview[0];
         const newFlashcard = document.createElement('div');
         newFlashcard.id = 'flashcard';
         newFlashcard.className = 'card h-100 card-enter';
-        newFlashcard.style = 'position: relative; transition: transform 0.6s, opacity 0.4s; transform-style: preserve-3d; cursor: pointer;';
+        newFlashcard.style = 'position: relative; transform-style: preserve-3d; cursor: pointer;';
 
         // Contenu recto
         const front = document.createElement('div');
@@ -157,10 +163,6 @@ class FlashcardApp {
 
         newFlashcard.appendChild(front);
         newFlashcard.appendChild(back);
-
-        if (this.currentFlashcardElement) {
-            this.flashcardContainer.removeChild(this.currentFlashcardElement);
-        }
 
         this.flashcardContainer.appendChild(newFlashcard);
         this.currentFlashcardElement = newFlashcard;
@@ -185,50 +187,76 @@ class FlashcardApp {
         hammer.on('panmove', (e) => {
             if (newFlashcard.classList.contains('flipped')) {
                 const deltaX = e.center.x - startX;
-                newFlashcard.style.transform = `translateX(${deltaX}px) rotateY(180deg)`;
+                gsap.to(newFlashcard, {
+                    x: deltaX,
+                    rotationY: 180,
+                    duration: 0
+                });
             }
         });
 
         hammer.on('panend', (e) => {
             if (newFlashcard.classList.contains('flipped')) {
                 newFlashcard.classList.remove('swiping');
-                const threshold = newFlashcard.offsetWidth / 3;
+                const threshold = newFlashcard.offsetWidth / 2;
                 const deltaX = e.deltaX;
+                const velocityX = e.velocityX;
 
-                if (deltaX > threshold) {
-                    newFlashcard.style.transition = 'transform 0.3s ease-out';
-                    newFlashcard.style.transform = `translateX(${newFlashcard.offsetWidth * 2}px) rotateY(180deg)`;
+                // On définit la durée de l'animation de sortie en fonction de la vitesse de glissement
+                const swipeDuration = Math.min(Math.abs(1 / velocityX), 0.5);
 
-                    setTimeout(() => {
-                        const movedCard = this.cardsToReview.shift();
-                        this.learnedCards.push(movedCard);
-                        this.createAndDisplayCard();
-                    }, 300);
-                } else if (deltaX < -threshold) {
-                    newFlashcard.style.transition = 'transform 0.3s ease-out';
-                    newFlashcard.style.transform = `translateX(${-newFlashcard.offsetWidth * 2}px) rotateY(180deg)`;
-
-                    setTimeout(() => {
-                        const movedCard = this.cardsToReview.shift();
-                        this.currentCards.push(movedCard);
-                        this.createAndDisplayCard();
-                    }, 300);
+                if (deltaX > threshold || velocityX > 1) {
+                    // Animation de sortie vers la droite avec GSAP
+                    gsap.to(newFlashcard, {
+                        x: newFlashcard.offsetWidth * 2,
+                        rotationY: 360,
+                        opacity: 0,
+                        duration: swipeDuration,
+                        ease: "power2.out",
+                        onComplete: () => {
+                            const movedCard = this.cardsToReview.shift();
+                            this.learnedCards.push(movedCard);
+                            this.createAndDisplayCard();
+                        }
+                    });
+                } else if (deltaX < -threshold || velocityX < -1) {
+                    // Animation de sortie vers la gauche avec GSAP
+                    gsap.to(newFlashcard, {
+                        x: -newFlashcard.offsetWidth * 2,
+                        rotationY: 0,
+                        opacity: 0,
+                        duration: swipeDuration,
+                        ease: "power2.out",
+                        onComplete: () => {
+                            const movedCard = this.cardsToReview.shift();
+                            this.currentCards.push(movedCard);
+                            this.createAndDisplayCard();
+                        }
+                    });
                 } else {
-                    newFlashcard.style.transition = 'transform 0.3s ease-out';
-                    newFlashcard.style.transform = 'translateX(0) rotateY(180deg)';
-                    setTimeout(() => {
-                        newFlashcard.style.transition = '';
-                    }, 300);
+                    // Animation de retour au centre avec GSAP
+                    gsap.to(newFlashcard, {
+                        x: 0,
+                        rotationY: 180,
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
                 }
             }
         });
 
         newFlashcard.addEventListener('click', () => {
             if (!newFlashcard.classList.contains('flipped')) {
-                newFlashcard.classList.add('flipped');
+                gsap.to(newFlashcard, {
+                    rotationY: 180,
+                    duration: 0.2,
+                    ease: "expo.out",
+                    onComplete: () => {
+                        newFlashcard.classList.add('flipped');
+                    }
+                });
             }
         });
-
     }
 }
 
