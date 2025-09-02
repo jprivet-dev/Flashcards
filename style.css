@@ -20,6 +20,12 @@
     transform: rotateY(180deg);
 }
 
+.card-enter {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+}
+
 /* Ajoutez ces styles pour le swipe */
 .swiping {
     transition: none; /* Désactive la transition par défaut pendant le swipe */
