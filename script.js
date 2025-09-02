@@ -178,38 +178,38 @@ class FlashcardApp {
         let startX = 0;
 
         hammer.on('panstart', (e) => {
-            if (newFlashcard.classList.contains('flipped')) {
+            if (this.currentFlashcardElement && this.currentFlashcardElement.classList.contains('flipped')) {
                 startX = e.center.x;
-                newFlashcard.classList.add('swiping');
+                this.currentFlashcardElement.classList.add('swiping');
             }
         });
 
         hammer.on('panmove', (e) => {
-            if (newFlashcard.classList.contains('flipped')) {
+            if (this.currentFlashcardElement && this.currentFlashcardElement.classList.contains('flipped')) {
                 const deltaX = e.center.x - startX;
-                gsap.to(newFlashcard, {
+                gsap.to(this.currentFlashcardElement, {
                     x: deltaX,
-                    rotationY: 180,
+                    rotationY: 180, // Maintient la rotation Y à 180 pendant le swipe
                     duration: 0
                 });
             }
         });
 
         hammer.on('panend', (e) => {
-            if (newFlashcard.classList.contains('flipped')) {
-                newFlashcard.classList.remove('swiping');
-                const threshold = newFlashcard.offsetWidth / 2;
+            if (this.currentFlashcardElement && this.currentFlashcardElement.classList.contains('flipped')) {
+                this.currentFlashcardElement.classList.remove('swiping');
+                const threshold = this.currentFlashcardElement.offsetWidth / 2;
                 const deltaX = e.deltaX;
                 const velocityX = e.velocityX;
 
-                // On définit la durée de l'animation de sortie en fonction de la vitesse de glissement
-                const swipeDuration = Math.min(Math.abs(1 / velocityX), 0.5);
+                const swipeFactor = 2;
+                const swipeDuration = Math.min(Math.abs(1 / (velocityX * swipeFactor)), 0.5);
 
                 if (deltaX > threshold || velocityX > 1) {
                     // Animation de sortie vers la droite avec GSAP
-                    gsap.to(newFlashcard, {
-                        x: newFlashcard.offsetWidth * 2,
-                        rotationY: 360,
+                    gsap.to(this.currentFlashcardElement, {
+                        x: window.innerWidth * 1.5,
+                        rotationY: 180, // Maintient la rotation à 180 degrés
                         opacity: 0,
                         duration: swipeDuration,
                         ease: "power2.out",
@@ -221,9 +221,9 @@ class FlashcardApp {
                     });
                 } else if (deltaX < -threshold || velocityX < -1) {
                     // Animation de sortie vers la gauche avec GSAP
-                    gsap.to(newFlashcard, {
-                        x: -newFlashcard.offsetWidth * 2,
-                        rotationY: 0,
+                    gsap.to(this.currentFlashcardElement, {
+                        x: -window.innerWidth * 1.5,
+                        rotationY: 180, // Maintient la rotation à 180 degrés
                         opacity: 0,
                         duration: swipeDuration,
                         ease: "power2.out",
@@ -235,7 +235,7 @@ class FlashcardApp {
                     });
                 } else {
                     // Animation de retour au centre avec GSAP
-                    gsap.to(newFlashcard, {
+                    gsap.to(this.currentFlashcardElement, {
                         x: 0,
                         rotationY: 180,
                         duration: 0.3,
@@ -246,13 +246,13 @@ class FlashcardApp {
         });
 
         newFlashcard.addEventListener('click', () => {
-            if (!newFlashcard.classList.contains('flipped')) {
-                gsap.to(newFlashcard, {
+            if (this.currentFlashcardElement && !this.currentFlashcardElement.classList.contains('flipped')) {
+                gsap.to(this.currentFlashcardElement, {
                     rotationY: 180,
                     duration: 0.2,
                     ease: "expo.out",
                     onComplete: () => {
-                        newFlashcard.classList.add('flipped');
+                        this.currentFlashcardElement.classList.add('flipped');
                     }
                 });
             }
