@@ -1,7 +1,121 @@
+class Flashcard {
+    constructor(cardData, container, onSwipe) {
+        this.cardData = cardData;
+        this.container = container;
+        this.onSwipe = onSwipe;
+        this.element = this.createCardElement();
+        this.hammer = new Hammer(this.element);
+        this.hammer.get('pan').set({
+            direction: Hammer.DIRECTION_HORIZONTAL,
+            threshold: 10
+        });
+        this.attachEventListeners();
+        this.container.appendChild(this.element);
+    }
+
+    createCardElement() {
+        // Créer une nouvelle carte
+        const newFlashcard = document.createElement('div');
+        newFlashcard.id = 'flashcard';
+        newFlashcard.className = 'card h-100 card-enter';
+        newFlashcard.style = 'position: relative; transform-style: preserve-3d; cursor: pointer;';
+
+        // Contenu recto
+        const front = document.createElement('div');
+        front.id = 'flashcard-front';
+        front.className = 'card-body d-flex align-items-center justify-content-center p-4 fs-3 text-center';
+        front.style = 'position: absolute; width: 100%; height: 100%; backface-visibility: hidden;';
+        front.textContent = this.cardData.recto;
+
+        // Contenu verso
+        const back = document.createElement('div');
+        back.id = 'flashcard-back';
+        back.className = 'card-body d-flex align-items-center justify-content-center p-4 fs-3 text-center';
+        back.style = 'position: absolute; width: 100%; height: 100%; backface-visibility: hidden; transform: rotateY(180deg);';
+        back.textContent = this.cardData.verso;
+
+        newFlashcard.appendChild(front);
+        newFlashcard.appendChild(back);
+
+        return newFlashcard;
+    }
+
+    attachEventListeners() {
+        // Gère le clic pour retourner la carte
+        this.element.addEventListener('click', () => {
+            if (!this.element.classList.contains('flipped')) {
+                gsap.to(this.element, {
+                    rotationY: 180,
+                    duration: 0.2,
+                    ease: "expo.out",
+                    onComplete: () => {
+                        this.element.classList.add('flipped');
+                    }
+                });
+            }
+        });
+
+        let startX = 0;
+
+        this.hammer.on('panstart', (e) => {
+            if (this.element.classList.contains('flipped')) {
+                startX = e.center.x;
+                this.element.classList.add('swiping');
+            }
+        });
+
+        this.hammer.on('panmove', (e) => {
+            if (this.element.classList.contains('flipped')) {
+                const deltaX = e.center.x - startX;
+                gsap.to(this.element, {
+                    x: deltaX,
+                    duration: 0
+                });
+            }
+        });
+
+        this.hammer.on('panend', (e) => {
+            if (this.element.classList.contains('flipped')) {
+                this.element.classList.remove('swiping');
+                const threshold = this.element.offsetWidth / 2;
+                const deltaX = e.deltaX;
+                const velocityX = e.velocityX;
+
+                const swipeFactor = 2;
+                const swipeDuration = Math.min(Math.abs(1 / (velocityX * swipeFactor)), 0.5);
+
+                let direction = null;
+                if (deltaX > threshold || velocityX > 1) {
+                    direction = 'right';
+                } else if (deltaX < -threshold || velocityX < -1) {
+                    direction = 'left';
+                }
+
+                if (direction) {
+                    gsap.to(this.element, {
+                        x: direction === 'right' ? window.innerWidth * 1.5 : -window.innerWidth * 1.5,
+                        opacity: 0,
+                        duration: swipeDuration,
+                        ease: "power2.out",
+                        onComplete: () => {
+                            this.onSwipe(direction);
+                        }
+                    });
+                } else {
+                    gsap.to(this.element, {
+                        x: 0,
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
+                }
+            }
+        });
+    }
+}
+
 // Déclaration de la classe FlashcardApp
 class FlashcardApp {
     constructor() {
-        // Récupération de tous les éléments du DOM
         this.urlInput = document.getElementById('url-input');
         this.textInput = document.getElementById('text-input');
         this.separatorSelect = document.getElementById('separator-select');
@@ -17,59 +131,48 @@ class FlashcardApp {
         this.flashcardContainer = document.getElementById('flashcard-container');
         this.showAnswerBtn = document.getElementById('show-answer-btn');
 
-        // Initialisation des propriétés de l'application
         this.currentCards = [];
         this.cardsToReview = [];
         this.learnedCards = [];
-        this.currentFlashcardElement = null;
+        this.currentFlashcard = null;
 
-        // Attachement des écouteurs d'événements
         this.attachEventListeners();
     }
 
-    // Méthode pour attacher tous les écouteurs d'événements
     attachEventListeners() {
         this.loadDataBtn.addEventListener('click', () => this.fetchAndParseData());
-
         this.startSequentialBtn.addEventListener('click', () => {
             this.startSession('sequential');
         });
-
         this.startRandomBtn.addEventListener('click', () => {
             this.startSession('random');
         });
-
         this.showAnswerBtn.addEventListener('click', () => {
-            if (this.currentFlashcardElement) {
-                gsap.to(this.currentFlashcardElement, {
+            if (this.currentFlashcard) {
+                gsap.to(this.currentFlashcard.element, {
                     rotationY: 180,
                     duration: 0.2,
                     ease: "expo.out"
                 });
-                this.currentFlashcardElement.classList.add('flipped');
+                this.currentFlashcard.element.classList.add('flipped');
             }
         });
     }
 
-    // Méthode pour démarrer une session de révision
     startSession(mode) {
         this.learnedCards = [];
         this.cardsToReview = [...this.currentCards];
-
         if (mode === 'random') {
             this.shuffleArray(this.cardsToReview);
         }
-
         this.dataDisplaySection.classList.add('d-none');
         this.flashcardSection.classList.remove('d-none');
         this.createAndDisplayCard();
     }
 
-    // Méthode pour récupérer et analyser les données
     async fetchAndParseData() {
         let rawData;
         const separator = this.separatorSelect.value;
-
         if (this.urlInput.value) {
             try {
                 const response = await fetch(this.urlInput.value);
@@ -86,12 +189,13 @@ class FlashcardApp {
         }
 
         const lines = rawData.split('\n').filter(line => line.trim() !== '');
-
         this.currentCards = lines.map(line => {
             const [recto, verso] = line.split(separator).map(s => s.trim());
-            return { recto, verso };
+            return {
+                recto,
+                verso
+            };
         }).filter(card => card.recto && card.verso);
-
         this.flashcardTableBody.innerHTML = '';
         this.currentCards.forEach(card => {
             const row = document.createElement('tr');
@@ -109,7 +213,6 @@ class FlashcardApp {
         }
     }
 
-    // Méthode pour mélanger un tableau
     shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -117,7 +220,6 @@ class FlashcardApp {
         }
     }
 
-    // Méthode pour créer et afficher la carte
     createAndDisplayCard() {
         if (this.cardsToReview.length === 0) {
             if (this.currentCards.length > 0) {
@@ -131,139 +233,37 @@ class FlashcardApp {
                 return;
             }
         }
-
         this.reviewCountSpan.textContent = this.cardsToReview.length;
         this.learnedCountSpan.textContent = this.learnedCards.length;
 
         // Supprime l'ancienne carte si elle existe pour éviter les doublons
-        if (this.currentFlashcardElement) {
-            this.flashcardContainer.removeChild(this.currentFlashcardElement);
+        if (this.currentFlashcard) {
+            this.flashcardContainer.removeChild(this.currentFlashcard.element);
         }
 
-        // Créer une nouvelle carte
         const cardData = this.cardsToReview[0];
-        const newFlashcard = document.createElement('div');
-        newFlashcard.id = 'flashcard';
-        newFlashcard.className = 'card h-100 card-enter';
-        newFlashcard.style = 'position: relative; transform-style: preserve-3d; cursor: pointer;';
-
-        // Contenu recto
-        const front = document.createElement('div');
-        front.id = 'flashcard-front';
-        front.className = 'card-body d-flex align-items-center justify-content-center p-4 fs-3 text-center';
-        front.style = 'position: absolute; width: 100%; height: 100%; backface-visibility: hidden;';
-        front.textContent = cardData.recto;
-
-        // Contenu verso
-        const back = document.createElement('div');
-        back.id = 'flashcard-back';
-        back.className = 'card-body d-flex align-items-center justify-content-center p-4 fs-3 text-center';
-        back.style = 'position: absolute; width: 100%; height: 100%; backface-visibility: hidden; transform: rotateY(180deg);';
-        back.textContent = cardData.verso;
-
-        newFlashcard.appendChild(front);
-        newFlashcard.appendChild(back);
-
-        this.flashcardContainer.appendChild(newFlashcard);
-        this.currentFlashcardElement = newFlashcard;
+        // Crée une instance de la nouvelle classe Flashcard
+        this.currentFlashcard = new Flashcard(cardData, this.flashcardContainer, this.handleSwipe.bind(this));
 
         setTimeout(() => {
-            newFlashcard.classList.remove('card-enter');
+            this.currentFlashcard.element.classList.remove('card-enter');
         }, 10);
+    }
 
-        // Initialiser Hammer.js sur la nouvelle carte
-        const hammer = new Hammer(newFlashcard);
-        hammer.get('pan').set({ direction: Hammer.DIRECTION_HORIZONTAL, threshold: 10 });
-
-        let startX = 0;
-
-        hammer.on('panstart', (e) => {
-            if (this.currentFlashcardElement && this.currentFlashcardElement.classList.contains('flipped')) {
-                startX = e.center.x;
-                this.currentFlashcardElement.classList.add('swiping');
-            }
-        });
-
-        hammer.on('panmove', (e) => {
-            if (this.currentFlashcardElement && this.currentFlashcardElement.classList.contains('flipped')) {
-                const deltaX = e.center.x - startX;
-                gsap.to(this.currentFlashcardElement, {
-                    x: deltaX,
-                    rotationY: 180, // Maintient la rotation Y à 180 pendant le swipe
-                    duration: 0
-                });
-            }
-        });
-
-        hammer.on('panend', (e) => {
-            if (this.currentFlashcardElement && this.currentFlashcardElement.classList.contains('flipped')) {
-                this.currentFlashcardElement.classList.remove('swiping');
-                const threshold = this.currentFlashcardElement.offsetWidth / 2;
-                const deltaX = e.deltaX;
-                const velocityX = e.velocityX;
-
-                const swipeFactor = 2;
-                const swipeDuration = Math.min(Math.abs(1 / (velocityX * swipeFactor)), 0.5);
-
-                if (deltaX > threshold || velocityX > 1) {
-                    // Animation de sortie vers la droite avec GSAP
-                    gsap.to(this.currentFlashcardElement, {
-                        x: window.innerWidth * 1.5,
-                        rotationY: 180, // Maintient la rotation à 180 degrés
-                        opacity: 0,
-                        duration: swipeDuration,
-                        ease: "power2.out",
-                        onComplete: () => {
-                            const movedCard = this.cardsToReview.shift();
-                            this.learnedCards.push(movedCard);
-                            this.createAndDisplayCard();
-                        }
-                    });
-                } else if (deltaX < -threshold || velocityX < -1) {
-                    // Animation de sortie vers la gauche avec GSAP
-                    gsap.to(this.currentFlashcardElement, {
-                        x: -window.innerWidth * 1.5,
-                        rotationY: 180, // Maintient la rotation à 180 degrés
-                        opacity: 0,
-                        duration: swipeDuration,
-                        ease: "power2.out",
-                        onComplete: () => {
-                            const movedCard = this.cardsToReview.shift();
-                            this.currentCards.push(movedCard);
-                            this.createAndDisplayCard();
-                        }
-                    });
-                } else {
-                    // Animation de retour au centre avec GSAP
-                    gsap.to(this.currentFlashcardElement, {
-                        x: 0,
-                        rotationY: 180,
-                        duration: 0.3,
-                        ease: "power2.out"
-                    });
-                }
-            }
-        });
-
-        newFlashcard.addEventListener('click', () => {
-            if (this.currentFlashcardElement && !this.currentFlashcardElement.classList.contains('flipped')) {
-                gsap.to(this.currentFlashcardElement, {
-                    rotationY: 180,
-                    duration: 0.2,
-                    ease: "expo.out",
-                    onComplete: () => {
-                        this.currentFlashcardElement.classList.add('flipped');
-                    }
-                });
-            }
-        });
+    handleSwipe(direction) {
+        const movedCard = this.cardsToReview.shift();
+        if (direction === 'right') {
+            this.learnedCards.push(movedCard);
+        } else if (direction === 'left') {
+            this.currentCards.push(movedCard);
+        }
+        this.createAndDisplayCard();
     }
 }
 
 // Initialisation de l'application une fois que le DOM est chargé
 document.addEventListener('DOMContentLoaded', () => {
     const app = new FlashcardApp();
-    // Gérer le cas de l'URL avec les paramètres
     const urlParams = new URLSearchParams(window.location.search);
     const sheetUrl = urlParams.get('url');
     if (sheetUrl) {
