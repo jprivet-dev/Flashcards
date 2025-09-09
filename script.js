@@ -106,7 +106,7 @@ class FlashcardApp {
         this.flashcardGridContainer.innerHTML = '';
         this.cardsToReview.forEach(cardData => {
             const cardWrapper = document.createElement('div');
-            cardWrapper.className = 'card-wrapper';
+            cardWrapper.className = 'card-wrapper mb-4';
 
             const flashcardElement = document.createElement('div');
             flashcardElement.className = 'card flashcard';
@@ -119,15 +119,46 @@ class FlashcardApp {
             back.className = 'card-body card-back';
             back.textContent = cardData.verso;
 
+            // NOUVEAU : Création des icônes Ionicons
+            const iconContainer = document.createElement('div');
+            iconContainer.className = 'icon-container';
+
+            const reviewIcon = document.createElement('ion-icon');
+            reviewIcon.setAttribute('name', 'close-circle-outline');
+            reviewIcon.className = 'review-icon';
+
+            const learnedIcon = document.createElement('ion-icon');
+            learnedIcon.setAttribute('name', 'checkmark-circle-outline');
+            learnedIcon.className = 'learned-icon';
+
+            // Ajout des icônes au conteneur, puis au verso de la carte
+            iconContainer.appendChild(reviewIcon);
+            iconContainer.appendChild(learnedIcon);
+            back.appendChild(iconContainer);
+
             flashcardElement.appendChild(front);
             flashcardElement.appendChild(back);
 
+            // Ajout de la logique de clic pour les icônes
+            reviewIcon.addEventListener('click', (e) => {
+                e.stopPropagation(); // Empêche l'événement de retourner la carte
+                reviewIcon.classList.add('reviser');
+                learnedIcon.classList.remove('okay');
+            });
+
+            learnedIcon.addEventListener('click', (e) => {
+                e.stopPropagation(); // Empêche l'événement de retourner la carte
+                learnedIcon.classList.add('okay');
+                reviewIcon.classList.remove('reviser');
+            });
+
+            // Logique de retournement de carte existante
             flashcardElement.addEventListener('click', () => {
                 const isFlipped = flashcardElement.classList.toggle('flipped');
                 gsap.to(flashcardElement, {
                     rotationY: isFlipped ? 180 : 0,
                     duration: 0.3,
-                    ease: "expo.out"
+                    ease: 'expo.out'
                 });
             });
 

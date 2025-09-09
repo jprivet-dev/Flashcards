@@ -38,3 +38,32 @@
 .flipped {
     transform: rotateY(180deg);
 }
+
+/* Conteneur des icônes pour les positionner en bas de la carte */
+.icon-container {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+    font-size: 2.5em; /* Taille de l'icône */
+    z-index: 10;
+}
+
+/* Styles pour les icônes */
+.review-icon,
+.learned-icon {
+    cursor: pointer;
+    color: #ccc; /* Couleur par défaut (grise) */
+    transition: color 0.2s;
+}
+
+/* Styles pour les icônes lorsqu'elles sont cliquées */
+.review-icon.reviser {
+    color: #ff4136; /* Rouge */
+}
+
+.learned-icon.okay {
+    color: #2ecc40; /* Vert */
+}
