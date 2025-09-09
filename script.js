@@ -16,6 +16,8 @@ class FlashcardApp {
         this.learnedCountSpan = document.getElementById('learned-count');
         // Nouvelle référence pour le conteneur en grille
         this.flashcardGridContainer = document.getElementById('flashcard-grid-container');
+        this.flipAllRectoBtn = document.getElementById('flip-all-recto-btn');
+        this.flipAllVersoBtn = document.getElementById('flip-all-verso-btn');
         this.lastFlippedCard = null;
 
         // Initialisation des propriétés de l'application
@@ -30,12 +32,17 @@ class FlashcardApp {
     // Méthode pour attacher tous les écouteurs d'événements
     attachEventListeners() {
         this.loadDataBtn.addEventListener('click', () => this.fetchAndParseData());
+
         this.startSequentialBtn.addEventListener('click', () => {
             this.startSession('sequential');
         });
+
         this.startRandomBtn.addEventListener('click', () => {
             this.startSession('random');
         });
+
+        this.flipAllRectoBtn.addEventListener('click', () => this.flipAllCardsTo('recto'));
+        this.flipAllVersoBtn.addEventListener('click', () => this.flipAllCardsTo('verso'));
     }
 
     // Méthode pour démarrer une session de révision
@@ -191,6 +198,29 @@ class FlashcardApp {
 
             cardWrapper.appendChild(flashcardElement);
             this.flashcardGridContainer.appendChild(cardWrapper);
+        });
+    }
+
+    flipAllCardsTo(face) {
+        const flashcards = this.flashcardGridContainer.querySelectorAll('.flashcard');
+        flashcards.forEach(card => {
+            const isFlipped = card.classList.contains('flipped');
+
+            if (face === 'recto' && isFlipped) {
+                // Si la carte est au verso et qu'on veut la mettre au recto
+                card.classList.remove('flipped');
+                gsap.to(card, { rotationY: 0, duration: 0.3, ease: 'expo.out' });
+                const reviewIcon = card.querySelector('.review-icon');
+                const learnedIcon = card.querySelector('.learned-icon');
+                if (reviewIcon && learnedIcon) {
+                    reviewIcon.classList.remove('reviser');
+                    learnedIcon.classList.remove('okay');
+                }
+            } else if (face === 'verso' && !isFlipped) {
+                // Si la carte est au recto et qu'on veut la mettre au verso
+                card.classList.add('flipped');
+                gsap.to(card, { rotationY: 180, duration: 0.3, ease: 'expo.out' });
+            }
         });
     }
 }
