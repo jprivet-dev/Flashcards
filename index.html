@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VeryVerySimpleFlashcards</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -62,21 +61,20 @@
         </div>
     </div>
 
-    <div id="flashcard-section" class="d-flex flex-column align-items-center justify-content-center d-none" style="height: 100vh;">
-        <div class="d-flex justify-content-between w-100 px-4 mb-3">
-            <span class="fs-4">À revoir : <span id="review-count">0</span></span>
-            <span class="fs-4">Appris : <span id="learned-count">0</span></span>
+    <section id="flashcard-section" class="d-none">
+        <div class="container mt-5">
+            <div class="row text-center mb-4">
+                <div class="col">
+                    <h4 class="fw-bold">Cartes à réviser : <span id="review-count">0</span></h4>
+                </div>
+                <div class="col">
+                    <h4 class="fw-bold">Cartes apprises : <span id="learned-count">0</span></h4>
+                </div>
+            </div>
+            <div class="row justify-content-center" id="flashcard-grid-container">
+            </div>
         </div>
-
-        <div id="flashcard-container" class="my-auto" style="width: 300px; height: 400px; perspective: 1000px;">
-
-        </div>
-
-        <div class="d-grid gap-2 d-md-flex justify-content-md-center w-75 mt-3">
-            <button id="show-answer-btn" class="btn btn-secondary w-100">Afficher la réponse</button>
-            <button id="next-btn" class="btn btn-success w-100 d-none">Suivant</button>
-        </div>
-    </div>
+    </section>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -1,32 +1,40 @@
-#flashcard {
-    transition: transform 0.6s;
+/* Définition du style pour le conteneur de chaque carte dans la grille */
+.card-wrapper {
+    position: relative;
+    width: 240px;
+    height: 320px;
+}
+
+/* Styles pour l'élément de carte principal */
+.flashcard {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 90%;
+    height: 90%;
     transform-style: preserve-3d;
-    position: relative; /* Assure que la position est relative pour le translate */
+    transition: transform 0.2s ease-out; /* Animation de rotation */
 }
 
-.flipped {
-    transform: rotateY(180deg);
-}
-
-#flashcard-front,
-#flashcard-back {
+/* Styles pour les faces de la carte */
+.card-front,
+.card-back {
     position: absolute;
     width: 100%;
     height: 100%;
     backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
-#flashcard-back {
+/* Rotation de la face arrière pour qu'elle soit cachée par défaut */
+.card-back {
     transform: rotateY(180deg);
 }
 
-.card-enter {
-    opacity: 0;
-    transform: scale(0.8);
-    transition: transform 0.4s ease-out, opacity 0.4s ease-out;
-}
-
-/* Ajoutez ces styles pour le swipe */
-.swiping {
-    transition: none; /* Désactive la transition par défaut pendant le swipe */
+/* Classe ajoutée par JavaScript pour retourner la carte au clic */
+.flipped {
+    transform: rotateY(180deg);
 }
