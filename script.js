@@ -16,6 +16,7 @@ class FlashcardApp {
         this.learnedCountSpan = document.getElementById('learned-count');
         // Nouvelle référence pour le conteneur en grille
         this.flashcardGridContainer = document.getElementById('flashcard-grid-container');
+        this.lastFlippedCard = null;
 
         // Initialisation des propriétés de l'application
         this.currentCards = [];
@@ -119,7 +120,7 @@ class FlashcardApp {
             back.className = 'card-body card-back';
             back.textContent = cardData.verso;
 
-            // NOUVEAU : Création des icônes Ionicons
+            // Création des icônes Ionicons
             const iconContainer = document.createElement('div');
             iconContainer.className = 'icon-container';
 
@@ -139,27 +140,41 @@ class FlashcardApp {
             flashcardElement.appendChild(front);
             flashcardElement.appendChild(back);
 
-            // Ajout de la logique de clic pour les icônes
+            // Ajout de la logique de clic pour les icônes (inchangée)
             reviewIcon.addEventListener('click', (e) => {
-                e.stopPropagation(); // Empêche l'événement de retourner la carte
+                e.stopPropagation();
                 reviewIcon.classList.add('reviser');
                 learnedIcon.classList.remove('okay');
             });
 
             learnedIcon.addEventListener('click', (e) => {
-                e.stopPropagation(); // Empêche l'événement de retourner la carte
+                e.stopPropagation();
                 learnedIcon.classList.add('okay');
                 reviewIcon.classList.remove('reviser');
             });
 
-            // Logique de retournement de carte existante
+            // NOUVEAU : Logique de retournement de carte avec gestion de la carte précédente
             flashcardElement.addEventListener('click', () => {
+                // Si une carte a déjà été retournée, marquer son icône comme "apprise"
+                if (this.lastFlippedCard && this.lastFlippedCard !== flashcardElement) {
+                    const previousLearnedIcon = this.lastFlippedCard.querySelector('.learned-icon');
+                    if (previousLearnedIcon) {
+                        previousLearnedIcon.classList.add('okay');
+                        // S'assurer que la croix est désactivée
+                        this.lastFlippedCard.querySelector('.review-icon').classList.remove('reviser');
+                    }
+                }
+
+                // Basculer la classe 'flipped' de la carte actuelle
                 const isFlipped = flashcardElement.classList.toggle('flipped');
                 gsap.to(flashcardElement, {
                     rotationY: isFlipped ? 180 : 0,
                     duration: 0.3,
                     ease: 'expo.out'
                 });
+
+                // Mettre à jour la référence de la dernière carte retournée
+                this.lastFlippedCard = flashcardElement;
             });
 
             cardWrapper.appendChild(flashcardElement);
