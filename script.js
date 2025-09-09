@@ -167,6 +167,18 @@ class FlashcardApp {
 
                 // Basculer la classe 'flipped' de la carte actuelle
                 const isFlipped = flashcardElement.classList.toggle('flipped');
+                const rotationValue = isFlipped ? 180 : 0;
+
+                // NOUVEAU : Récupérer les icônes de la carte actuelle
+                const currentReviewIcon = flashcardElement.querySelector('.review-icon');
+                const currentLearnedIcon = flashcardElement.querySelector('.learned-icon');
+
+                // NOUVEAU : Appliquer la logique de grisonnement si la carte se retourne au recto
+                if (!isFlipped) {
+                    currentReviewIcon.classList.remove('reviser');
+                    currentLearnedIcon.classList.remove('okay');
+                }
+
                 gsap.to(flashcardElement, {
                     rotationY: isFlipped ? 180 : 0,
                     duration: 0.3,
