@@ -105,15 +105,15 @@ class FlashcardsApp {
         this.flashcardTableBody = document.querySelector('#flashcard-table tbody');
         this.startSequentialBtn = document.getElementById('start-sequential-btn');
         this.startRandomBtn = document.getElementById('start-random-btn');
-        this.flashcardSection = document.getElementById('flashcard-section');
+        this.flashcardsSection = document.getElementById('flashcard-section');
         this.progressIndicator = document.getElementById('progress-indicator');
         this.reviewCountSpan = document.getElementById('review-count');
         this.learnedCountSpan = document.getElementById('learned-count');
+        this.backToDataBtn = document.getElementById('back-to-data-btn');
 
         this.flashcardGridContainer = document.getElementById('flashcard-grid-container');
         this.flipAllRectoBtn = document.getElementById('flip-all-recto-btn');
         this.flipAllVersoBtn = document.getElementById('flip-all-verso-btn');
-        this.lastFlippedCard = null;
 
         this.progressBar = document.getElementById('progress-bar');
         this.progressBarContainer = this.progressBar.parentElement;
@@ -139,6 +139,8 @@ class FlashcardsApp {
 
         this.flipAllRectoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('recto'));
         this.flipAllVersoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('verso'));
+
+        this.backToDataBtn.addEventListener('click', () => this.showDataSection());
     }
 
     startSession(mode) {
@@ -148,9 +150,7 @@ class FlashcardsApp {
             this.shuffleArray(this.cardsToReview);
         }
 
-        this.dataDisplaySection.classList.add('d-none');
-        this.flashcardSection.classList.remove('d-none');
-        this.progressIndicator.classList.remove('d-none');
+        this.showFlashcardsSection();
         this.displayAllFlashcards();
     }
 
@@ -206,6 +206,7 @@ class FlashcardsApp {
     displayAllFlashcards() {
         this.flashcards = [];
         this.flashcardGridContainer.innerHTML = '';
+
         this.cardsToReview.forEach(flashcardData => {
             const flashcard = new Flashcard(flashcardData);
             const flashcardElement = flashcard.element;
@@ -228,6 +229,8 @@ class FlashcardsApp {
             this.flashcards.push(flashcard);
             this.flashcardGridContainer.appendChild(flashcardElement);
         });
+
+        this.updateProgressBar();
     }
 
     flipAllFlashcardsTo(face) {
@@ -249,6 +252,24 @@ class FlashcardsApp {
         const percentage = (flippedCardsCount / this.flashcards.length) * 100;
         this.progressBarContainer.setAttribute('aria-valuenow', flippedCardsCount);
         this.progressBar.style.width = percentage.toFixed(2) + '%';
+    }
+
+    showDataSection() {
+        this.dataLoadingSection.classList.remove('d-none');
+        this.dataDisplaySection.classList.add('d-none');
+        this.flashcardsSection.classList.add('d-none');
+        this.progressIndicator.classList.add('d-none');
+
+        window.scrollTo(0, 0);
+    }
+
+    showFlashcardsSection() {
+        this.dataLoadingSection.classList.add('d-none');
+        this.dataDisplaySection.classList.add('d-none');
+        this.flashcardsSection.classList.remove('d-none');
+        this.progressIndicator.classList.remove('d-none');
+
+        window.scrollTo(0, 0);
     }
 }
 
