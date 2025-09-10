@@ -1,5 +1,7 @@
 class Flashcard {
-    constructor(flashcardData) {
+    constructor(flashcardData, app) {
+        this.app = app;
+
         const flashcardElement = document.createElement('div');
         flashcardElement.className = 'card flashcard mx-3 mb-4';
 
@@ -33,12 +35,14 @@ class Flashcard {
             e.stopPropagation();
             reviewIcon.classList.add('reviser');
             learnedIcon.classList.remove('okay');
+            this.app.updateFilterButtonsCount();
         });
 
         learnedIcon.addEventListener('click', (e) => {
             e.stopPropagation();
             learnedIcon.classList.add('okay');
             reviewIcon.classList.remove('reviser');
+            this.app.updateFilterButtonsCount();
         });
 
         this.element = flashcardElement;
@@ -54,6 +58,10 @@ class Flashcard {
         if (!isFlipped) {
             currentReviewIcon.classList.remove('reviser');
             currentLearnedIcon.classList.remove('okay');
+        }
+
+        if (this.app) {
+            this.app.updateFilterButtonsCount();
         }
 
         gsap.to(flashcardElement, {
@@ -118,6 +126,8 @@ class FlashcardsApp {
         this.flipAllVersoBtn = document.getElementById('flip-all-verso-btn');
         this.filterReviewBtn = document.getElementById('filter-review-btn');
         this.showAllBtn = document.getElementById('show-all-btn');
+        this.reviewCountSpan = document.getElementById('review-count');
+        this.allCountSpan = document.getElementById('all-count');
         this.selectAllCheckbox = document.getElementById('select-all-checkbox');
 
         this.progressBar = document.getElementById('progress-bar');
@@ -228,7 +238,7 @@ class FlashcardsApp {
         this.flashcardGridContainer.innerHTML = '';
 
         this.cardsToReview.forEach(flashcardData => {
-            const flashcard = new Flashcard(flashcardData);
+            const flashcard = new Flashcard(flashcardData, this);
             const flashcardElement = flashcard.element;
 
             flashcardElement.addEventListener('click', () => {
@@ -244,6 +254,7 @@ class FlashcardsApp {
 
                 flashcard.flip();
                 this.updateProgressBar();
+                this.updateFilterButtonsCount();
             });
 
             this.flashcards.push(flashcard);
@@ -251,6 +262,7 @@ class FlashcardsApp {
         });
 
         this.updateProgressBar();
+        this.updateFilterButtonsCount();
     }
 
     flipAllFlashcardsTo(face) {
@@ -258,6 +270,7 @@ class FlashcardsApp {
             flashcard.flipTo(face);
         });
         this.updateProgressBar();
+        this.updateFilterButtonsCount();
     }
 
     updateProgressBar() {
@@ -310,6 +323,7 @@ class FlashcardsApp {
         });
 
         this.updateProgressBar();
+        this.updateFilterButtonsCount();
         window.scrollTo(0, 0);
     }
 
@@ -344,6 +358,17 @@ class FlashcardsApp {
             this.urlInput.value = '';
             window.history.pushState({}, '', window.location.pathname);
         }
+    }
+
+    updateFilterButtonsCount() {
+        const reviewCount = this.flashcards.filter(flashcard => {
+            return flashcard.element.querySelector('.review-icon').classList.contains('reviser');
+        }).length;
+
+        const allCount = this.flashcards.length;
+
+        this.reviewCountSpan.textContent = reviewCount;
+        this.allCountSpan.textContent = allCount;
     }
 }
 
