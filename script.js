@@ -116,6 +116,7 @@ class FlashcardsApp {
         this.flipAllVersoBtn = document.getElementById('flip-all-verso-btn');
         this.filterReviewBtn = document.getElementById('filter-review-btn');
         this.showAllBtn = document.getElementById('show-all-btn');
+        this.selectAllCheckbox = document.getElementById('select-all-checkbox');
 
         this.progressBar = document.getElementById('progress-bar');
         this.progressBarContainer = this.progressBar.parentElement;
@@ -130,26 +131,27 @@ class FlashcardsApp {
 
     attachEventListeners() {
         this.loadDataBtn.addEventListener('click', () => this.fetchAndParseData());
-
         this.startSequentialBtn.addEventListener('click', () => {
             this.startSession('sequential');
         });
-
         this.startRandomBtn.addEventListener('click', () => {
             this.startSession('random');
         });
-
         this.flipAllRectoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('recto'));
         this.flipAllVersoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('verso'));
-
         this.backToDataBtn.addEventListener('click', () => this.showDataSection());
-
         this.filterReviewBtn.addEventListener('click', () => this.filterCards('reviser'));
         this.showAllBtn.addEventListener('click', () => this.filterCards('all'));
+        this.selectAllCheckbox.addEventListener('change', () => this.toggleAllCheckboxes());
     }
 
     startSession(mode) {
-        this.cardsToReview = [...this.currentCards];
+        const selectedCheckboxes = document.querySelectorAll('.flashcard-checkbox:checked');
+
+        this.cardsToReview = [...selectedCheckboxes].map(checkbox => {
+            const index = checkbox.getAttribute('data-card-index');
+            return this.currentCards[index];
+        });
 
         if (mode === 'random') {
             this.shuffleArray(this.cardsToReview);
@@ -185,9 +187,13 @@ class FlashcardsApp {
             };
         }).filter(card => card.recto && card.verso);
         this.flashcardTableBody.innerHTML = '';
-        this.currentCards.forEach(card => {
+        this.currentCards.forEach((card, index) => {
             const row = document.createElement('tr');
-            row.innerHTML = `<td>${card.recto}</td><td>${card.verso}</td>`;
+            row.innerHTML = `
+                <td><input type="checkbox" class="flashcard-checkbox" checked data-card-index="${index}"></td>
+                <td>${card.recto}</td>
+                <td>${card.verso}</td>
+            `;
             this.flashcardTableBody.appendChild(row);
         });
 
@@ -295,6 +301,14 @@ class FlashcardsApp {
 
         this.updateProgressBar();
         window.scrollTo(0, 0);
+    }
+
+    toggleAllCheckboxes() {
+        const isChecked = this.selectAllCheckbox.checked;
+        const checkboxes = document.querySelectorAll('.flashcard-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = isChecked;
+        });
     }
 }
 

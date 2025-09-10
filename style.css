@@ -62,5 +62,31 @@
 }
 
 #progress-indicator .progress {
-    height: 10px;
+    height: 6px;
+}
+
+.table th:first-child,
+.table td:first-child {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.table input[type="checkbox"] {
+    position: relative;
+    z-index: 1;
+    width: 20px;
+    height: 20px;
+}
+
+.table input[type="checkbox"]::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    cursor: pointer;
+    z-index: 0;
 }
