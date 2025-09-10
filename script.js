@@ -106,6 +106,7 @@ class FlashcardsApp {
         this.startSequentialBtn = document.getElementById('start-sequential-btn');
         this.startRandomBtn = document.getElementById('start-random-btn');
         this.flashcardSection = document.getElementById('flashcard-section');
+        this.progressIndicator = document.getElementById('progress-indicator');
         this.reviewCountSpan = document.getElementById('review-count');
         this.learnedCountSpan = document.getElementById('learned-count');
 
@@ -113,6 +114,9 @@ class FlashcardsApp {
         this.flipAllRectoBtn = document.getElementById('flip-all-recto-btn');
         this.flipAllVersoBtn = document.getElementById('flip-all-verso-btn');
         this.lastFlippedCard = null;
+
+        this.progressBar = document.getElementById('progress-bar');
+        this.progressBarContainer = this.progressBar.parentElement;
 
         this.currentCards = [];
         this.cardsToReview = [];
@@ -146,6 +150,7 @@ class FlashcardsApp {
 
         this.dataDisplaySection.classList.add('d-none');
         this.flashcardSection.classList.remove('d-none');
+        this.progressIndicator.classList.remove('d-none');
         this.displayAllFlashcards();
     }
 
@@ -206,17 +211,18 @@ class FlashcardsApp {
             const flashcardElement = flashcard.element;
 
             flashcardElement.addEventListener('click', () => {
-                if (this.lastFlippedFlashcardElement && this.lastFlippedFlashcardElement !== flashcardElement) {
-                    const previousLearnedIcon = this.lastFlippedFlashcardElement.querySelector('.learned-icon');
-                    if (previousLearnedIcon) {
-                        previousLearnedIcon.classList.add('okay');
-                        this.lastFlippedFlashcardElement.querySelector('.review-icon').classList.remove('reviser');
+                this.flashcards.forEach(flashcard => {
+                    if (
+                        flashcard !== flashcardElement
+                        && flashcard.element.classList.contains('flipped')
+                        && !flashcard.element.querySelector('.review-icon').classList.contains('reviser')
+                    ) {
+                        flashcard.element.querySelector('.learned-icon').classList.add('okay');
                     }
-                }
+                });
 
                 flashcard.flip();
-
-                this.lastFlippedFlashcardElement = flashcardElement;
+                this.updateProgressBar();
             });
 
             this.flashcards.push(flashcard);
@@ -228,6 +234,21 @@ class FlashcardsApp {
         this.flashcards.forEach(flashcard => {
             flashcard.flipTo(face);
         });
+        this.updateProgressBar();
+    }
+
+    updateProgressBar() {
+        let flippedCardsCount = 0;
+
+        this.flashcards.forEach(flashcard => {
+            if (flashcard.element.classList.contains('flipped')) {
+                flippedCardsCount++;
+            }
+        });
+
+        const percentage = (flippedCardsCount / this.flashcards.length) * 100;
+        this.progressBarContainer.setAttribute('aria-valuenow', flippedCardsCount);
+        this.progressBar.style.width = percentage.toFixed(2) + '%';
     }
 }
 

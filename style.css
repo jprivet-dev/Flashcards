@@ -53,3 +53,14 @@
 .learned-icon.okay {
     color: #2ecc40;
 }
+
+#progress-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+#progress-indicator .progress {
+    height: 10px;
+}
