@@ -191,7 +191,6 @@ class FlashcardsApp {
             this.flashcardTableBody.appendChild(row);
         });
 
-        this.dataLoadingSection.classList.add('d-none');
         this.dataDisplaySection.classList.remove('d-none');
 
         if (this.urlInput.value) {
@@ -265,7 +264,6 @@ class FlashcardsApp {
 
     showDataSection() {
         this.dataLoadingSection.classList.remove('d-none');
-        this.dataDisplaySection.classList.add('d-none');
         this.flashcardsSection.classList.add('d-none');
         this.progressIndicator.classList.add('d-none');
 
@@ -274,7 +272,6 @@ class FlashcardsApp {
 
     showFlashcardsSection() {
         this.dataLoadingSection.classList.add('d-none');
-        this.dataDisplaySection.classList.add('d-none');
         this.flashcardsSection.classList.remove('d-none');
         this.progressIndicator.classList.remove('d-none');
 
@@ -307,6 +304,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const sheetUrl = urlParams.get('url');
     if (sheetUrl) {
         app.urlInput.value = sheetUrl;
-        app.fetchAndParseData();
+        app.fetchAndParseData().then(() => {
+            if (app.currentCards.length > 0) {
+                app.dataDisplaySection.classList.remove('d-none');
+            }
+        });
     }
 });
