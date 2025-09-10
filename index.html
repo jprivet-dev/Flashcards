@@ -12,13 +12,16 @@
 <h1 class="text-center my-4">VeryVerySimpleFlashcards</h1>
 
 <section id="data-loading-section" class="container">
-    <div class="card p-3 shadow-sm">
+    <div class="card p-3 mb-4 shadow-sm">
         <div class="card-body">
             <h2 class="card-title">1. Charger vos données</h2>
 
             <div class="mb-3">
                 <label for="url-input" class="form-label">URL Google Sheet publique :</label>
-                <input type="url" id="url-input" class="form-control" placeholder="Coller le lien CSV de votre Google Sheet">
+                <div class="input-group">
+                    <input type="url" id="url-input" class="form-control" placeholder="Coller le lien CSV de votre Google Sheet">
+                    <button id="clear-url-btn" class="btn btn-outline-danger" type="button">Effacer</button>
+                </div>
             </div>
 
             <div class="mb-3">
@@ -38,11 +41,11 @@
                 </select>
             </div>
 
-            <button id="load-data-btn" class="btn btn-primary mt-2 w-100">Charger les données</button>
+            <button id="load-data-btn" class="btn btn-primary btn-lg w-100 mt-2">Charger les données</button>
         </div>
     </div>
 
-    <div id="data-display-section" class="card p-3 mt-4 shadow-sm d-none">
+    <div id="data-display-section" class="card p-3 mb-4 shadow-sm d-none">
         <div class="card-body">
             <h2 class="card-title">2. Aperçu des données</h2>
             <div class="table-responsive">
@@ -50,6 +53,7 @@
                     <thead>
                     <tr>
                         <th><input type="checkbox" checked id="select-all-checkbox"></th>
+                        <th class="text-center">#</th>
                         <th>Recto</th>
                         <th>Verso</th>
                     </tr>
@@ -58,9 +62,9 @@
                     </tbody>
                 </table>
             </div>
-            <div class="d-grid gap-2 my-3">
-                <button id="start-sequential-btn" class="btn btn-success">Commencer la révision (Ordre)</button>
-                <button id="start-random-btn" class="btn btn-warning">Commencer la révision (Aléatoire)</button>
+            <div class="d-flex gap-2 mt-3">
+                <button id="start-sequential-btn" class="btn btn-success btn-lg w-50">Commencer la révision dans l'ordre</button>
+                <button id="start-random-btn" class="btn btn-warning btn-lg w-50">Commencer la révision aléatoire</button>
             </div>
         </div>
     </div>

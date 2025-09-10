@@ -97,6 +97,7 @@ class Flashcard {
 class FlashcardsApp {
     constructor() {
         this.urlInput = document.getElementById('url-input');
+        this.clearUrlBtn = document.getElementById('clear-url-btn');
         this.textInput = document.getElementById('text-input');
         this.clearTextBtn = document.getElementById('clear-text-btn');
         this.separatorSelect = document.getElementById('separator-select');
@@ -134,6 +135,7 @@ class FlashcardsApp {
         this.loadDataBtn.addEventListener('click', () => this.fetchAndParseData());
         this.textInput.addEventListener('input', () => this.saveTextToLocalStorage());
         this.clearTextBtn.addEventListener('click', () => this.clearLocalStorage());
+        this.clearUrlBtn.addEventListener('click', () => this.clearUrl());
 
         this.startSequentialBtn.addEventListener('click', () => {
             this.startSession('sequential');
@@ -172,6 +174,9 @@ class FlashcardsApp {
             try {
                 const response = await fetch(this.urlInput.value);
                 rawData = await response.text();
+
+                this.textInput.value = '';
+                localStorage.removeItem('flashcard-text-data');
             } catch (error) {
                 alert('Erreur lors du chargement de l\'URL. Vérifiez que c\'est un lien public.');
                 return;
@@ -195,6 +200,7 @@ class FlashcardsApp {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td><input type="checkbox" class="flashcard-checkbox" checked data-card-index="${index}"></td>
+                <td class="text-center">${index + 1}</td>
                 <td>${card.recto}</td>
                 <td>${card.verso}</td>
             `;
@@ -327,8 +333,17 @@ class FlashcardsApp {
     }
 
     clearLocalStorage() {
-        this.textInput.value = '';
-        localStorage.removeItem('flashcard-text-data');
+        if (this.textInput.value && confirm("Es-tu sûr de vouloir effacer le texte ?")) {
+            this.textInput.value = '';
+            localStorage.removeItem('flashcard-text-data');
+        }
+    }
+
+    clearUrl() {
+        if (this.urlInput.value && confirm("Es-tu sûr de vouloir effacer le lien ?")) {
+            this.urlInput.value = '';
+            window.history.pushState({}, '', window.location.pathname);
+        }
     }
 }
 
