@@ -1,7 +1,7 @@
 .flashcard {
     position: relative;
-    width: 240px;
-    height: 320px;
+    width: 220px;
+    height: 300px;
     transform-style: preserve-3d;
     transition: transform 0.2s ease-out;
 }

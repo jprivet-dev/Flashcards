@@ -1,4 +1,100 @@
-class FlashcardApp {
+class Flashcard {
+    constructor(flashcardData) {
+        const flashcardElement = document.createElement('div');
+        flashcardElement.className = 'card flashcard mx-3 mb-4';
+
+        const front = document.createElement('div');
+        front.className = 'card-body card-front';
+        front.textContent = flashcardData.recto;
+
+        const back = document.createElement('div');
+        back.className = 'card-body card-back';
+        back.textContent = flashcardData.verso;
+
+        const iconContainer = document.createElement('div');
+        iconContainer.className = 'icon-container';
+
+        const reviewIcon = document.createElement('ion-icon');
+        reviewIcon.setAttribute('name', 'close-circle-outline');
+        reviewIcon.className = 'review-icon';
+
+        const learnedIcon = document.createElement('ion-icon');
+        learnedIcon.setAttribute('name', 'checkmark-circle-outline');
+        learnedIcon.className = 'learned-icon';
+
+        iconContainer.appendChild(reviewIcon);
+        iconContainer.appendChild(learnedIcon);
+        back.appendChild(iconContainer);
+
+        flashcardElement.appendChild(front);
+        flashcardElement.appendChild(back);
+
+        reviewIcon.addEventListener('click', (e) => {
+            e.stopPropagation();
+            reviewIcon.classList.add('reviser');
+            learnedIcon.classList.remove('okay');
+        });
+
+        learnedIcon.addEventListener('click', (e) => {
+            e.stopPropagation();
+            learnedIcon.classList.add('okay');
+            reviewIcon.classList.remove('reviser');
+        });
+
+        this.element = flashcardElement;
+    }
+
+    flip() {
+        const flashcardElement = this.element;
+        const isFlipped = flashcardElement.classList.toggle('flipped');
+
+        const currentReviewIcon = flashcardElement.querySelector('.review-icon');
+        const currentLearnedIcon = flashcardElement.querySelector('.learned-icon');
+
+        if (!isFlipped) {
+            currentReviewIcon.classList.remove('reviser');
+            currentLearnedIcon.classList.remove('okay');
+        }
+
+        gsap.to(flashcardElement, {
+            rotationY: isFlipped ? 180 : 0,
+            duration: 0.3,
+            ease: 'expo.out'
+        });
+    }
+
+    flipTo(face) {
+        const flashcardElement = this.element;
+        const isFlipped = flashcardElement.classList.contains('flipped');
+
+        if (face === 'recto' && isFlipped) {
+            flashcardElement.classList.remove('flipped');
+
+            gsap.to(flashcardElement, {
+                rotationY: 0,
+                duration: 0.3,
+                ease: 'expo.out'
+            });
+
+            const reviewIcon = flashcardElement.querySelector('.review-icon');
+            const learnedIcon = flashcardElement.querySelector('.learned-icon');
+
+            reviewIcon.classList.remove('reviser');
+            learnedIcon.classList.remove('okay');
+        } else if (face === 'verso' && !isFlipped) {
+            flashcardElement.classList.add('flipped');
+
+            gsap.to(flashcardElement, {
+                rotationY: 180,
+                duration: 0.3,
+                ease: 'expo.out'
+            });
+
+        }
+    }
+}
+
+class FlashcardsApp {
     constructor() {
         this.urlInput = document.getElementById('url-input');
         this.textInput = document.getElementById('text-input');
@@ -21,6 +117,7 @@ class FlashcardApp {
         this.currentCards = [];
         this.cardsToReview = [];
         this.learnedCards = [];
+        this.flashcards = [];
 
         this.attachEventListeners();
     }
@@ -36,8 +133,8 @@ class FlashcardApp {
             this.startSession('random');
         });
 
-        this.flipAllRectoBtn.addEventListener('click', () => this.flipAllCardsTo('recto'));
-        this.flipAllVersoBtn.addEventListener('click', () => this.flipAllCardsTo('verso'));
+        this.flipAllRectoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('recto'));
+        this.flipAllVersoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('verso'));
     }
 
     startSession(mode) {
@@ -102,108 +199,40 @@ class FlashcardApp {
     }
 
     displayAllFlashcards() {
+        this.flashcards = [];
         this.flashcardGridContainer.innerHTML = '';
-        this.cardsToReview.forEach(cardData => {
-            const flashcardElement = document.createElement('div');
-            flashcardElement.className = 'card flashcard mx-4 mb-4';
-
-            const front = document.createElement('div');
-            front.className = 'card-body card-front';
-            front.textContent = cardData.recto;
-
-            const back = document.createElement('div');
-            back.className = 'card-body card-back';
-            back.textContent = cardData.verso;
-
-            const iconContainer = document.createElement('div');
-            iconContainer.className = 'icon-container';
-
-            const reviewIcon = document.createElement('ion-icon');
-            reviewIcon.setAttribute('name', 'close-circle-outline');
-            reviewIcon.className = 'review-icon';
-
-            const learnedIcon = document.createElement('ion-icon');
-            learnedIcon.setAttribute('name', 'checkmark-circle-outline');
-            learnedIcon.className = 'learned-icon';
-
-            iconContainer.appendChild(reviewIcon);
-            iconContainer.appendChild(learnedIcon);
-            back.appendChild(iconContainer);
-
-            flashcardElement.appendChild(front);
-            flashcardElement.appendChild(back);
-
-            reviewIcon.addEventListener('click', (e) => {
-                e.stopPropagation();
-                reviewIcon.classList.add('reviser');
-                learnedIcon.classList.remove('okay');
-            });
-
-            learnedIcon.addEventListener('click', (e) => {
-                e.stopPropagation();
-                learnedIcon.classList.add('okay');
-                reviewIcon.classList.remove('reviser');
-            });
+        this.cardsToReview.forEach(flashcardData => {
+            const flashcard = new Flashcard(flashcardData);
+            const flashcardElement = flashcard.element;
 
             flashcardElement.addEventListener('click', () => {
-                if (this.lastFlippedCard && this.lastFlippedCard !== flashcardElement) {
-                    const previousLearnedIcon = this.lastFlippedCard.querySelector('.learned-icon');
+                if (this.lastFlippedFlashcardElement && this.lastFlippedFlashcardElement !== flashcardElement) {
+                    const previousLearnedIcon = this.lastFlippedFlashcardElement.querySelector('.learned-icon');
                     if (previousLearnedIcon) {
                         previousLearnedIcon.classList.add('okay');
-                        this.lastFlippedCard.querySelector('.review-icon').classList.remove('reviser');
+                        this.lastFlippedFlashcardElement.querySelector('.review-icon').classList.remove('reviser');
                     }
                 }
 
-                const isFlipped = flashcardElement.classList.toggle('flipped');
-                const rotationValue = isFlipped ? 180 : 0;
+                flashcard.flip();
 
-                const currentReviewIcon = flashcardElement.querySelector('.review-icon');
-                const currentLearnedIcon = flashcardElement.querySelector('.learned-icon');
-
-                if (!isFlipped) {
-                    currentReviewIcon.classList.remove('reviser');
-                    currentLearnedIcon.classList.remove('okay');
-                }
-
-                gsap.to(flashcardElement, {
-                    rotationY: isFlipped ? 180 : 0,
-                    duration: 0.3,
-                    ease: 'expo.out'
-                });
-
-                this.lastFlippedCard = flashcardElement;
+                this.lastFlippedFlashcardElement = flashcardElement;
             });
 
+            this.flashcards.push(flashcard);
             this.flashcardGridContainer.appendChild(flashcardElement);
         });
     }
 
-    flipAllCardsTo(face) {
-        const flashcards = this.flashcardGridContainer.querySelectorAll('.flashcard');
-        flashcards.forEach(card => {
-            const isFlipped = card.classList.contains('flipped');
-
-            if (face === 'recto' && isFlipped) {
-                // Si la carte est au verso et qu'on veut la mettre au recto
-                card.classList.remove('flipped');
-                gsap.to(card, { rotationY: 0, duration: 0.3, ease: 'expo.out' });
-                const reviewIcon = card.querySelector('.review-icon');
-                const learnedIcon = card.querySelector('.learned-icon');
-                if (reviewIcon && learnedIcon) {
-                    reviewIcon.classList.remove('reviser');
-                    learnedIcon.classList.remove('okay');
-                }
-            } else if (face === 'verso' && !isFlipped) {
-                // Si la carte est au recto et qu'on veut la mettre au verso
-                card.classList.add('flipped');
-                gsap.to(card, { rotationY: 180, duration: 0.3, ease: 'expo.out' });
-            }
+    flipAllFlashcardsTo(face) {
+        this.flashcards.forEach(flashcard => {
+            flashcard.flipTo(face);
         });
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const app = new FlashcardApp();
+    const app = new FlashcardsApp();
     const urlParams = new URLSearchParams(window.location.search);
     const sheetUrl = urlParams.get('url');
     if (sheetUrl) {
