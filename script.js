@@ -1,7 +1,5 @@
-// Déclaration de la classe FlashcardApp
 class FlashcardApp {
     constructor() {
-        // Récupération de tous les éléments du DOM
         this.urlInput = document.getElementById('url-input');
         this.textInput = document.getElementById('text-input');
         this.separatorSelect = document.getElementById('separator-select');
@@ -14,22 +12,19 @@ class FlashcardApp {
         this.flashcardSection = document.getElementById('flashcard-section');
         this.reviewCountSpan = document.getElementById('review-count');
         this.learnedCountSpan = document.getElementById('learned-count');
-        // Nouvelle référence pour le conteneur en grille
+
         this.flashcardGridContainer = document.getElementById('flashcard-grid-container');
         this.flipAllRectoBtn = document.getElementById('flip-all-recto-btn');
         this.flipAllVersoBtn = document.getElementById('flip-all-verso-btn');
         this.lastFlippedCard = null;
 
-        // Initialisation des propriétés de l'application
         this.currentCards = [];
         this.cardsToReview = [];
         this.learnedCards = [];
 
-        // Attachement des écouteurs d'événements
         this.attachEventListeners();
     }
 
-    // Méthode pour attacher tous les écouteurs d'événements
     attachEventListeners() {
         this.loadDataBtn.addEventListener('click', () => this.fetchAndParseData());
 
@@ -45,7 +40,6 @@ class FlashcardApp {
         this.flipAllVersoBtn.addEventListener('click', () => this.flipAllCardsTo('verso'));
     }
 
-    // Méthode pour démarrer une session de révision
     startSession(mode) {
         this.cardsToReview = [...this.currentCards];
 
@@ -55,10 +49,9 @@ class FlashcardApp {
 
         this.dataDisplaySection.classList.add('d-none');
         this.flashcardSection.classList.remove('d-none');
-        this.displayAllCards();
+        this.displayAllFlashcards();
     }
 
-    // Méthode pour récupérer et analyser les données
     async fetchAndParseData() {
         let rawData;
         const separator = this.separatorSelect.value;
@@ -101,7 +94,6 @@ class FlashcardApp {
         }
     }
 
-    // Méthode pour mélanger un tableau
     shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -109,15 +101,11 @@ class FlashcardApp {
         }
     }
 
-    // Méthode pour afficher toutes les cartes
-    displayAllCards() {
+    displayAllFlashcards() {
         this.flashcardGridContainer.innerHTML = '';
         this.cardsToReview.forEach(cardData => {
-            const cardWrapper = document.createElement('div');
-            cardWrapper.className = 'card-wrapper mb-4';
-
             const flashcardElement = document.createElement('div');
-            flashcardElement.className = 'card flashcard';
+            flashcardElement.className = 'card flashcard mx-4 mb-4';
 
             const front = document.createElement('div');
             front.className = 'card-body card-front';
@@ -127,7 +115,6 @@ class FlashcardApp {
             back.className = 'card-body card-back';
             back.textContent = cardData.verso;
 
-            // Création des icônes Ionicons
             const iconContainer = document.createElement('div');
             iconContainer.className = 'icon-container';
 
@@ -139,7 +126,6 @@ class FlashcardApp {
             learnedIcon.setAttribute('name', 'checkmark-circle-outline');
             learnedIcon.className = 'learned-icon';
 
-            // Ajout des icônes au conteneur, puis au verso de la carte
             iconContainer.appendChild(reviewIcon);
             iconContainer.appendChild(learnedIcon);
             back.appendChild(iconContainer);
@@ -147,7 +133,6 @@ class FlashcardApp {
             flashcardElement.appendChild(front);
             flashcardElement.appendChild(back);
 
-            // Ajout de la logique de clic pour les icônes (inchangée)
             reviewIcon.addEventListener('click', (e) => {
                 e.stopPropagation();
                 reviewIcon.classList.add('reviser');
@@ -160,27 +145,21 @@ class FlashcardApp {
                 reviewIcon.classList.remove('reviser');
             });
 
-            // NOUVEAU : Logique de retournement de carte avec gestion de la carte précédente
             flashcardElement.addEventListener('click', () => {
-                // Si une carte a déjà été retournée, marquer son icône comme "apprise"
                 if (this.lastFlippedCard && this.lastFlippedCard !== flashcardElement) {
                     const previousLearnedIcon = this.lastFlippedCard.querySelector('.learned-icon');
                     if (previousLearnedIcon) {
                         previousLearnedIcon.classList.add('okay');
-                        // S'assurer que la croix est désactivée
                         this.lastFlippedCard.querySelector('.review-icon').classList.remove('reviser');
                     }
                 }
 
-                // Basculer la classe 'flipped' de la carte actuelle
                 const isFlipped = flashcardElement.classList.toggle('flipped');
                 const rotationValue = isFlipped ? 180 : 0;
 
-                // NOUVEAU : Récupérer les icônes de la carte actuelle
                 const currentReviewIcon = flashcardElement.querySelector('.review-icon');
                 const currentLearnedIcon = flashcardElement.querySelector('.learned-icon');
 
-                // NOUVEAU : Appliquer la logique de grisonnement si la carte se retourne au recto
                 if (!isFlipped) {
                     currentReviewIcon.classList.remove('reviser');
                     currentLearnedIcon.classList.remove('okay');
@@ -192,12 +171,10 @@ class FlashcardApp {
                     ease: 'expo.out'
                 });
 
-                // Mettre à jour la référence de la dernière carte retournée
                 this.lastFlippedCard = flashcardElement;
             });
 
-            cardWrapper.appendChild(flashcardElement);
-            this.flashcardGridContainer.appendChild(cardWrapper);
+            this.flashcardGridContainer.appendChild(flashcardElement);
         });
     }
 
@@ -225,7 +202,6 @@ class FlashcardApp {
     }
 }
 
-// Initialisation de l'application une fois que le DOM est chargé
 document.addEventListener('DOMContentLoaded', () => {
     const app = new FlashcardApp();
     const urlParams = new URLSearchParams(window.location.search);
