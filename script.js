@@ -105,7 +105,7 @@ class FlashcardsApp {
         this.flashcardTableBody = document.querySelector('#flashcard-table tbody');
         this.startSequentialBtn = document.getElementById('start-sequential-btn');
         this.startRandomBtn = document.getElementById('start-random-btn');
-        this.flashcardsSection = document.getElementById('flashcard-section');
+        this.flashcardsSection = document.getElementById('flashcards-section');
         this.progressIndicator = document.getElementById('progress-indicator');
         this.reviewCountSpan = document.getElementById('review-count');
         this.learnedCountSpan = document.getElementById('learned-count');
@@ -114,6 +114,8 @@ class FlashcardsApp {
         this.flashcardGridContainer = document.getElementById('flashcard-grid-container');
         this.flipAllRectoBtn = document.getElementById('flip-all-recto-btn');
         this.flipAllVersoBtn = document.getElementById('flip-all-verso-btn');
+        this.filterReviewBtn = document.getElementById('filter-review-btn');
+        this.showAllBtn = document.getElementById('show-all-btn');
 
         this.progressBar = document.getElementById('progress-bar');
         this.progressBarContainer = this.progressBar.parentElement;
@@ -141,6 +143,9 @@ class FlashcardsApp {
         this.flipAllVersoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('verso'));
 
         this.backToDataBtn.addEventListener('click', () => this.showDataSection());
+
+        this.filterReviewBtn.addEventListener('click', () => this.filterCards('reviser'));
+        this.showAllBtn.addEventListener('click', () => this.filterCards('all'));
     }
 
     startSession(mode) {
@@ -241,15 +246,19 @@ class FlashcardsApp {
     }
 
     updateProgressBar() {
+        const visibleCards = this.flashcards.filter(flashcard => {
+            return !flashcard.element.classList.contains('d-none');
+        });
+
         let flippedCardsCount = 0;
 
-        this.flashcards.forEach(flashcard => {
+        visibleCards.forEach(flashcard => {
             if (flashcard.element.classList.contains('flipped')) {
                 flippedCardsCount++;
             }
         });
 
-        const percentage = (flippedCardsCount / this.flashcards.length) * 100;
+        const percentage = (flippedCardsCount / visibleCards.length) * 100;
         this.progressBarContainer.setAttribute('aria-valuenow', flippedCardsCount);
         this.progressBar.style.width = percentage.toFixed(2) + '%';
     }
@@ -269,6 +278,25 @@ class FlashcardsApp {
         this.flashcardsSection.classList.remove('d-none');
         this.progressIndicator.classList.remove('d-none');
 
+        window.scrollTo(0, 0);
+    }
+
+    filterCards(mode) {
+        this.flashcards.forEach(flashcard => {
+            const isToReview = flashcard.element.querySelector('.review-icon').classList.contains('reviser');
+
+            if (mode === 'reviser') {
+                if (isToReview) {
+                    flashcard.element.classList.remove('d-none');
+                } else {
+                    flashcard.element.classList.add('d-none');
+                }
+            } else if (mode === 'all') {
+                flashcard.element.classList.remove('d-none');
+            }
+        });
+
+        this.updateProgressBar();
         window.scrollTo(0, 0);
     }
 }
