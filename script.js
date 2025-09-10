@@ -98,6 +98,7 @@ class FlashcardsApp {
     constructor() {
         this.urlInput = document.getElementById('url-input');
         this.textInput = document.getElementById('text-input');
+        this.clearTextBtn = document.getElementById('clear-text-btn');
         this.separatorSelect = document.getElementById('separator-select');
         this.loadDataBtn = document.getElementById('load-data-btn');
         this.dataLoadingSection = document.getElementById('data-loading-section');
@@ -131,6 +132,9 @@ class FlashcardsApp {
 
     attachEventListeners() {
         this.loadDataBtn.addEventListener('click', () => this.fetchAndParseData());
+        this.textInput.addEventListener('input', () => this.saveTextToLocalStorage());
+        this.clearTextBtn.addEventListener('click', () => this.clearLocalStorage());
+
         this.startSequentialBtn.addEventListener('click', () => {
             this.startSession('sequential');
         });
@@ -310,12 +314,31 @@ class FlashcardsApp {
             checkbox.checked = isChecked;
         });
     }
+
+    loadTextFromLocalStorage() {
+        const savedText = localStorage.getItem('flashcard-text-data');
+        if (savedText) {
+            this.textInput.value = savedText;
+        }
+    }
+
+    saveTextToLocalStorage() {
+        localStorage.setItem('flashcard-text-data', this.textInput.value);
+    }
+
+    clearLocalStorage() {
+        this.textInput.value = '';
+        localStorage.removeItem('flashcard-text-data');
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     const app = new FlashcardsApp();
     const urlParams = new URLSearchParams(window.location.search);
     const sheetUrl = urlParams.get('url');
+
+    app.loadTextFromLocalStorage();
+
     if (sheetUrl) {
         app.urlInput.value = sheetUrl;
         app.fetchAndParseData().then(() => {
