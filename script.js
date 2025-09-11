@@ -1,6 +1,5 @@
 class Flashcard {
     constructor(flashcardData, app) {
-        console.log('flashcardData', flashcardData);
         this.app = app;
 
         const flashcardElement = document.createElement('div');
@@ -219,6 +218,7 @@ class FlashcardsApp {
         this.resetFilterBtn.addEventListener('click', () => {
             this.filterInput.value = '';
             this.filterTable('');
+            this.dataDisplaySection.classList.add('d-none');
         });
     }
 
@@ -288,6 +288,7 @@ class FlashcardsApp {
         }).filter(card => card.recto && card.verso);
 
         this.displayTable(this.currentCards);
+        this.filterInput.value = '';
         this.filterTable('');
         this.dataDisplaySection.classList.remove('d-none');
 
@@ -310,6 +311,10 @@ class FlashcardsApp {
         `;
             this.flashcardTableBody.appendChild(row);
         });
+    }
+
+    hideTable() {
+        this.flashcardTableBody.innerHTML = '';
     }
 
     shuffleArray(array) {
@@ -446,6 +451,10 @@ class FlashcardsApp {
         if (this.textInput.value && confirm('Es-tu sûr de vouloir effacer le texte ?')) {
             this.textInput.value = '';
             localStorage.removeItem('flashcard-text-data');
+            this.filterInput.value = '';
+            this.filterTable('')
+            this.hideTable();
+            this.dataDisplaySection.classList.add('d-none');
         }
     }
 
@@ -453,6 +462,10 @@ class FlashcardsApp {
         if (this.urlInput.value && confirm('Es-tu sûr de vouloir effacer le lien ?')) {
             this.urlInput.value = '';
             window.history.pushState({}, '', window.location.pathname);
+            this.filterInput.value = '';
+            this.filterTable('')
+            this.hideTable();
+            this.dataDisplaySection.classList.add('d-none');
         }
     }
 

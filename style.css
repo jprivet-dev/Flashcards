@@ -22,7 +22,7 @@ body {
     bottom: 0;
     right: 0;
     backface-visibility: hidden;
-    padding: 15px;
+    padding: 10px;
     display: flex;
     flex-direction: column;
     justify-content: center; /* Centre le contenu verticalement */
