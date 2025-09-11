@@ -176,6 +176,8 @@ class FlashcardsApp {
         this.resetFilterBtn = document.getElementById('reset-filter-btn');
         this.visibleRowsCountSpan = document.getElementById('visible-rows-count');
         this.totalRowsCountSpan = document.getElementById('total-rows-count');
+        this.fontSelect = document.getElementById('font-select');
+
 
         this.currentCards = [];
         this.cardsToReview = [];
@@ -220,6 +222,8 @@ class FlashcardsApp {
             this.filterTable('');
             this.dataDisplaySection.classList.add('d-none');
         });
+
+        this.fontSelect.addEventListener('change', () => this.handleFontChange());
     }
 
     startSession(mode) {
@@ -583,6 +587,33 @@ class FlashcardsApp {
 
         rows.forEach(row => this.flashcardTableBody.appendChild(row));
     }
+
+    handleFontChange() {
+        const selectedFont = this.fontSelect.value;
+
+        document.body.classList.remove('lexend-font');
+        document.body.classList.remove('open-dyslexic-font');
+
+        if (selectedFont === 'lexend') {
+            document.body.classList.add('lexend-font');
+        } else if (selectedFont === 'open-dyslexic') {
+            document.body.classList.add('open-dyslexic-font');
+        }
+
+        localStorage.setItem('selected-font', selectedFont);
+    }
+
+    loadFontFromLocalStorage() {
+        const savedFont = localStorage.getItem('selected-font');
+        if (savedFont) {
+            this.fontSelect.value = savedFont;
+            if (savedFont === 'lexend') {
+                document.body.classList.add('lexend-font');
+            } else if (savedFont === 'open-dyslexic') {
+                document.body.classList.add('open-dyslexic-font');
+            }
+        }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -591,6 +622,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sheetUrl = urlParams.get('url');
 
     app.loadTextFromLocalStorage();
+    app.loadFontFromLocalStorage();
 
     if (sheetUrl) {
         app.urlInput.value = sheetUrl;
