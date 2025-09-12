@@ -57,6 +57,10 @@
                 </select>
             </div>
 
+            <p class="alert alert-primary d-none" role="alert" id="import-warning">
+                <strong>Attention :</strong> chargez des données uniquement à partir de sources Google Sheet fiables.
+            </p>
+
             <div class="text-end">
                 <button id="load-data-btn" class="btn btn-primary btn-lg mt-2">
                     <ion-icon name="cloud-upload-outline"></ion-icon>
@@ -159,7 +163,7 @@
 
 <div id="progress-indicator" class="d-none">
     <div class="progress rounded-0" role="progressbar" aria-label="Progression de la révision" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar" id="progress-bar" style="width: 0"></div>
+        <div class="progress-bar bg-warning" id="progress-bar" style="width: 0"></div>
     </div>
 </div>
 
