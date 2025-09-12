@@ -1,0 +1,197 @@
+@font-face {
+    font-family: "OpenDyslexic";
+    src: url("fonts/OpenDyslexic-Regular.woff2") format("woff2"),
+    url("fonts/OpenDyslexic-Regular.woff") format("woff");
+    font-weight: normal;
+    font-style: normal;
+}
+
+.lexend-font {
+    font-family: 'Lexend', sans-serif;
+}
+
+.open-dyslexic-font {
+    font-family: 'OpenDyslexic', cursive;
+}
+
+body {
+    background: #fcfcfc;
+}
+
+.flashcard {
+    position: relative;
+    width: 220px;
+    height: 300px;
+    transform-style: preserve-3d;
+    transition: transform 0.2s ease-out;
+    border-width: 2px;
+    min-height: 200px; /* Ajout pour la hauteur minimale */
+    display: flex; /* Flexbox pour gérer la disposition interne */
+    flex-direction: column;
+}
+
+.card-front,
+.card-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    backface-visibility: hidden;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centre le contenu verticalement */
+    align-items: center; /* Centre le contenu horizontalement */
+    text-align: center;
+}
+
+.card-back {
+    padding-bottom: 55px;
+    transform: rotateY(180deg);
+}
+
+.card-front {
+}
+
+.flipped {
+    transform: rotateY(180deg);
+}
+
+.card-body {
+    white-space: normal;
+    overflow-y: auto;
+    max-height: 100%;
+}
+
+.icon-container {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    left: 8px;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.review-icon,
+.learned-icon {
+    position: static;
+    font-size: 2.5rem;
+    cursor: pointer;
+    color: #ccc;
+    transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.review-icon.reviser {
+    color: #ffd539;
+}
+
+.learned-icon.okay {
+    color: #2ecc40;
+}
+
+#progress-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+#progress-indicator .progress {
+    height: 6px;
+}
+
+.table th:first-child,
+.table td:first-child {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.table input[type="checkbox"] {
+    position: relative;
+    z-index: 1;
+    width: 20px;
+    height: 20px;
+}
+
+.table input[type="checkbox"]::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    cursor: pointer;
+    z-index: 0;
+}
+
+.btn ion-icon {
+    vertical-align: middle;
+    margin-right: 5px;
+    font-size: 1.1em;
+}
+
+#scrollToTopBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    padding: 0;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    opacity: 0;
+    visibility: hidden;
+}
+
+#scrollToTopBtn.show-btn {
+    opacity: 1;
+    visibility: visible;
+}
+
+#scrollToTopBtn ion-icon {
+    margin-right: 0;
+}
+
+#text-input {
+    height: 300px;
+}
+
+.sort-icon-container {
+    position: relative;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    vertical-align: middle;
+    margin-right: -20px;
+}
+
+.sort-icon-container .asc-icon,
+.sort-icon-container .desc-icon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    visibility: hidden;
+    font-size: 0.8rem;
+    margin-right: 0;
+}
+
+.sortable[data-sort-order='asc'] .asc-icon {
+    visibility: visible;
+}
+
+.sortable[data-sort-order='desc'] .desc-icon {
+    visibility: visible;
+}
+
+.sortable {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
