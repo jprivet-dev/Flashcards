@@ -117,11 +117,13 @@ class Flashcard {
     fitTextToContainer(element) {
         const words = element.textContent.split(' ');
 
-        let fontSize = 2.7;
+        if (words.length > 7) {
+            element.classList.add('text-start');
+        }
 
-        if(words.length === 2) {
-            fontSize = 2.2;
-        } else if (words.length > 2) {
+        let fontSize = 2.2;
+
+        if(words.length > 2) {
             fontSize = 1.7;
         }
 
@@ -130,7 +132,7 @@ class Flashcard {
         element.style.fontSize = `${fontSize}rem`;
 
         while ((element.scrollWidth > element.clientWidth || element.scrollHeight > element.clientHeight) && fontSize > minFontSize) {
-            fontSize -= 0.05;
+            fontSize -= 0.1;
             element.style.fontSize = `${fontSize}rem`;
         }
     }
@@ -220,7 +222,6 @@ class FlashcardsApp {
         this.resetFilterBtn.addEventListener('click', () => {
             this.filterInput.value = '';
             this.filterTable('');
-            this.dataDisplaySection.classList.add('d-none');
         });
 
         this.fontSelect.addEventListener('change', () => this.handleFontChange());

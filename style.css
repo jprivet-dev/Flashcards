@@ -38,16 +38,17 @@ body {
     bottom: 0;
     right: 0;
     backface-visibility: hidden;
-    padding: 10px;
+    padding: 10px 15px;
     display: flex;
     flex-direction: column;
     justify-content: center; /* Centre le contenu verticalement */
     align-items: center; /* Centre le contenu horizontalement */
     text-align: center;
+    line-height: 1.2em;
 }
 
 .card-back {
-    padding-bottom: 55px;
+    padding-bottom: 50px;
     transform: rotateY(180deg);
 }
 
@@ -66,11 +67,11 @@ body {
 
 .icon-container {
     position: absolute;
-    bottom: 8px;
-    right: 8px;
-    left: 8px;
+    bottom: 4px;
+    right: 0;
+    left: 0;
     display: flex;
-    gap: 8px;
+    gap: 4px;
     justify-content: center;
 }
 
