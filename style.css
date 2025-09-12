@@ -44,7 +44,7 @@ body {
     justify-content: center; /* Centre le contenu verticalement */
     align-items: center; /* Centre le contenu horizontalement */
     text-align: center;
-    line-height: 1.2em;
+    line-height: 1.3em;
 }
 
 .card-back {
