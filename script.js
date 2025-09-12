@@ -121,7 +121,7 @@ class Flashcard {
             element.classList.add('text-start');
         }
 
-        let fontSize = 2.2;
+        let fontSize = 2.1;
 
         if(words.length > 2) {
             fontSize = 1.7;
@@ -179,6 +179,7 @@ class FlashcardsApp {
         this.visibleRowsCountSpan = document.getElementById('visible-rows-count');
         this.totalRowsCountSpan = document.getElementById('total-rows-count');
         this.fontSelect = document.getElementById('font-select');
+        this.importWarning = document.getElementById('import-warning');
 
 
         this.currentCards = [];
@@ -466,6 +467,7 @@ class FlashcardsApp {
     clearUrl() {
         if (this.urlInput.value && confirm('Es-tu sûr de vouloir effacer le lien ?')) {
             this.urlInput.value = '';
+            this.importWarning.classList.add('d-none');
             window.history.pushState({}, '', window.location.pathname);
             this.filterInput.value = '';
             this.filterTable('')
@@ -627,10 +629,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (sheetUrl) {
         app.urlInput.value = sheetUrl;
-        app.fetchAndParseData().then(() => {
-            if (app.currentCards.length > 0) {
-                app.dataDisplaySection.classList.remove('d-none');
-            }
-        });
+        app.importWarning.classList.remove('d-none');
     }
 });
