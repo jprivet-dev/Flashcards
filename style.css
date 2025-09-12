@@ -24,9 +24,8 @@ body {
     height: 300px;
     transform-style: preserve-3d;
     transition: transform 0.2s ease-out;
-    border-width: 2px;
-    min-height: 200px; /* Ajout pour la hauteur minimale */
-    display: flex; /* Flexbox pour gérer la disposition interne */
+
+    display: flex;
     flex-direction: column;
 }
 
@@ -41,10 +40,42 @@ body {
     padding: 10px 15px;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Centre le contenu verticalement */
-    align-items: center; /* Centre le contenu horizontalement */
+    justify-content: center;
+    align-items: center;
     text-align: center;
     line-height: 1.3em;
+    border-width: 5px;
+    border-style: solid;
+}
+
+.card-front {
+    color: white;
+    font-weight: 600;
+}
+
+.flashcard:nth-child(5n + 1) .card-front {
+    background: #7FB52E;
+    border-color: #7FB52E;
+}
+
+.flashcard:nth-child(5n + 2) .card-front {
+    background: #F6AE0E;
+    border-color: #F6AE0E;
+}
+
+.flashcard:nth-child(5n + 3) .card-front {
+    background: #C17B95;
+    border-color: #C17B95;
+}
+
+.flashcard:nth-child(5n + 4) .card-front {
+    background: #1B95B7;
+    border-color: #1B95B7;
+}
+
+.flashcard:nth-child(5n + 5) .card-front {
+    background: #DD5010;
+    border-color: #DD5010;
 }
 
 .card-back {
@@ -52,8 +83,26 @@ body {
     transform: rotateY(180deg);
 }
 
-.card-front {
+.flashcard:nth-child(5n + 1) .card-back {
+    border-color: #7FB52E;
 }
+
+.flashcard:nth-child(5n + 2) .card-back {
+    border-color: #F6AE0E;
+}
+
+.flashcard:nth-child(5n + 3) .card-back {
+    border-color: #C17B95;
+}
+
+.flashcard:nth-child(5n + 4) .card-back {
+    border-color: #1B95B7;
+}
+
+.flashcard:nth-child(5n + 5) .card-back {
+    border-color: #DD5010;
+}
+
 
 .flipped {
     transform: rotateY(180deg);
@@ -81,15 +130,15 @@ body {
     font-size: 2.5rem;
     cursor: pointer;
     color: #ccc;
-    transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
+    transition: transform 0.2s ease-out, color 0.2s ease-out;
 }
 
 .review-icon.reviser {
-    color: #ffd539;
+    color: #F6AE0E;
 }
 
 .learned-icon.okay {
-    color: #2ecc40;
+    color: #7FB52E;
 }
 
 #progress-indicator {
@@ -145,8 +194,7 @@ body {
     border-radius: 50%;
     padding: 0;
     font-size: 1.5rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
     opacity: 0;
     visibility: hidden;
 }

@@ -3,15 +3,15 @@ class Flashcard {
         this.app = app;
 
         const flashcardElement = document.createElement('div');
-        flashcardElement.className = 'card flashcard mx-3 mb-4 rounded-4';
+        flashcardElement.className = 'flashcard mx-3 mb-4';
 
         const front = document.createElement('div');
-        front.className = 'card-body card-front';
+        front.className = 'card-body card-front rounded-4';
         front.innerHTML = flashcardData.recto.replace(/\|\|/g, '<br>');
         front.innerHTML = front.innerHTML.replace(/\n/g, '<br>');
 
         const back = document.createElement('div');
-        back.className = 'card-body card-back';
+        back.className = 'card-body card-back rounded-4';
         back.innerHTML = flashcardData.verso.replace(/\|\|/g, '<br>');
         back.innerHTML = back.innerHTML.replace(/\n/g, '<br>');
 
