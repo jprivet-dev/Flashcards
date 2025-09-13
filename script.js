@@ -115,7 +115,7 @@ class Flashcard {
     }
 
     fitTextToContainer(element) {
-        const words = element.textContent.split(' ');
+        const words = element.textContent.split(' ').filter(word => word !== "");
 
         if (words.length > 7) {
             element.classList.add('text-start');
@@ -123,7 +123,7 @@ class Flashcard {
 
         let fontSize = 2.1;
 
-        if(words.length > 2) {
+        if (words.length > 2) {
             fontSize = 1.7;
         }
 
@@ -148,8 +148,12 @@ class FlashcardsApp {
         this.loadDataBtn = document.getElementById('load-data-btn');
         this.dataLoadingSection = document.getElementById('data-loading-section');
         this.dataDisplaySection = document.getElementById('data-display-section');
+
         this.startSequentialBtn = document.getElementById('start-sequential-btn');
         this.startRandomBtn = document.getElementById('start-random-btn');
+        this.startSequentialIconBtn = document.getElementById('start-sequential-icon-btn');
+        this.startRandomIconBtn = document.getElementById('start-random-icon-btn');
+
         this.flashcardsSection = document.getElementById('flashcards-section');
         this.progressIndicator = document.getElementById('progress-indicator');
         this.reviewCountSpan = document.getElementById('review-count');
@@ -181,7 +185,6 @@ class FlashcardsApp {
         this.fontSelect = document.getElementById('font-select');
         this.importWarning = document.getElementById('import-warning');
 
-
         this.currentCards = [];
         this.cardsToReview = [];
         this.learnedCards = [];
@@ -195,12 +198,10 @@ class FlashcardsApp {
         this.textInput.addEventListener('input', () => this.saveTextToLocalStorage());
         this.clearTextBtn.addEventListener('click', () => this.clearLocalStorage());
         this.clearUrlBtn.addEventListener('click', () => this.clearUrl());
-        this.startSequentialBtn.addEventListener('click', () => {
-            this.startSession('sequential');
-        });
-        this.startRandomBtn.addEventListener('click', () => {
-            this.startSession('random');
-        });
+        this.startSequentialBtn.addEventListener('click', () => {this.startSession('sequential');});
+        this.startRandomBtn.addEventListener('click', () => {this.startSession('random');});
+        this.startSequentialIconBtn.addEventListener('click', () => this.startSession('sequential'));
+        this.startRandomIconBtn.addEventListener('click', () => this.startSession('random'));
         this.flipAllRectoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('recto'));
         this.flipAllVersoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('verso'));
         this.backToDataBtn.addEventListener('click', () => this.showDataSection());
@@ -297,6 +298,7 @@ class FlashcardsApp {
         this.filterInput.value = '';
         this.filterTable('');
         this.dataDisplaySection.classList.remove('d-none');
+        this.dataDisplaySection.scrollIntoView({ behavior: 'smooth' });
 
         if (url) {
             window.history.pushState({}, '', `?url=${encodeURIComponent(url)}`);
@@ -458,7 +460,7 @@ class FlashcardsApp {
             this.textInput.value = '';
             localStorage.removeItem('flashcard-text-data');
             this.filterInput.value = '';
-            this.filterTable('')
+            this.filterTable('');
             this.hideTable();
             this.dataDisplaySection.classList.add('d-none');
         }
@@ -470,7 +472,7 @@ class FlashcardsApp {
             this.importWarning.classList.add('d-none');
             window.history.pushState({}, '', window.location.pathname);
             this.filterInput.value = '';
-            this.filterTable('')
+            this.filterTable('');
             this.hideTable();
             this.dataDisplaySection.classList.add('d-none');
         }

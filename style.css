@@ -44,65 +44,59 @@ body {
     align-items: center;
     text-align: center;
     line-height: 1.3em;
-    border-width: 5px;
-    border-style: solid;
+    color: #000000b5;
 }
 
 .card-front {
-    color: white;
     font-weight: 600;
 }
 
 .flashcard:nth-child(5n + 1) .card-front {
-    background: #7FB52E;
-    border-color: #7FB52E;
+    background: #7FB52E26;
 }
 
 .flashcard:nth-child(5n + 2) .card-front {
-    background: #F6AE0E;
-    border-color: #F6AE0E;
+    background: #F6AE0E26;
 }
 
 .flashcard:nth-child(5n + 3) .card-front {
-    background: #C17B95;
-    border-color: #C17B95;
+    background: #C17B9526;
 }
 
 .flashcard:nth-child(5n + 4) .card-front {
-    background: #1B95B7;
-    border-color: #1B95B7;
+    background: #1B95B726;
 }
 
 .flashcard:nth-child(5n + 5) .card-front {
-    background: #DD5010;
-    border-color: #DD5010;
+    background: #DD501026;
 }
 
 .card-back {
     padding-bottom: 50px;
     transform: rotateY(180deg);
+    border-width: 5px;
+    border-style: solid;
 }
 
 .flashcard:nth-child(5n + 1) .card-back {
-    border-color: #7FB52E;
+    border-color: #7FB52E52;
 }
 
 .flashcard:nth-child(5n + 2) .card-back {
-    border-color: #F6AE0E;
+    border-color: #F6AE0E52;
 }
 
 .flashcard:nth-child(5n + 3) .card-back {
-    border-color: #C17B95;
+    border-color: #C17B9552;
 }
 
 .flashcard:nth-child(5n + 4) .card-back {
-    border-color: #1B95B7;
+    border-color: #1B95B752;
 }
 
 .flashcard:nth-child(5n + 5) .card-back {
-    border-color: #DD5010;
+    border-color: #DD501052;
 }
-
 
 .flipped {
     transform: rotateY(180deg);
@@ -149,7 +143,7 @@ body {
 }
 
 #progress-indicator .progress {
-    height: 6px;
+    height: 10px;
 }
 
 .table th:first-child,
@@ -202,6 +196,7 @@ body {
 #scrollToTopBtn.show-btn {
     opacity: 1;
     visibility: visible;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
 }
 
 #scrollToTopBtn ion-icon {
@@ -209,7 +204,7 @@ body {
 }
 
 #text-input {
-    height: 300px;
+    height: 200px;
 }
 
 .sort-icon-container {

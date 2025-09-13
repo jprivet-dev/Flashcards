@@ -61,8 +61,8 @@
                 <strong>Attention :</strong> chargez des données uniquement à partir de sources Google Sheet fiables.
             </p>
 
-            <div class="text-end">
-                <button id="load-data-btn" class="btn btn-primary btn-lg mt-2">
+            <div class="d-grid gap-2 col-lg-6 mx-auto">
+                <button id="load-data-btn" class="btn btn-primary btn-lg rounded-pill">
                     <ion-icon name="cloud-upload-outline"></ion-icon>
                     Charger les données
                 </button>
@@ -72,7 +72,17 @@
 
     <div id="data-display-section" class="card p-3 mb-4 shadow-sm d-none">
         <div class="card-body">
-            <h2 class="card-title">2. Aperçu des données</h2>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="card-title mb-0">2. Aperçu des données</h2>
+                <div class="d-flex gap-2">
+                    <button id="start-sequential-icon-btn" class="btn btn-success btn-lg rounded-pill" title="Commencer la révision dans l'ordre">
+                        <ion-icon name="play-forward-outline"></ion-icon>
+                    </button>
+                    <button id="start-random-icon-btn" class="btn btn-warning btn-lg rounded-pill" title="Commencer la révision aléatoire">
+                        <ion-icon name="shuffle-outline"></ion-icon>
+                    </button>
+                </div>
+            </div>
             <div class="table-responsive">
                 <div class="mb-3">
                     <div class="input-group">
@@ -116,12 +126,12 @@
                     </tbody>
                 </table>
             </div>
-            <div class="d-flex gap-2 mt-3">
-                <button id="start-sequential-btn" class="btn btn-success btn-lg w-50">
+            <div class="d-grid gap-2 col-lg-6 mx-auto">
+                <button id="start-sequential-btn" class="btn btn-success btn-lg rounded-pill">
                     <ion-icon name="play-forward-outline"></ion-icon>
                     Commencer la révision dans l'ordre
                 </button>
-                <button id="start-random-btn" class="btn btn-warning btn-lg w-50">
+                <button id="start-random-btn" class="btn btn-warning btn-lg rounded-pill">
                     <ion-icon name="shuffle-outline"></ion-icon>
                     Commencer la révision aléatoire
                 </button>
@@ -132,25 +142,25 @@
 
 <section id="flashcards-section" class="d-none">
     <div class="container-fluid mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <button class="btn btn-primary" id="back-to-data-btn" title="Revenir aux données">
+        <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center mb-4">
+            <button class="btn btn-primary rounded-pill mb-2 mb-md-0" id="back-to-data-btn" title="Revenir aux données">
                 <ion-icon name="arrow-back-outline"></ion-icon>
                 Données
             </button>
-            <div class="d-flex gap-3">
-                <button class="btn btn-outline-primary" id="filter-review-btn" title="Afficher que les cartes à réviser">
+            <div class="d-flex flex-column flex-md-row gap-2">
+                <button class="btn btn-outline-primary rounded-pill" id="filter-review-btn" title="Afficher que les cartes à réviser">
                     <ion-icon name="reload-outline"></ion-icon>
                     À réviser <span id="review-count" class="badge rounded-pill text-bg-primary">0</span>
                 </button>
-                <button class="btn btn-outline-primary" id="show-all-btn" title="Afficher toutes les cartes">
+                <button class="btn btn-outline-primary rounded-pill" id="show-all-btn" title="Afficher toutes les cartes">
                     <ion-icon name="grid-outline"></ion-icon>
                     Toutes <span id="all-count" class="badge rounded-pill text-bg-primary">0</span>
                 </button>
-                <button class="btn btn-outline-primary" id="flip-all-recto-btn" title="Toutes les cartes au recto">
+                <button class="btn btn-outline-primary rounded-pill" id="flip-all-recto-btn" title="Toutes les cartes au recto">
                     <ion-icon name="arrow-undo-outline"></ion-icon>
                     Recto
                 </button>
-                <button class="btn btn-outline-primary" id="flip-all-verso-btn" title="Toutes les cartes au verso">
+                <button class="btn btn-outline-primary rounded-pill" id="flip-all-verso-btn" title="Toutes les cartes au verso">
                     <ion-icon name="arrow-redo-outline"></ion-icon>
                     Verso
                 </button>
