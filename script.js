@@ -7,13 +7,11 @@ class Flashcard {
 
         const front = document.createElement('div');
         front.className = 'card-body card-front rounded-0';
-        front.innerHTML = flashcardData.recto.replace(/\|\|/g, '<br>');
-        front.innerHTML = front.innerHTML.replace(/\n/g, '<br>');
+        front.innerHTML = flashcardData.recto.replace(/\|\|/g, '<br>').replace(/\n/g, '<br>');
 
         const back = document.createElement('div');
         back.className = 'card-body card-back rounded-0';
-        back.innerHTML = flashcardData.verso.replace(/\|\|/g, '<br>');
-        back.innerHTML = back.innerHTML.replace(/\n/g, '<br>');
+        back.innerHTML = flashcardData.verso.replace(/\|\|/g, '<br>').replace(/\n/g, '<br>');
 
         setTimeout(() => {
             this.fitTextToContainer(front, flashcardData.recto);
@@ -200,6 +198,9 @@ class FlashcardsApp {
         this.swapContentBtn = document.getElementById('swap-content-btn');
         this.isContentSwapped = false;
 
+        this.notesFooter = document.getElementById('notes-footer');
+        this.notesContent = document.getElementById('notes-content');
+
         this.currentCards = [];
         this.cardsToReview = [];
         this.learnedCards = [];
@@ -318,8 +319,8 @@ class FlashcardsApp {
         });
 
         this.currentCards = result.data.map(row => {
-            const [recto, verso] = row.map(s => s.trim());
-            return { recto, verso };
+            const [recto, verso, notes] = row.map(s => s.trim());
+            return { recto, verso, notes };
         }).filter(card => card.recto && card.verso);
 
         this.displayTable(this.currentCards);
@@ -344,12 +345,15 @@ class FlashcardsApp {
         cardsToDisplay.forEach((card, index) => {
             const recto = this.isContentSwapped ? card.verso : card.recto;
             const verso = this.isContentSwapped ? card.recto : card.verso;
+            const notes = card.notes;
+
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td><input type="checkbox" class="flashcard-checkbox" checked data-card-index="${index}"></td>
                 <td class="text-center">${index + 1}</td>
                 <td>${recto}</td>
                 <td>${verso}</td>
+                <td>${notes}</td>
             `;
             this.flashcardTableBody.appendChild(row);
 
@@ -384,7 +388,8 @@ class FlashcardsApp {
         this.cardsToReview.forEach(flashcardData => {
             const displayedData = {
                 recto: this.isContentSwapped ? flashcardData.verso : flashcardData.recto,
-                verso: this.isContentSwapped ? flashcardData.recto : flashcardData.verso
+                verso: this.isContentSwapped ? flashcardData.recto : flashcardData.verso,
+                notes: flashcardData.notes,
             };
 
             const flashcard = new Flashcard(displayedData, this);
@@ -404,6 +409,7 @@ class FlashcardsApp {
                 flashcard.flip();
                 this.updateProgressBar();
                 this.updateFilterButtonsCount();
+                this.toggleNotes(flashcard, displayedData);
             });
 
             this.flashcards.push(flashcard);
@@ -420,6 +426,7 @@ class FlashcardsApp {
         });
         this.updateProgressBar();
         this.updateFilterButtonsCount();
+        this.closeNotes();
     }
 
     updateProgressBar() {
@@ -444,6 +451,7 @@ class FlashcardsApp {
         this.dataLoadingSection.classList.remove('d-none');
         this.flashcardsSection.classList.add('d-none');
         this.progressIndicator.classList.add('d-none');
+        this.closeNotes();
 
         window.scrollTo(0, 0);
     }
@@ -473,6 +481,8 @@ class FlashcardsApp {
 
         this.updateProgressBar();
         this.updateFilterButtonsCount();
+        this.closeNotes();
+
         window.scrollTo(0, 0);
     }
 
@@ -676,7 +686,7 @@ class FlashcardsApp {
         const checkboxes = document.querySelectorAll('.flashcard-checkbox');
 
         if (isNaN(start) || start < 1 || start > checkboxes.length || (end && (isNaN(end) || end < start || end > checkboxes.length))) {
-            alert("Veuillez entrer une plage de lignes valide.");
+            alert('Veuillez entrer une plage de lignes valide.');
             return;
         }
 
@@ -691,6 +701,38 @@ class FlashcardsApp {
     toggleContentSwap() {
         this.isContentSwapped = !this.isContentSwapped;
         this.displayTable(this.currentCards);
+    }
+
+    toggleNotes(flashcard, flashcardData) {
+        const isFlipped = flashcard.element.classList.contains('flipped');
+        const isEmpty = flashcardData.notes.trim() === '';
+        const isActive = this.notesFooter.classList.contains('active');
+
+        if (isFlipped && !isEmpty) {
+            if (!isActive) {
+                this.notesFooter.classList.add('active');
+                gsap.fromTo(this.notesFooter, { y: '100%' }, {
+                    y: '0%',
+                    duration: 0.3,
+                    ease: 'expo.out'
+                });
+            }
+
+            this.notesContent.innerHTML = flashcardData.recto.replace(/\|\|/g, '<br>').replace(/\n/g, '<br>');
+        } else {
+            this.closeNotes();
+        }
+    }
+
+    closeNotes() {
+        gsap.to(this.notesFooter, {
+            y: '100%',
+            duration: 0.3,
+            ease: 'expo.out',
+            onComplete: () => {
+                this.notesFooter.classList.remove('active');
+            }
+        });
     }
 }
 

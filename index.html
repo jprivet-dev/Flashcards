@@ -157,6 +157,13 @@
                                 <ion-icon name="caret-down-outline" class="sort-icon desc-icon"></ion-icon>
                             </span>
                         </th>
+                        <th data-sort-index="4" class="sortable">
+                            Notes
+                            <span class="sort-icon-container">
+                                <ion-icon name="caret-up-outline" class="sort-icon asc-icon"></ion-icon>
+                                <ion-icon name="caret-down-outline" class="sort-icon desc-icon"></ion-icon>
+                            </span>
+                        </th>
                     </tr>
                     </thead>
                     <tbody>
@@ -221,6 +228,12 @@
     <div class="progress rounded-0" role="progressbar" aria-label="Progression de la révision" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
         <div class="progress-bar bg-warning" id="progress-bar" style="width: 0"></div>
     </div>
+</div>
+
+<div id="notes-footer">
+    <p class="m-0 py-3 text-center">
+        <strong>Notes : </strong><span id="notes-content"></span>
+    </p>
 </div>
 
 <button id="scrollToTopBtn" class="btn btn-primary text-center" title="Aller en haut de la page">

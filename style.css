@@ -284,3 +284,12 @@ body {
     user-select: none;
     white-space: nowrap;
 }
+
+#notes-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #e9ecef;
+    transform: translateY(100%);
+}
