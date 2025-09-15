@@ -18,10 +18,15 @@ body {
     background: #fcfcfc;
 }
 
+#flashcard-grid-container {
+    --bs-gutter-x: 1px;
+    --bs-gutter-y: 1px;
+}
+
 .flashcard {
     position: relative;
-    width: 220px;
-    height: 300px;
+    width: 250px;
+    height: 250px;
     transform-style: preserve-3d;
     transition: transform 0.2s ease-out;
 
@@ -74,7 +79,7 @@ body {
 .card-back {
     padding-bottom: 50px;
     transform: rotateY(180deg);
-    border-width: 5px;
+    border-width: 10px;
     border-style: solid;
 }
 
