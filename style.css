@@ -56,6 +56,12 @@ body {
     transition: transform 0.2s ease-out;
 }
 
+@media (max-width: 494.98px) {
+    .flashcard {
+        padding-bottom: 60%;
+    }
+}
+
 .card-front,
 .card-back {
     position: absolute;
@@ -75,32 +81,30 @@ body {
     left: 0;
     bottom: 1px;
     right: 1px;
-
-    font-weight: 600;
 }
 
 .flashcard:nth-child(6n + 1) .card-front {
-    background: #7FB52E26;
+    background: #7FB52E2D;
 }
 
 .flashcard:nth-child(6n + 2) .card-front {
-    background: #F6AE0E26;
+    background: #F6AE0E2D;
 }
 
 .flashcard:nth-child(6n + 3) .card-front {
-    background: #C17B9526;
+    background: #C17B952D;
 }
 
 .flashcard:nth-child(6n + 4) .card-front {
-    background: #1B95B726;
+    background: #1B95B72D;
 }
 
 .flashcard:nth-child(6n + 5) .card-front {
-    background: #DD501026;
+    background: #DD50102D;
 }
 
 .flashcard:nth-child(6n + 6) .card-front {
-    background: #72BAB626;
+    background: #72BAB62D;
 }
 
 .card-back {
@@ -279,4 +283,13 @@ body {
     cursor: pointer;
     user-select: none;
     white-space: nowrap;
+}
+
+#notes-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #e9ecef;
+    transform: translateY(100%);
 }

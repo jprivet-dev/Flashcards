@@ -7,13 +7,11 @@ class Flashcard {
 
         const front = document.createElement('div');
         front.className = 'card-body card-front rounded-0';
-        front.innerHTML = flashcardData.recto.replace(/\|\|/g, '<br>');
-        front.innerHTML = front.innerHTML.replace(/\n/g, '<br>');
+        front.innerHTML = flashcardData.recto.replace(/\|\|/g, '<br>').replace(/\n/g, '<br>');
 
         const back = document.createElement('div');
         back.className = 'card-body card-back rounded-0';
-        back.innerHTML = flashcardData.verso.replace(/\|\|/g, '<br>');
-        back.innerHTML = back.innerHTML.replace(/\n/g, '<br>');
+        back.innerHTML = flashcardData.verso.replace(/\|\|/g, '<br>').replace(/\n/g, '<br>');
 
         setTimeout(() => {
             this.fitTextToContainer(front, flashcardData.recto);
@@ -124,14 +122,15 @@ class Flashcard {
 
     fitTextToContainer(element) {
         const words = element.textContent.split(' ').filter(word => word !== '');
+        const textWithoutSpaces = element.textContent.replace(/\s/g, '');
 
         if (words.length > 7) {
             element.classList.add('text-start');
         }
 
-        let fontSize = 2.1;
+        let fontSize = 2.3;
 
-        if (words.length > 2) {
+        if (words.length > 2 && textWithoutSpaces.length > 5) {
             fontSize = 1.7;
         }
 
@@ -192,6 +191,17 @@ class FlashcardsApp {
         this.totalRowsCountSpan = document.getElementById('total-rows-count');
         this.fontSelect = document.getElementById('font-select');
 
+        this.startRowSelect = document.getElementById('start-row-select');
+        this.endRowSelect = document.getElementById('end-row-select');
+        this.selectRangeBtn = document.getElementById('select-range-btn');
+        this.unselectAllBtn = document.getElementById('unselectAll-btn');
+
+        this.swapContentBtn = document.getElementById('swap-content-btn');
+        this.isContentSwapped = false;
+
+        this.notesFooter = document.getElementById('notes-footer');
+        this.notesContent = document.getElementById('notes-content');
+
         this.currentCards = [];
         this.cardsToReview = [];
         this.learnedCards = [];
@@ -217,6 +227,11 @@ class FlashcardsApp {
         this.selectAllCheckbox.addEventListener('change', () => this.toggleAllCheckboxes());
         window.addEventListener('scroll', () => this.scrollFunction());
         this.scrollToTopBtn.addEventListener('click', () => this.scrollToTop());
+
+        this.selectRangeBtn.addEventListener('click', () => this.selectRowsByRange());
+        this.unselectAllBtn.addEventListener('click', () => this.toggleAllCheckboxes(false));
+
+        this.swapContentBtn.addEventListener('click', () => this.toggleContentSwap());
 
         document.querySelectorAll('[data-sort-index]').forEach(header => {
             header.addEventListener('click', (e) => {
@@ -272,48 +287,49 @@ class FlashcardsApp {
     async fetchAndParseData() {
         let rawData;
         const url = this.urlInput.value;
-        const separator = this.separatorSelect.value;
+        let separator = this.separatorSelect.value;
+
         if (url) {
             if (!url.includes('docs.google.com/spreadsheets')) {
                 alert('Veuillez entrer une URL de Google Sheets valide.');
                 return;
             }
 
+            separator = ',';
+            this.showLoadingIndicator();
+
             try {
                 const response = await fetch(url);
                 rawData = await response.text();
                 rawData = this.sanitizeData(rawData);
 
+                // Sauvegarde les nouvelles données dans le cache
+                const cacheEntry = {
+                    timestamp: new Date().toISOString(),
+                    data: rawData
+                };
+                localStorage.setItem(url, JSON.stringify(cacheEntry));
+
                 this.textInput.value = '';
                 localStorage.removeItem('flashcard-text-data');
             } catch (error) {
                 alert('Erreur lors du chargement de l\'URL. Vérifiez que c\'est un lien public.');
+                this.hideLoadingIndicator();
                 return;
+            } finally {
+                this.hideLoadingIndicator();
             }
         } else if (this.textInput.value) {
             rawData = this.textInput.value;
             rawData = this.sanitizeData(rawData);
+            this.hideLoadingIndicator();
         } else {
             alert('Veuillez entrer une URL ou du texte.');
+            this.hideLoadingIndicator();
             return;
         }
 
-        const result = Papa.parse(rawData, {
-            delimiter: separator,
-            header: false,
-            skipEmptyLines: true
-        });
-
-        this.currentCards = result.data.map(row => {
-            const [recto, verso] = row.map(s => s.trim());
-            return { recto, verso };
-        }).filter(card => card.recto && card.verso);
-
-        this.displayTable(this.currentCards);
-        this.filterInput.value = '';
-        this.filterTable('');
-        this.dataDisplaySection.classList.remove('d-none');
-        this.dataDisplaySection.scrollIntoView({ behavior: 'smooth' });
+        this.parseAndDisplayData(rawData, separator);
 
         if (url) {
             window.history.pushState({}, '', `?url=${encodeURIComponent(url)}`);
@@ -322,18 +338,57 @@ class FlashcardsApp {
         }
     }
 
+    parseAndDisplayData(rawData, separator) {
+        const result = Papa.parse(rawData, {
+            delimiter: separator,
+            header: false,
+            skipEmptyLines: true
+        });
+
+        this.currentCards = result.data.map(row => {
+            const [recto, verso, notes] = row.map(s => s ? s.trim() : '');
+            return { recto, verso, notes };
+        }).filter(card => card.recto && card.verso);
+
+        this.displayTable(this.currentCards);
+        this.filterInput.value = '';
+        this.filterTable('');
+        this.dataDisplaySection.classList.remove('d-none');
+        this.dataDisplaySection.scrollIntoView({ behavior: 'smooth' });
+    }
+
     displayTable(cardsToDisplay) {
         this.flashcardTableBody.innerHTML = '';
+
+        this.startRowSelect.innerHTML = '';
+        this.endRowSelect.innerHTML = '';
+
         cardsToDisplay.forEach((card, index) => {
+            const recto = this.isContentSwapped ? card.verso : card.recto;
+            const verso = this.isContentSwapped ? card.recto : card.verso;
+            const notes = card.notes || '';
+
             const row = document.createElement('tr');
             row.innerHTML = `
-            <td><input type="checkbox" class="flashcard-checkbox" checked data-card-index="${index}"></td>
-            <td class="text-center">${index + 1}</td>
-            <td>${card.recto}</td>
-            <td>${card.verso}</td>
-        `;
+                <td><input type="checkbox" class="flashcard-checkbox" checked data-card-index="${index}"></td>
+                <td class="text-center">${index + 1}</td>
+                <td>${recto}</td>
+                <td>${verso}</td>
+                <td>${notes}</td>
+            `;
             this.flashcardTableBody.appendChild(row);
+
+            const option = document.createElement('option');
+            option.value = index + 1;
+            option.textContent = index + 1;
+            this.startRowSelect.appendChild(option);
+            this.endRowSelect.appendChild(option.cloneNode(true));
         });
+
+        if (cardsToDisplay.length > 0) {
+            this.startRowSelect.value = 1;
+            this.endRowSelect.value = cardsToDisplay.length;
+        }
     }
 
     hideTable() {
@@ -352,7 +407,13 @@ class FlashcardsApp {
         this.flashcardGridContainer.innerHTML = '';
 
         this.cardsToReview.forEach(flashcardData => {
-            const flashcard = new Flashcard(flashcardData, this);
+            const displayedData = {
+                recto: this.isContentSwapped ? flashcardData.verso : flashcardData.recto,
+                verso: this.isContentSwapped ? flashcardData.recto : flashcardData.verso,
+                notes: flashcardData.notes,
+            };
+
+            const flashcard = new Flashcard(displayedData, this);
             const flashcardElement = flashcard.element;
 
             flashcardElement.addEventListener('click', () => {
@@ -369,6 +430,7 @@ class FlashcardsApp {
                 flashcard.flip();
                 this.updateProgressBar();
                 this.updateFilterButtonsCount();
+                this.toggleNotes(flashcard, displayedData);
             });
 
             this.flashcards.push(flashcard);
@@ -385,6 +447,7 @@ class FlashcardsApp {
         });
         this.updateProgressBar();
         this.updateFilterButtonsCount();
+        this.closeNotes();
     }
 
     updateProgressBar() {
@@ -409,6 +472,7 @@ class FlashcardsApp {
         this.dataLoadingSection.classList.remove('d-none');
         this.flashcardsSection.classList.add('d-none');
         this.progressIndicator.classList.add('d-none');
+        this.closeNotes();
 
         window.scrollTo(0, 0);
     }
@@ -438,15 +502,18 @@ class FlashcardsApp {
 
         this.updateProgressBar();
         this.updateFilterButtonsCount();
+        this.closeNotes();
+
         window.scrollTo(0, 0);
     }
 
-    toggleAllCheckboxes() {
-        const isChecked = this.selectAllCheckbox.checked;
+    toggleAllCheckboxes(state) {
+        const isChecked = typeof state === 'boolean' ? state : this.selectAllCheckbox.checked;
         const checkboxes = document.querySelectorAll('.flashcard-checkbox');
         checkboxes.forEach(checkbox => {
             checkbox.checked = isChecked;
         });
+        this.selectAllCheckbox.checked = isChecked;
     }
 
     loadTextFromLocalStorage() {
@@ -459,6 +526,19 @@ class FlashcardsApp {
             if (data.separator) {
                 this.separatorSelect.value = data.separator;
             }
+
+            const textTab = document.getElementById('text-tab');
+            const textPane = document.getElementById('text-pane');
+            const sheetTab = document.getElementById('sheet-tab');
+            const sheetPane = document.getElementById('sheet-pane');
+
+            sheetTab.classList.remove('active');
+            sheetPane.classList.remove('active', 'show');
+
+            textTab.classList.add('active');
+            textPane.classList.add('active', 'show');
+
+            this.fetchAndParseData();
         }
     }
 
@@ -478,6 +558,7 @@ class FlashcardsApp {
             this.filterTable('');
             this.hideTable();
             this.dataDisplaySection.classList.add('d-none');
+            this.isContentSwapped = false;
         }
     }
 
@@ -489,6 +570,7 @@ class FlashcardsApp {
             this.filterTable('');
             this.hideTable();
             this.dataDisplaySection.classList.add('d-none');
+            this.isContentSwapped = false;
         }
     }
 
@@ -633,6 +715,93 @@ class FlashcardsApp {
             }
         }
     }
+
+    selectRowsByRange() {
+        const start = parseInt(this.startRowSelect.value, 10);
+        const end = parseInt(this.endRowSelect.value, 10);
+        const checkboxes = document.querySelectorAll('.flashcard-checkbox');
+
+        if (isNaN(start) || start < 1 || start > checkboxes.length || (end && (isNaN(end) || end < start || end > checkboxes.length))) {
+            alert('Veuillez entrer une plage de lignes valide.');
+            return;
+        }
+
+        const finalEnd = end || start;
+        this.toggleAllCheckboxes(false);
+
+        for (let i = start - 1; i < finalEnd; i++) {
+            checkboxes[i].checked = true;
+        }
+    }
+
+    showLoadingIndicator() {
+        this.loadDataBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Chargement...';
+        this.loadDataBtn.disabled = true;
+    }
+
+    hideLoadingIndicator() {
+        this.loadDataBtn.innerHTML = '<ion-icon name="cloud-upload-outline"></ion-icon> Charger les données';
+        this.loadDataBtn.disabled = false;
+    }
+
+    toggleContentSwap() {
+        this.isContentSwapped = !this.isContentSwapped;
+        this.displayTable(this.currentCards);
+    }
+
+    toggleNotes(flashcard, flashcardData) {
+        const isFlipped = flashcard.element.classList.contains('flipped');
+        const isEmpty = flashcardData.notes.trim() === '';
+        const isActive = this.notesFooter.classList.contains('active');
+
+        if (isFlipped && !isEmpty) {
+            if (!isActive) {
+                this.notesFooter.classList.add('active');
+                gsap.fromTo(this.notesFooter, { y: '100%' }, {
+                    y: '0%',
+                    duration: 0.3,
+                    ease: 'expo.out'
+                });
+            }
+
+            this.notesContent.innerHTML = flashcardData.recto.replace(/\|\|/g, '<br>').replace(/\n/g, '<br>');
+        } else {
+            this.closeNotes();
+        }
+    }
+
+    closeNotes() {
+        gsap.to(this.notesFooter, {
+            y: '100%',
+            duration: 0.3,
+            ease: 'expo.out',
+            onComplete: () => {
+                this.notesFooter.classList.remove('active');
+            }
+        });
+    }
+
+    loadGoogleSheetDataFromCache() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const sheetUrl = urlParams.get('url');
+        const separator = ',';
+
+        if (sheetUrl) {
+            this.urlInput.value = sheetUrl;
+            const cachedData = localStorage.getItem(sheetUrl);
+
+            if (cachedData) {
+                const parsedCache = JSON.parse(cachedData);
+                const cacheTime = new Date(parsedCache.timestamp);
+                const now = new Date();
+                const hoursDiff = (now - cacheTime) / (1000 * 60 * 60);
+
+                if (hoursDiff < 24) {
+                    this.parseAndDisplayData(parsedCache.data, separator);
+                }
+            }
+        }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -641,6 +810,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sheetUrl = urlParams.get('url');
 
     app.loadTextFromLocalStorage();
+    app.loadGoogleSheetDataFromCache();
     app.loadFontFromLocalStorage();
 
     if (sheetUrl) {
