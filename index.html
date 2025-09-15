@@ -17,16 +17,20 @@
 <section id="data-loading-section" class="container">
     <div class="card p-3 mb-4 shadow-sm">
         <div class="card-body">
-            <h2 class="card-title">1. Charger vos données</h2>
+            <h2 class="card-title mb-4">1. Charger vos données</h2>
 
-            <div class="mb-3">
-                <label for="url-input" class="form-label">URL Google Sheet publique :</label>
+            <div class="mb-4">
+                <label for="url-input" class="form-label">Coller le lien CSV de votre Google Sheets publique :</label>
                 <div class="input-group">
-                    <input type="url" id="url-input" class="form-control" placeholder="Coller le lien CSV de votre Google Sheet">
+                    <input type="url" id="url-input" class="form-control">
                     <button id="clear-url-btn" class="btn btn-outline-secondary" type="button" title="Effacer">
                         <ion-icon name="trash"></ion-icon>
                     </button>
                 </div>
+                <small class="text-body-secondary">
+                    Chargez des données uniquement à partir de sources Google Sheets fiables !
+                    <a href="https://support.google.com/docs/answer/183965" target="_blank">Comment rendre votre Google Sheets public ?</a>
+                </small>
             </div>
 
             <div class="mb-3">
@@ -39,27 +43,28 @@
                 </div>
             </div>
 
-            <div class="input-group mb-3">
-                <label for="separator-select" class="input-group-text" id="basic-addon1">Séparateur :</label>
-                <select id="separator-select" class="form-select">
-                    <option value=",">Virgule (,)</option>
-                    <option value=";">Point-virgule (;)</option>
-                    <option value="	">Tabulation</option>
-                </select>
+            <div class="row row-cols-1 row-cols-lg-2 g-3 mb-3">
+                <div class="col">
+                    <div class="input-group">
+                        <label for="separator-select" class="input-group-text" id="basic-addon1">Séparateur :</label>
+                        <select id="separator-select" class="form-select">
+                            <option value=",">Virgule (,)</option>
+                            <option value=";">Point-virgule (;)</option>
+                            <option value="	">Tabulation</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="input-group">
+                        <label class="input-group-text" for="font-select">Choix de la police :</label>
+                        <select class="form-select" id="font-select">
+                            <option value="default">Par défaut</option>
+                            <option value="lexend">Lexend</option>
+                            <option value="open-dyslexic">OpenDyslexic</option>
+                        </select>
+                    </div>
+                </div>
             </div>
-
-            <div class="input-group mb-3">
-                <label class="input-group-text" for="font-select">Choix de la police :</label>
-                <select class="form-select" id="font-select">
-                    <option value="default">Par défaut</option>
-                    <option value="lexend">Lexend</option>
-                    <option value="open-dyslexic">OpenDyslexic</option>
-                </select>
-            </div>
-
-            <p class="alert alert-primary d-none" role="alert" id="import-warning">
-                <strong>Attention :</strong> chargez des données uniquement à partir de sources Google Sheet fiables.
-            </p>
 
             <div class="d-grid gap-2 col-lg-6 mx-auto">
                 <button id="load-data-btn" class="btn btn-primary btn-lg rounded-pill">
@@ -75,16 +80,18 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2 class="card-title mb-0">2. Aperçu des données</h2>
                 <div class="d-flex gap-2">
-                    <button id="start-sequential-icon-btn" class="btn btn-success btn-lg rounded-pill" title="Commencer la révision dans l'ordre">
-                        <ion-icon name="play-forward-outline"></ion-icon>
-                    </button>
-                    <button id="start-random-icon-btn" class="btn btn-warning btn-lg rounded-pill" title="Commencer la révision aléatoire">
-                        <ion-icon name="shuffle-outline"></ion-icon>
-                    </button>
+                    <div class="btn-group" role="group">
+                        <button id="start-sequential-icon-btn" class="btn btn-success btn-lg rounded-start-pill" title="Commencer la révision dans l'ordre">
+                            <ion-icon name="play-forward-outline"></ion-icon>
+                        </button>
+                        <button id="start-random-icon-btn" class="btn btn-warning btn-lg rounded-end-pill" title="Commencer la révision aléatoire">
+                            <ion-icon name="shuffle-outline"></ion-icon>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="table-responsive">
-                <div class="mb-3">
+                <div class="mb-3 mt-2">
                     <div class="input-group">
                         <input type="text" id="filter-input" class="form-control" placeholder="Rechercher dans les colonnes Recto et Verso...">
                         <button id="reset-filter-btn" class="btn btn-outline-secondary" type="button" title="Réinitialiser le filtre">
@@ -140,34 +147,43 @@
     </div>
 </section>
 
-<section id="flashcards-section" class="d-none">
-    <div class="container-fluid mt-4">
+<section id="flashcards-section" class="d-none mt-4">
+    <div class="container-xxl">
         <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center mb-4">
             <button class="btn btn-primary rounded-pill mb-2 mb-md-0" id="back-to-data-btn" title="Revenir aux données">
                 <ion-icon name="arrow-back-outline"></ion-icon>
                 Données
             </button>
             <div class="d-flex flex-column flex-md-row gap-2">
-                <button class="btn btn-outline-primary rounded-pill" id="filter-review-btn" title="Afficher que les cartes à réviser">
-                    <ion-icon name="reload-outline"></ion-icon>
-                    À réviser <span id="review-count" class="badge rounded-pill text-bg-primary">0</span>
-                </button>
-                <button class="btn btn-outline-primary rounded-pill" id="show-all-btn" title="Afficher toutes les cartes">
-                    <ion-icon name="grid-outline"></ion-icon>
-                    Toutes <span id="all-count" class="badge rounded-pill text-bg-primary">0</span>
-                </button>
-                <button class="btn btn-outline-primary rounded-pill" id="flip-all-recto-btn" title="Toutes les cartes au recto">
-                    <ion-icon name="arrow-undo-outline"></ion-icon>
-                    Recto
-                </button>
-                <button class="btn btn-outline-primary rounded-pill" id="flip-all-verso-btn" title="Toutes les cartes au verso">
-                    <ion-icon name="arrow-redo-outline"></ion-icon>
-                    Verso
-                </button>
+                <div class="btn-group" role="group">
+                    <button class="btn btn-outline-primary rounded-start-pill" id="filter-review-btn" title="Afficher que les cartes à réviser">
+                        <ion-icon name="reload-outline"></ion-icon>
+                        À réviser <span id="review-count" class="badge rounded-pill text-bg-primary">0</span>
+                    </button>
+                    <button class="btn btn-outline-primary rounded-end-pill" id="show-all-btn" title="Afficher toutes les cartes">
+                        <ion-icon name="grid-outline"></ion-icon>
+                        Toutes <span id="all-count" class="badge rounded-pill text-bg-primary">0</span>
+                    </button>
+                </div>
+                <div class="btn-group" role="group">
+                    <button class="btn btn-outline-primary rounded-start-pill" id="flip-all-recto-btn" title="Toutes les cartes au recto">
+                        <ion-icon name="arrow-undo-outline"></ion-icon>
+                        Recto
+                    </button>
+                    <button class="btn btn-outline-primary rounded-end-pill" id="flip-all-verso-btn" title="Toutes les cartes au verso">
+                        <ion-icon name="arrow-redo-outline"></ion-icon>
+                        Verso
+                    </button>
+                </div>
             </div>
         </div>
-        <div class="row justify-content-center" id="flashcard-grid-container">
+    </div>
+    <div class="container-xxl g-0">
+        <div id="flashcard-grid-container">
         </div>
+        <p class="text-center my-5">
+            Il n'y a plus de cartes 🎉
+        </p>
     </div>
 </section>
 
