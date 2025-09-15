@@ -6,6 +6,26 @@
     font-style: normal;
 }
 
+.orange {
+    color: #FAAE32;
+}
+
+.green {
+    color: #93CC52;
+}
+
+.red {
+    color: #F15B1E;
+}
+
+.blue {
+    color: #05BAB6;
+}
+
+.violet {
+    color: #C17B95;
+}
+
 .lexend-font {
     font-family: 'Lexend', sans-serif;
 }
@@ -19,28 +39,26 @@ body {
 }
 
 #flashcard-grid-container {
-    --bs-gutter-x: 1px;
-    --bs-gutter-y: 1px;
+    --bs-gutter-x: 0;
+    --bs-gutter-y: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0;
 }
 
 .flashcard {
     position: relative;
-    width: 250px;
-    height: 250px;
+    width: 100%;
+    height: 0;
+    padding-bottom: 100%;
+
     transform-style: preserve-3d;
     transition: transform 0.2s ease-out;
-
-    display: flex;
-    flex-direction: column;
 }
 
 .card-front,
 .card-back {
     position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
     backface-visibility: hidden;
     padding: 10px 15px;
     display: flex;
@@ -53,27 +71,36 @@ body {
 }
 
 .card-front {
+    top: 0;
+    left: 0;
+    bottom: 1px;
+    right: 1px;
+
     font-weight: 600;
 }
 
-.flashcard:nth-child(5n + 1) .card-front {
+.flashcard:nth-child(6n + 1) .card-front {
     background: #7FB52E26;
 }
 
-.flashcard:nth-child(5n + 2) .card-front {
+.flashcard:nth-child(6n + 2) .card-front {
     background: #F6AE0E26;
 }
 
-.flashcard:nth-child(5n + 3) .card-front {
+.flashcard:nth-child(6n + 3) .card-front {
     background: #C17B9526;
 }
 
-.flashcard:nth-child(5n + 4) .card-front {
+.flashcard:nth-child(6n + 4) .card-front {
     background: #1B95B726;
 }
 
-.flashcard:nth-child(5n + 5) .card-front {
+.flashcard:nth-child(6n + 5) .card-front {
     background: #DD501026;
+}
+
+.flashcard:nth-child(6n + 6) .card-front {
+    background: #72BAB626;
 }
 
 .card-back {
@@ -81,26 +108,35 @@ body {
     transform: rotateY(180deg);
     border-width: 10px;
     border-style: solid;
+
+    top: 0;
+    right: 0;
+    bottom: 1px;
+    left: 1px;
 }
 
-.flashcard:nth-child(5n + 1) .card-back {
+.flashcard:nth-child(6n + 1) .card-back {
     border-color: #7FB52E52;
 }
 
-.flashcard:nth-child(5n + 2) .card-back {
+.flashcard:nth-child(6n + 2) .card-back {
     border-color: #F6AE0E52;
 }
 
-.flashcard:nth-child(5n + 3) .card-back {
+.flashcard:nth-child(6n + 3) .card-back {
     border-color: #C17B9552;
 }
 
-.flashcard:nth-child(5n + 4) .card-back {
+.flashcard:nth-child(6n + 4) .card-back {
     border-color: #1B95B752;
 }
 
-.flashcard:nth-child(5n + 5) .card-back {
+.flashcard:nth-child(6n + 5) .card-back {
     border-color: #DD501052;
+}
+
+.flashcard:nth-child(6n + 6) .card-back {
+    border-color: #72BAB652;
 }
 
 .flipped {
