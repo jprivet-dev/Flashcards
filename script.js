@@ -192,6 +192,14 @@ class FlashcardsApp {
         this.totalRowsCountSpan = document.getElementById('total-rows-count');
         this.fontSelect = document.getElementById('font-select');
 
+        this.startRowSelect = document.getElementById('start-row-select');
+        this.endRowSelect = document.getElementById('end-row-select');
+        this.selectRangeBtn = document.getElementById('select-range-btn');
+        this.unselectAllBtn = document.getElementById('unselectAll-btn');
+
+        this.swapContentBtn = document.getElementById('swap-content-btn');
+        this.isContentSwapped = false;
+
         this.currentCards = [];
         this.cardsToReview = [];
         this.learnedCards = [];
@@ -217,6 +225,11 @@ class FlashcardsApp {
         this.selectAllCheckbox.addEventListener('change', () => this.toggleAllCheckboxes());
         window.addEventListener('scroll', () => this.scrollFunction());
         this.scrollToTopBtn.addEventListener('click', () => this.scrollToTop());
+
+        this.selectRangeBtn.addEventListener('click', () => this.selectRowsByRange());
+        this.unselectAllBtn.addEventListener('click', () => this.toggleAllCheckboxes(false));
+
+        this.swapContentBtn.addEventListener('click', () => this.toggleContentSwap());
 
         document.querySelectorAll('[data-sort-index]').forEach(header => {
             header.addEventListener('click', (e) => {
@@ -324,16 +337,33 @@ class FlashcardsApp {
 
     displayTable(cardsToDisplay) {
         this.flashcardTableBody.innerHTML = '';
+
+        this.startRowSelect.innerHTML = '';
+        this.endRowSelect.innerHTML = '';
+
         cardsToDisplay.forEach((card, index) => {
+            const recto = this.isContentSwapped ? card.verso : card.recto;
+            const verso = this.isContentSwapped ? card.recto : card.verso;
             const row = document.createElement('tr');
             row.innerHTML = `
-            <td><input type="checkbox" class="flashcard-checkbox" checked data-card-index="${index}"></td>
-            <td class="text-center">${index + 1}</td>
-            <td>${card.recto}</td>
-            <td>${card.verso}</td>
-        `;
+                <td><input type="checkbox" class="flashcard-checkbox" checked data-card-index="${index}"></td>
+                <td class="text-center">${index + 1}</td>
+                <td>${recto}</td>
+                <td>${verso}</td>
+            `;
             this.flashcardTableBody.appendChild(row);
+
+            const option = document.createElement('option');
+            option.value = index + 1;
+            option.textContent = index + 1;
+            this.startRowSelect.appendChild(option);
+            this.endRowSelect.appendChild(option.cloneNode(true));
         });
+
+        if (cardsToDisplay.length > 0) {
+            this.startRowSelect.value = 1;
+            this.endRowSelect.value = cardsToDisplay.length;
+        }
     }
 
     hideTable() {
@@ -352,7 +382,12 @@ class FlashcardsApp {
         this.flashcardGridContainer.innerHTML = '';
 
         this.cardsToReview.forEach(flashcardData => {
-            const flashcard = new Flashcard(flashcardData, this);
+            const displayedData = {
+                recto: this.isContentSwapped ? flashcardData.verso : flashcardData.recto,
+                verso: this.isContentSwapped ? flashcardData.recto : flashcardData.verso
+            };
+
+            const flashcard = new Flashcard(displayedData, this);
             const flashcardElement = flashcard.element;
 
             flashcardElement.addEventListener('click', () => {
@@ -441,12 +476,13 @@ class FlashcardsApp {
         window.scrollTo(0, 0);
     }
 
-    toggleAllCheckboxes() {
-        const isChecked = this.selectAllCheckbox.checked;
+    toggleAllCheckboxes(state) {
+        const isChecked = typeof state === 'boolean' ? state : this.selectAllCheckbox.checked;
         const checkboxes = document.querySelectorAll('.flashcard-checkbox');
         checkboxes.forEach(checkbox => {
             checkbox.checked = isChecked;
         });
+        this.selectAllCheckbox.checked = isChecked;
     }
 
     loadTextFromLocalStorage() {
@@ -632,6 +668,29 @@ class FlashcardsApp {
                 document.body.classList.add('open-dyslexic-font');
             }
         }
+    }
+
+    selectRowsByRange() {
+        const start = parseInt(this.startRowSelect.value, 10);
+        const end = parseInt(this.endRowSelect.value, 10);
+        const checkboxes = document.querySelectorAll('.flashcard-checkbox');
+
+        if (isNaN(start) || start < 1 || start > checkboxes.length || (end && (isNaN(end) || end < start || end > checkboxes.length))) {
+            alert("Veuillez entrer une plage de lignes valide.");
+            return;
+        }
+
+        const finalEnd = end || start;
+        this.toggleAllCheckboxes(false);
+
+        for (let i = start - 1; i < finalEnd; i++) {
+            checkboxes[i].checked = true;
+        }
+    }
+
+    toggleContentSwap() {
+        this.isContentSwapped = !this.isContentSwapped;
+        this.displayTable(this.currentCards);
     }
 }
 

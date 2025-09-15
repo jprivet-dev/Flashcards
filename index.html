@@ -15,10 +15,11 @@
 <h1 class="text-center my-4">Flashcards</h1>
 
 <section id="data-loading-section" class="container">
-    <div class="card p-3 mb-4 shadow-sm">
-        <div class="card-body">
-            <h2 class="card-title mb-4">1. Charger vos données</h2>
-
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+            <h2 class="my-0 py-3">1. Charger vos données</h2>
+        </div>
+        <div class="card-body p-4">
             <div class="mb-4">
                 <label for="url-input" class="form-label">Coller le lien CSV de votre Google Sheets publique :</label>
                 <div class="input-group">
@@ -29,7 +30,7 @@
                 </div>
                 <small class="text-body-secondary">
                     Chargez des données uniquement à partir de sources Google Sheets fiables !
-                    <a href="https://support.google.com/docs/answer/183965" target="_blank">Comment rendre votre Google Sheets public ?</a>
+                    <a href="https://support.google.com/docs/answer/183965" target="_blank">Comment rendre votre Google Sheets publique ?</a>
                 </small>
             </div>
 
@@ -43,7 +44,7 @@
                 </div>
             </div>
 
-            <div class="row row-cols-1 row-cols-lg-2 g-3 mb-3">
+            <div class="row row-cols-1 row-cols-lg-2 g-3 mb-4">
                 <div class="col">
                     <div class="input-group">
                         <label for="separator-select" class="input-group-text" id="basic-addon1">Séparateur :</label>
@@ -75,10 +76,10 @@
         </div>
     </div>
 
-    <div id="data-display-section" class="card p-3 mb-4 shadow-sm d-none">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="card-title mb-0">2. Aperçu des données</h2>
+    <div id="data-display-section" class="card mb-4 shadow-sm d-none">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="my-0 py-3">2. Aperçu des données</h2>
                 <div class="d-flex gap-2">
                     <div class="btn-group" role="group">
                         <button id="start-sequential-icon-btn" class="btn btn-success btn-lg rounded-start-pill" title="Commencer la révision dans l'ordre">
@@ -90,19 +91,48 @@
                     </div>
                 </div>
             </div>
-            <div class="table-responsive">
-                <div class="mb-3 mt-2">
-                    <div class="input-group">
-                        <input type="text" id="filter-input" class="form-control" placeholder="Rechercher dans les colonnes Recto et Verso...">
-                        <button id="reset-filter-btn" class="btn btn-outline-secondary" type="button" title="Réinitialiser le filtre">
-                            <ion-icon name="close-circle-outline"></ion-icon>
-                        </button>
-                    </div>
-                    <div class="form-text text-end" id="basic-addon4">
-                        <span id="visible-rows-count">0</span> carte(s) affichée(s) sur <span id="total-rows-count">0</span>.
-                    </div>
+        </div>
+        <div class="card-body">
+            <div class="mb-4">
+                <button id="swap-content-btn" class="btn btn-primary">
+                    <ion-icon name="swap-horizontal-outline"></ion-icon>
+                    Inverser les données Recto et Verso
+                </button>
+            </div>
+            <div class="row g-2 mb-4 align-items-center">
+                <div class="col-sm-auto">
+                    <label for="start-row-select" class="form-label mb-0">De la ligne</label>
                 </div>
-                <table id="flashcard-table" class="table table-bordered table-striped">
+                <div class="col-sm-2 col-lg-2">
+                    <select id="start-row-select" class="form-select"></select>
+                </div>
+                <div class="col-sm-auto">
+                    <label for="end-row-select" class="form-label mb-0">à la ligne</label>
+                </div>
+                <div class="col-sm-2 col-lg-2">
+                    <select id="end-row-select" class="form-select"></select>
+                </div>
+                <div class="col-sm-auto">
+                    <button id="select-range-btn" class="btn btn-primary w-100">Sélectionner</button>
+                </div>
+                <div class="col-sm-auto">
+                    <button id="unselectAll-btn" class="btn btn-secondary w-100">Désélectionner tout</button>
+                </div>
+            </div>
+            <div class="mb-3 mb-3">
+                <label for="url-input" class="form-label">Rechercher dans les colonnes Recto et Verso :</label>
+                <div class="input-group">
+                    <input type="text" id="filter-input" class="form-control">
+                    <button id="reset-filter-btn" class="btn btn-outline-secondary" type="button" title="Réinitialiser le filtre">
+                        <ion-icon name="close-circle-outline"></ion-icon>
+                    </button>
+                </div>
+                <div class="form-text text-end" id="basic-addon4">
+                    <span id="visible-rows-count">0</span> carte(s) affichée(s) sur <span id="total-rows-count">0</span>.
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table id="flashcard-table" class="table table-striped">
                     <thead>
                     <tr>
                         <th><input type="checkbox" checked id="select-all-checkbox"></th>
@@ -133,7 +163,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="d-grid gap-2 col-lg-6 mx-auto">
+            <div class="d-grid gap-2 col-lg-6 mx-auto my-3">
                 <button id="start-sequential-btn" class="btn btn-success btn-lg rounded-pill">
                     <ion-icon name="play-forward-outline"></ion-icon>
                     Commencer la révision dans l'ordre
@@ -181,8 +211,8 @@
     <div class="container-xxl g-0">
         <div id="flashcard-grid-container">
         </div>
-        <p class="text-center my-5">
-            Il n'y a plus de cartes 🎉
+        <p class="text-center fs-4 my-5 py-5">
+            🎉 FIN 🎉
         </p>
     </div>
 </section>
