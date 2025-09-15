@@ -122,7 +122,7 @@ class Flashcard {
 
     fitTextToContainer(element) {
         const words = element.textContent.split(' ').filter(word => word !== '');
-        const textWithoutSpaces = element.textContent.replace(/\s/g, '')
+        const textWithoutSpaces = element.textContent.replace(/\s/g, '');
 
         if (words.length > 7) {
             element.classList.add('text-start');
@@ -295,9 +295,7 @@ class FlashcardsApp {
                 return;
             }
 
-            this.separatorSelect.value = ',';
-            separator = this.separatorSelect.value;
-
+            separator = ',';
             this.showLoadingIndicator();
 
             try {
@@ -368,7 +366,7 @@ class FlashcardsApp {
         cardsToDisplay.forEach((card, index) => {
             const recto = this.isContentSwapped ? card.verso : card.recto;
             const verso = this.isContentSwapped ? card.recto : card.verso;
-            const notes = card.notes || "";
+            const notes = card.notes || '';
 
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -528,6 +526,18 @@ class FlashcardsApp {
             if (data.separator) {
                 this.separatorSelect.value = data.separator;
             }
+
+            const textTab = document.getElementById('text-tab');
+            const textPane = document.getElementById('text-pane');
+            const sheetTab = document.getElementById('sheet-tab');
+            const sheetPane = document.getElementById('sheet-pane');
+
+            sheetTab.classList.remove('active');
+            sheetPane.classList.remove('active', 'show');
+
+            textTab.classList.add('active');
+            textPane.classList.add('active', 'show');
+
             this.fetchAndParseData();
         }
     }
@@ -774,11 +784,11 @@ class FlashcardsApp {
     loadGoogleSheetDataFromCache() {
         const urlParams = new URLSearchParams(window.location.search);
         const sheetUrl = urlParams.get('url');
+        const separator = ',';
 
         if (sheetUrl) {
             this.urlInput.value = sheetUrl;
             const cachedData = localStorage.getItem(sheetUrl);
-            this.separatorSelect.value = ',';
 
             if (cachedData) {
                 const parsedCache = JSON.parse(cachedData);
@@ -787,7 +797,7 @@ class FlashcardsApp {
                 const hoursDiff = (now - cacheTime) / (1000 * 60 * 60);
 
                 if (hoursDiff < 24) {
-                    this.parseAndDisplayData(parsedCache.data, this.separatorSelect.value);
+                    this.parseAndDisplayData(parsedCache.data, separator);
                 }
             }
         }
