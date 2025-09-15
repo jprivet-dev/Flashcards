@@ -21,26 +21,38 @@
         </div>
         <div class="card-body p-4">
             <div class="mb-4">
-                <label for="url-input" class="form-label">Coller le lien CSV de votre Google Sheets publique :</label>
+                <label for="url-input" class="form-label">Coller le lien de votre fichier CSV Google Sheet publique :</label>
                 <div class="input-group">
                     <input type="url" id="url-input" class="form-control">
                     <button id="clear-url-btn" class="btn btn-outline-secondary" type="button" title="Effacer">
-                        <ion-icon name="trash"></ion-icon>
+                        <ion-icon name="close-circle-outline"></ion-icon>
                     </button>
                 </div>
-                <small class="text-body-secondary">
-                    Chargez des données uniquement à partir de sources Google Sheets fiables !
-                    <a href="https://support.google.com/docs/answer/183965" target="_blank">Comment rendre votre Google Sheets publique ?</a>
-                </small>
+                <div class="text-body-secondary">
+                    <ul>
+                        <li><small>Chargez des données uniquement à partir de sources Google Sheets fiables !</small></li>
+                        <li><small>Donnez un fichier CSV (valeurs séparées par des virgules).</small></li>
+                        <li><small>Les colonnes Recto et Verso sont obligatoires. La colonne Notes est optionnelle.</small></li>
+                        <li><small>Ne mettez pas d'en-têtes.</small></li>
+                        <li><small><a href="https://support.google.com/docs/answer/183965" target="_blank">Comment rendre votre Google Sheets publique ?</a> (lien externe)</small></li>
+                    </ul>
+                </div>
             </div>
 
             <div class="mb-3">
                 <label for="text-input" class="form-label">Ou coller votre texte ici :</label>
                 <div class="input-group">
-                    <textarea id="text-input" class="form-control" rows="5" placeholder="Question 1, Réponse 1&#10;Question 2, Réponse 2"></textarea>
+                    <textarea id="text-input" class="form-control" rows="5" placeholder="Recto 1, Verso 1, Notes 1&#10;Recto 2, Verso 2, Notes 1"></textarea>
                     <button id="clear-text-btn" class="btn btn-outline-secondary" type="button" title="Effacer">
-                        <ion-icon name="trash"></ion-icon>
+                        <ion-icon name="close-circle-outline"></ion-icon>
                     </button>
+                </div>
+                <div class="text-body-secondary">
+                    <ul>
+                        <li><small>Donnez des valeurs séparées par des virgules, des points-virgules ou des tabulations.</small></li>
+                        <li><small>Les colonnes Recto et Verso sont obligatoires. La colonne Notes est optionnelle.</small></li>
+                        <li><small>Ne mettez pas d'en-têtes.</small></li>
+                    </ul>
                 </div>
             </div>
 
@@ -120,9 +132,8 @@
                 </div>
             </div>
             <div class="mb-3 mb-3">
-                <label for="url-input" class="form-label">Rechercher dans les colonnes Recto et Verso :</label>
                 <div class="input-group">
-                    <input type="text" id="filter-input" class="form-control">
+                    <input type="text" id="filter-input" class="form-control" placeholder="Rechercher dans les colonnes Recto et Verso...">
                     <button id="reset-filter-btn" class="btn btn-outline-secondary" type="button" title="Réinitialiser le filtre">
                         <ion-icon name="close-circle-outline"></ion-icon>
                     </button>

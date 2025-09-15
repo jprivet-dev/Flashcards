@@ -122,14 +122,15 @@ class Flashcard {
 
     fitTextToContainer(element) {
         const words = element.textContent.split(' ').filter(word => word !== '');
+        const textWithoutSpaces = element.textContent.replace(/\s/g, '')
 
         if (words.length > 7) {
             element.classList.add('text-start');
         }
 
-        let fontSize = 2.1;
+        let fontSize = 2.3;
 
-        if (words.length > 2) {
+        if (words.length > 2 && textWithoutSpaces.length > 5) {
             fontSize = 1.7;
         }
 
@@ -286,32 +287,60 @@ class FlashcardsApp {
     async fetchAndParseData() {
         let rawData;
         const url = this.urlInput.value;
-        const separator = this.separatorSelect.value;
+        let separator = this.separatorSelect.value;
+
         if (url) {
             if (!url.includes('docs.google.com/spreadsheets')) {
                 alert('Veuillez entrer une URL de Google Sheets valide.');
                 return;
             }
 
+            this.separatorSelect.value = ',';
+            separator = this.separatorSelect.value;
+
+            this.showLoadingIndicator();
+
             try {
                 const response = await fetch(url);
                 rawData = await response.text();
                 rawData = this.sanitizeData(rawData);
 
+                // Sauvegarde les nouvelles données dans le cache
+                const cacheEntry = {
+                    timestamp: new Date().toISOString(),
+                    data: rawData
+                };
+                localStorage.setItem(url, JSON.stringify(cacheEntry));
+
                 this.textInput.value = '';
                 localStorage.removeItem('flashcard-text-data');
             } catch (error) {
                 alert('Erreur lors du chargement de l\'URL. Vérifiez que c\'est un lien public.');
+                this.hideLoadingIndicator();
                 return;
+            } finally {
+                this.hideLoadingIndicator();
             }
         } else if (this.textInput.value) {
             rawData = this.textInput.value;
             rawData = this.sanitizeData(rawData);
+            this.hideLoadingIndicator();
         } else {
             alert('Veuillez entrer une URL ou du texte.');
+            this.hideLoadingIndicator();
             return;
         }
 
+        this.parseAndDisplayData(rawData, separator);
+
+        if (url) {
+            window.history.pushState({}, '', `?url=${encodeURIComponent(url)}`);
+        } else {
+            window.history.pushState({}, '', window.location.pathname);
+        }
+    }
+
+    parseAndDisplayData(rawData, separator) {
         const result = Papa.parse(rawData, {
             delimiter: separator,
             header: false,
@@ -319,7 +348,7 @@ class FlashcardsApp {
         });
 
         this.currentCards = result.data.map(row => {
-            const [recto, verso, notes] = row.map(s => s.trim());
+            const [recto, verso, notes] = row.map(s => s ? s.trim() : '');
             return { recto, verso, notes };
         }).filter(card => card.recto && card.verso);
 
@@ -328,12 +357,6 @@ class FlashcardsApp {
         this.filterTable('');
         this.dataDisplaySection.classList.remove('d-none');
         this.dataDisplaySection.scrollIntoView({ behavior: 'smooth' });
-
-        if (url) {
-            window.history.pushState({}, '', `?url=${encodeURIComponent(url)}`);
-        } else {
-            window.history.pushState({}, '', window.location.pathname);
-        }
     }
 
     displayTable(cardsToDisplay) {
@@ -345,7 +368,7 @@ class FlashcardsApp {
         cardsToDisplay.forEach((card, index) => {
             const recto = this.isContentSwapped ? card.verso : card.recto;
             const verso = this.isContentSwapped ? card.recto : card.verso;
-            const notes = card.notes;
+            const notes = card.notes || "";
 
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -505,6 +528,7 @@ class FlashcardsApp {
             if (data.separator) {
                 this.separatorSelect.value = data.separator;
             }
+            this.fetchAndParseData();
         }
     }
 
@@ -524,6 +548,7 @@ class FlashcardsApp {
             this.filterTable('');
             this.hideTable();
             this.dataDisplaySection.classList.add('d-none');
+            this.isContentSwapped = false;
         }
     }
 
@@ -535,6 +560,7 @@ class FlashcardsApp {
             this.filterTable('');
             this.hideTable();
             this.dataDisplaySection.classList.add('d-none');
+            this.isContentSwapped = false;
         }
     }
 
@@ -698,6 +724,16 @@ class FlashcardsApp {
         }
     }
 
+    showLoadingIndicator() {
+        this.loadDataBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Chargement...';
+        this.loadDataBtn.disabled = true;
+    }
+
+    hideLoadingIndicator() {
+        this.loadDataBtn.innerHTML = '<ion-icon name="cloud-upload-outline"></ion-icon> Charger les données';
+        this.loadDataBtn.disabled = false;
+    }
+
     toggleContentSwap() {
         this.isContentSwapped = !this.isContentSwapped;
         this.displayTable(this.currentCards);
@@ -734,6 +770,28 @@ class FlashcardsApp {
             }
         });
     }
+
+    loadGoogleSheetDataFromCache() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const sheetUrl = urlParams.get('url');
+
+        if (sheetUrl) {
+            this.urlInput.value = sheetUrl;
+            const cachedData = localStorage.getItem(sheetUrl);
+            this.separatorSelect.value = ',';
+
+            if (cachedData) {
+                const parsedCache = JSON.parse(cachedData);
+                const cacheTime = new Date(parsedCache.timestamp);
+                const now = new Date();
+                const hoursDiff = (now - cacheTime) / (1000 * 60 * 60);
+
+                if (hoursDiff < 24) {
+                    this.parseAndDisplayData(parsedCache.data, this.separatorSelect.value);
+                }
+            }
+        }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -742,6 +800,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sheetUrl = urlParams.get('url');
 
     app.loadTextFromLocalStorage();
+    app.loadGoogleSheetDataFromCache();
     app.loadFontFromLocalStorage();
 
     if (sheetUrl) {
