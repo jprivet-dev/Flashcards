@@ -101,15 +101,15 @@
             </div>
         </div>
         <div class="card-body">
-            <div class="row mb-4">
+            <div class="row">
                 <div class="col-auto">
-                    <button id="swap-content-btn" class="btn btn-primary">
+                    <button id="swap-content-btn" class="btn btn-primary mb-3">
                         <ion-icon name="swap-horizontal-outline"></ion-icon>
                         Inverser les données Recto et Verso
                     </button>
                 </div>
                 <div class="col-auto">
-                    <div class="input-group">
+                    <div class="input-group mb-3">
                         <label class="input-group-text" for="font-select">Choix de la police :</label>
                         <select class="form-select" id="font-select">
                             <option value="default">Par défaut</option>
@@ -141,7 +141,7 @@
             </div>
             <div class="mb-3 mb-3">
                 <div class="input-group">
-                    <input type="text" id="filter-input" class="form-control" placeholder="Rechercher dans les colonnes Recto et Verso...">
+                    <input type="text" id="filter-input" class="form-control" placeholder="Rechercher dans les colonnes Recto, Verso et Notes...">
                     <button id="reset-filter-btn" class="btn btn-outline-secondary" type="button" title="Réinitialiser le filtre">
                         <ion-icon name="close-circle-outline"></ion-icon>
                     </button>
@@ -252,15 +252,17 @@
     </div>
 </div>
 
-<div id="notes-footer">
-    <p class="m-0 py-3 text-center">
-        <strong>Notes : </strong><span id="notes-content"></span>
-    </p>
+<div id="notes-footer" class="shadow-lg">
+    <div class="container-xxl">
+        <div class="d-flex justify-content-start m-0 py-3">
+            <ion-icon name="information-circle" class="text-primary"></ion-icon>
+            <p id="notes-content" class="m-0 p-0"></p>
+        </div>
+    </div>
+    <button id="scrollToTopBtn" class="btn btn-primary text-center" title="Aller en haut de la page">
+        <ion-icon name="arrow-up-outline"></ion-icon>
+    </button>
 </div>
-
-<button id="scrollToTopBtn" class="btn btn-primary text-center" title="Aller en haut de la page">
-    <ion-icon name="arrow-up-outline"></ion-icon>
-</button>
 
 <div class="modal fade" id="choiceModal" tabindex="-1" aria-labelledby="choiceModalLabel" aria-hidden="true">
     <div class="modal-dialog">

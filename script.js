@@ -9,9 +9,17 @@ class Flashcard {
         front.className = 'card-body card-front rounded-0';
         front.innerHTML = flashcardData.recto.replace(/\|\|/g, '<br>').replace(/\n/g, '<br>');
 
+        if (flashcardData.recto.includes('\n')) {
+            front.classList.add('preserve-whitespace');
+        }
+
         const back = document.createElement('div');
         back.className = 'card-body card-back rounded-0';
         back.innerHTML = flashcardData.verso.replace(/\|\|/g, '<br>').replace(/\n/g, '<br>');
+
+        if (flashcardData.verso.includes('\n')) {
+            back.classList.add('preserve-whitespace');
+        }
 
         setTimeout(() => {
             this.fitTextToContainer(front, flashcardData.recto);
@@ -80,8 +88,8 @@ class Flashcard {
 
         let fontSize = 2.3;
 
-        if (words.length > 2 && textWithoutSpaces.length > 5) {
-            fontSize = 1.7;
+        if (words.length > 3 && textWithoutSpaces.length > 10) {
+            fontSize = 1.8;
         }
 
         const minFontSize = 0.6;
@@ -89,7 +97,7 @@ class Flashcard {
         element.style.fontSize = `${fontSize}rem`;
 
         while ((element.scrollWidth > element.clientWidth || element.scrollHeight > element.clientHeight) && fontSize > minFontSize) {
-            fontSize -= 0.1;
+            fontSize -= 0.2;
             element.style.fontSize = `${fontSize}rem`;
         }
     }
@@ -591,11 +599,16 @@ class FlashcardsApp {
 
             const rectoCellText = row.cells[2] ? row.cells[2].textContent : '';
             const versoCellText = row.cells[3] ? row.cells[3].textContent : '';
+            const notesCellText = row.cells[4] ? row.cells[4].textContent : '';
 
             if (regex) {
-                isMatch = regex.test(rectoCellText) || regex.test(versoCellText);
+                isMatch = regex.test(rectoCellText)
+                    || regex.test(versoCellText)
+                    || regex.test(notesCellText);
             } else {
-                isMatch = rectoCellText.toLowerCase().includes(query.toLowerCase()) || versoCellText.toLowerCase().includes(query.toLowerCase());
+                isMatch = rectoCellText.toLowerCase().includes(query.toLowerCase())
+                    || versoCellText.toLowerCase().includes(query.toLowerCase())
+                    || notesCellText.toLowerCase().includes(query.toLowerCase());
             }
 
             row.style.display = isMatch ? '' : 'none';
@@ -715,6 +728,8 @@ class FlashcardsApp {
         if (isFlipped && !isEmpty) {
             if (!isActive) {
                 this.notesFooter.classList.add('active');
+                document.body.classList.add('notes-active');
+
                 gsap.fromTo(this.notesFooter, { y: '100%' }, {
                     y: '0%',
                     duration: 0.3,
@@ -729,6 +744,8 @@ class FlashcardsApp {
     }
 
     closeNotes() {
+        document.body.classList.remove('notes-active');
+
         gsap.to(this.notesFooter, {
             y: '100%',
             duration: 0.3,
