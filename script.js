@@ -18,43 +18,8 @@ class Flashcard {
             this.fitTextToContainer(back, flashcardData.verso);
         }, 0);
 
-        const iconContainer = document.createElement('div');
-        iconContainer.className = 'icon-container';
-
-        const reviewIcon = document.createElement('ion-icon');
-        reviewIcon.setAttribute('title', 'Carte à réviser');
-        reviewIcon.setAttribute('name', 'reload-circle');
-        reviewIcon.className = 'review-icon';
-
-        const learnedIcon = document.createElement('ion-icon');
-        learnedIcon.setAttribute('title', 'Carte mémorisée !');
-        learnedIcon.setAttribute('name', 'checkmark-circle');
-        learnedIcon.className = 'learned-icon';
-
-        iconContainer.appendChild(reviewIcon);
-        iconContainer.appendChild(learnedIcon);
-        back.appendChild(iconContainer);
-
         flashcardElement.appendChild(front);
         flashcardElement.appendChild(back);
-
-        reviewIcon.addEventListener('click', (e) => {
-            e.stopPropagation();
-            reviewIcon.classList.add('reviser');
-            learnedIcon.classList.remove('okay');
-            this.app.updateFilterButtonsCount();
-        });
-
-        learnedIcon.addEventListener('click', (e) => {
-            e.stopPropagation();
-            learnedIcon.classList.add('okay');
-            reviewIcon.classList.remove('reviser');
-
-            if (this.app) {
-                this.app.updateFilterButtonsCount();
-                this.app.checkCompletion();
-            }
-        });
 
         this.element = flashcardElement;
     }
@@ -62,14 +27,6 @@ class Flashcard {
     flip() {
         const flashcardElement = this.element;
         const isFlipped = flashcardElement.classList.toggle('flipped');
-
-        const currentReviewIcon = flashcardElement.querySelector('.review-icon');
-        const currentLearnedIcon = flashcardElement.querySelector('.learned-icon');
-
-        if (!isFlipped) {
-            currentReviewIcon.classList.remove('reviser');
-            currentLearnedIcon.classList.remove('okay');
-        }
 
         if (this.app) {
             this.app.updateFilterButtonsCount();
@@ -88,18 +45,11 @@ class Flashcard {
 
         if (face === 'recto' && isFlipped) {
             flashcardElement.classList.remove('flipped');
-
             gsap.to(flashcardElement, {
                 rotationY: 0,
                 duration: 0.3,
                 ease: 'expo.out'
             });
-
-            const reviewIcon = flashcardElement.querySelector('.review-icon');
-            const learnedIcon = flashcardElement.querySelector('.learned-icon');
-
-            reviewIcon.classList.remove('reviser');
-            learnedIcon.classList.remove('okay');
         } else if (face === 'verso' && !isFlipped) {
             flashcardElement.classList.add('flipped');
 
@@ -163,17 +113,15 @@ class FlashcardsApp {
 
         this.flashcardsSection = document.getElementById('flashcards-section');
         this.progressIndicator = document.getElementById('progress-indicator');
-        this.reviewCountSpan = document.getElementById('review-count');
-        this.learnedCountSpan = document.getElementById('learned-count');
         this.backToDataBtn = document.getElementById('back-to-data-btn');
         this.scrollToTopBtn = document.getElementById('scrollToTopBtn');
 
         this.flashcardGridContainer = document.getElementById('flashcard-grid-container');
         this.flipAllRectoBtn = document.getElementById('flip-all-recto-btn');
         this.flipAllVersoBtn = document.getElementById('flip-all-verso-btn');
-        this.filterReviewBtn = document.getElementById('filter-review-btn');
+        this.filterUnflippedBtns = document.querySelectorAll('.filter-unflipped-btn');
+        this.unflippedCountSpans = document.querySelectorAll('.unflipped-count');
         this.showAllBtn = document.getElementById('show-all-btn');
-        this.reviewCountSpan = document.getElementById('review-count');
         this.allCountSpan = document.getElementById('all-count');
         this.selectAllCheckbox = document.getElementById('select-all-checkbox');
 
@@ -204,7 +152,6 @@ class FlashcardsApp {
 
         this.currentCards = [];
         this.cardsToReview = [];
-        this.learnedCards = [];
         this.flashcards = [];
 
         this.attachEventListeners();
@@ -222,7 +169,9 @@ class FlashcardsApp {
         this.flipAllRectoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('recto'));
         this.flipAllVersoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('verso'));
         this.backToDataBtn.addEventListener('click', () => this.showDataSection());
-        this.filterReviewBtn.addEventListener('click', () => this.filterCards('reviser'));
+        this.filterUnflippedBtns.forEach(btn => {
+            btn.addEventListener('click', () => this.filterCards('unflipped'));
+        });
         this.showAllBtn.addEventListener('click', () => this.filterCards('all'));
         this.selectAllCheckbox.addEventListener('change', () => this.toggleAllCheckboxes());
         window.addEventListener('scroll', () => this.scrollFunction());
@@ -366,7 +315,7 @@ class FlashcardsApp {
         cardsToDisplay.forEach((card, index) => {
             const recto = this.isContentSwapped ? card.verso : card.recto;
             const verso = this.isContentSwapped ? card.recto : card.verso;
-            const notes = card.notes || '';
+            const notes = card.notes || '-';
 
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -417,16 +366,6 @@ class FlashcardsApp {
             const flashcardElement = flashcard.element;
 
             flashcardElement.addEventListener('click', () => {
-                this.flashcards.forEach(flashcard => {
-                    if (
-                        flashcard !== flashcardElement
-                        && flashcard.element.classList.contains('flipped')
-                        && !flashcard.element.querySelector('.review-icon').classList.contains('reviser')
-                    ) {
-                        flashcard.element.querySelector('.learned-icon').classList.add('okay');
-                    }
-                });
-
                 flashcard.flip();
                 this.updateProgressBar();
                 this.updateFilterButtonsCount();
@@ -487,9 +426,9 @@ class FlashcardsApp {
 
     filterCards(mode) {
         this.flashcards.forEach(flashcard => {
-            const isToReview = flashcard.element.querySelector('.review-icon').classList.contains('reviser');
+            const isToReview = !flashcard.element.classList.contains('flipped');
 
-            if (mode === 'reviser') {
+            if (mode === 'unflipped') {
                 if (isToReview) {
                     flashcard.element.classList.remove('d-none');
                 } else {
@@ -575,29 +514,16 @@ class FlashcardsApp {
     }
 
     updateFilterButtonsCount() {
-        const reviewCount = this.flashcards.filter(flashcard => {
-            return flashcard.element.querySelector('.review-icon').classList.contains('reviser');
+        const unflippedCount = this.flashcards.filter(flashcard => {
+            return !flashcard.element.classList.contains('flipped');
         }).length;
 
         const allCount = this.flashcards.length;
 
-        this.reviewCountSpan.textContent = reviewCount;
+        this.unflippedCountSpans.forEach(span => {
+            span.textContent = unflippedCount;
+        });
         this.allCountSpan.textContent = allCount;
-    }
-
-    checkCompletion() {
-        const totalCards = this.flashcards.length;
-        const learnedCards = this.flashcards.filter(flashcard => {
-            return flashcard.element.querySelector('.learned-icon').classList.contains('okay');
-        }).length;
-
-        if (totalCards >= 10 && learnedCards === totalCards) {
-            confetti({
-                particleCount: 200,
-                spread: 120,
-                origin: { y: 0.6 }
-            });
-        }
     }
 
     scrollFunction() {
@@ -750,8 +676,13 @@ class FlashcardsApp {
     }
 
     toggleNotes(flashcard, flashcardData) {
+        let isEmpty = true;
+
+        if (typeof flashcardData.notes !== 'undefined') {
+            isEmpty = flashcardData.notes.trim() === '';
+        }
+
         const isFlipped = flashcard.element.classList.contains('flipped');
-        const isEmpty = flashcardData.notes.trim() === '';
         const isActive = this.notesFooter.classList.contains('active');
 
         if (isFlipped && !isEmpty) {
@@ -764,7 +695,7 @@ class FlashcardsApp {
                 });
             }
 
-            this.notesContent.innerHTML = flashcardData.recto.replace(/\|\|/g, '<br>').replace(/\n/g, '<br>');
+            this.notesContent.innerHTML = flashcardData.notes.replace(/\|\|/g, '<br>').replace(/\n/g, '<br>');
         } else {
             this.closeNotes();
         }

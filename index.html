@@ -212,9 +212,9 @@
             </button>
             <div class="d-flex flex-column flex-md-row gap-2">
                 <div class="btn-group" role="group">
-                    <button class="btn btn-outline-primary rounded-start-pill" id="filter-review-btn" title="Afficher que les cartes à réviser">
-                        <ion-icon name="reload-outline"></ion-icon>
-                        À réviser <span id="review-count" class="badge rounded-pill text-bg-primary">0</span>
+                    <button class="filter-unflipped-btn btn btn-outline-primary rounded-start-pill" title="Réviser avec les cartes non retournées">
+                        <ion-icon name="sync-outline"></ion-icon>
+                        Réviser <span class="unflipped-count badge rounded-pill text-bg-primary">0</span>
                     </button>
                     <button class="btn btn-outline-primary rounded-end-pill" id="show-all-btn" title="Afficher toutes les cartes">
                         <ion-icon name="grid-outline"></ion-icon>
@@ -237,9 +237,12 @@
     <div class="container-xxl g-0">
         <div id="flashcard-grid-container">
         </div>
-        <p class="text-center fs-4 my-5 py-5">
-            🎉 FIN 🎉
-        </p>
+        <div class="text-center fs-4 my-5 py-5">
+            <button class="filter-unflipped-btn btn btn-outline-primary rounded-pill">
+                <ion-icon name="sync-outline"></ion-icon>
+                Réviser avec les cartes non retournées <span class="unflipped-count badge rounded-pill text-bg-primary">0</span>
+            </button>
+        </div>
     </div>
 </section>
 
