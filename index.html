@@ -262,6 +262,24 @@
     <ion-icon name="arrow-up-outline"></ion-icon>
 </button>
 
+<div class="modal fade" id="choiceModal" tabindex="-1" aria-labelledby="choiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="choiceModalLabel">Conflit de données</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Les deux champs (URL et texte) contiennent des données. Veuillez choisir la source que vous souhaitez utiliser :</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="useSheetBtn" data-bs-dismiss="modal">Utiliser Google Sheet</button>
+                <button type="button" class="btn btn-primary" id="useTextBtn" data-bs-dismiss="modal">Utiliser le texte copié</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>

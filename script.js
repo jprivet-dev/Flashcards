@@ -150,6 +150,10 @@ class FlashcardsApp {
         this.notesFooter = document.getElementById('notes-footer');
         this.notesContent = document.getElementById('notes-content');
 
+        this.choiceModal = new bootstrap.Modal(document.getElementById('choiceModal'));
+        this.useSheetBtn = document.getElementById('useSheetBtn');
+        this.useTextBtn = document.getElementById('useTextBtn');
+
         this.currentCards = [];
         this.cardsToReview = [];
         this.flashcards = [];
@@ -158,7 +162,7 @@ class FlashcardsApp {
     }
 
     attachEventListeners() {
-        this.loadDataBtn.addEventListener('click', () => this.fetchAndParseData());
+        this.loadDataBtn.addEventListener('click', () => this.handleDataLoad());
         this.textInput.addEventListener('input', () => this.saveTextToLocalStorage());
         this.clearTextBtn.addEventListener('click', () => this.clearLocalStorage());
         this.clearUrlBtn.addEventListener('click', () => this.clearUrl());
@@ -181,6 +185,9 @@ class FlashcardsApp {
         this.unselectAllBtn.addEventListener('click', () => this.toggleAllCheckboxes(false));
 
         this.swapContentBtn.addEventListener('click', () => this.toggleContentSwap());
+
+        this.useSheetBtn.addEventListener('click', () => this.loadFromSource('url'));
+        this.useTextBtn.addEventListener('click', () => this.loadFromSource('text'));
 
         document.querySelectorAll('[data-sort-index]').forEach(header => {
             header.addEventListener('click', (e) => {
@@ -233,12 +240,28 @@ class FlashcardsApp {
         this.displayAllFlashcards();
     }
 
-    async fetchAndParseData() {
+    handleDataLoad() {
+        const urlExists = this.urlInput.value.length > 0;
+        const textExists = this.textInput.value.length > 0;
+
+        if (urlExists && textExists) {
+            this.choiceModal.show();
+        } else if (urlExists) {
+            this.loadFromSource('url');
+        } else if (textExists) {
+            this.loadFromSource('text');
+        } else {
+            alert('Veuillez entrer une URL ou du texte.');
+        }
+    }
+
+    async loadFromSource(source) {
         let rawData;
-        const url = this.urlInput.value;
         let separator = this.separatorSelect.value;
 
-        if (url) {
+        if (source === 'url') {
+            const url = this.urlInput.value;
+
             if (!url.includes('docs.google.com/spreadsheets')) {
                 alert('Veuillez entrer une URL de Google Sheets valide.');
                 return;
@@ -251,15 +274,13 @@ class FlashcardsApp {
                 const response = await fetch(url);
                 rawData = await response.text();
                 rawData = this.sanitizeData(rawData);
+                this.textInput.value = '';
 
-                // Sauvegarde les nouvelles données dans le cache
                 const cacheEntry = {
                     timestamp: new Date().toISOString(),
                     data: rawData
                 };
                 localStorage.setItem(url, JSON.stringify(cacheEntry));
-
-                this.textInput.value = '';
                 localStorage.removeItem('flashcard-text-data');
             } catch (error) {
                 alert('Erreur lors du chargement de l\'URL. Vérifiez que c\'est un lien public.');
@@ -268,22 +289,26 @@ class FlashcardsApp {
             } finally {
                 this.hideLoadingIndicator();
             }
-        } else if (this.textInput.value) {
+
+        } else if (source === 'text') {
             rawData = this.textInput.value;
+
+            if (!rawData) {
+                alert('Veuillez coller du texte.');
+                return;
+            }
+
             rawData = this.sanitizeData(rawData);
-            this.hideLoadingIndicator();
-        } else {
-            alert('Veuillez entrer une URL ou du texte.');
-            this.hideLoadingIndicator();
-            return;
+            this.urlInput.value = '';
         }
 
-        this.parseAndDisplayData(rawData, separator);
-
-        if (url) {
-            window.history.pushState({}, '', `?url=${encodeURIComponent(url)}`);
-        } else {
-            window.history.pushState({}, '', window.location.pathname);
+        if (rawData) {
+            this.parseAndDisplayData(rawData, separator);
+            if (source === 'url') {
+                window.history.pushState({}, '', `?url=${encodeURIComponent(this.urlInput.value)}`);
+            } else {
+                window.history.pushState({}, '', window.location.pathname);
+            }
         }
     }
 
@@ -459,9 +484,11 @@ class FlashcardsApp {
         const savedData = localStorage.getItem('flashcard-text-data');
         if (savedData) {
             const data = JSON.parse(savedData);
+
             if (data.text) {
                 this.textInput.value = data.text;
             }
+
             if (data.separator) {
                 this.separatorSelect.value = data.separator;
             }
@@ -477,7 +504,7 @@ class FlashcardsApp {
             textTab.classList.add('active');
             textPane.classList.add('active', 'show');
 
-            this.fetchAndParseData();
+            this.loadFromSource('text');
         }
     }
 
@@ -490,7 +517,7 @@ class FlashcardsApp {
     }
 
     clearLocalStorage() {
-        if (this.textInput.value && confirm('Es-tu sûr de vouloir effacer le texte ?')) {
+        if (this.textInput.value && confirm('Êtes-vous sûr de vouloir effacer le texte ?')) {
             this.textInput.value = '';
             localStorage.removeItem('flashcard-text-data');
             this.filterInput.value = '';
@@ -502,7 +529,7 @@ class FlashcardsApp {
     }
 
     clearUrl() {
-        if (this.urlInput.value && confirm('Es-tu sûr de vouloir effacer le lien ?')) {
+        if (this.urlInput.value && confirm('Êtes-vous sûr de vouloir effacer le lien ?')) {
             this.urlInput.value = '';
             window.history.pushState({}, '', window.location.pathname);
             this.filterInput.value = '';
