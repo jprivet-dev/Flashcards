@@ -36,6 +36,15 @@
 
 body {
     background: #fcfcfc;
+    transition: padding-bottom 0.3s ease-out;
+}
+
+body.notes-active {
+    padding-bottom: 90px;
+}
+
+.preserve-whitespace {
+    white-space: nowrap !important;
 }
 
 #flashcard-grid-container {
@@ -189,16 +198,16 @@ body {
     z-index: 0;
 }
 
-.btn ion-icon {
-    vertical-align: middle;
-    margin-right: 5px;
+ion-icon {
+    vertical-align: sub;
+    margin-right: 0.1em;
     font-size: 1.2em;
 }
 
 #scrollToTopBtn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
+    position: absolute;
+    top: -65px;
+    right: 15px;
     z-index: 1000;
     width: 50px;
     height: 50px;
@@ -216,7 +225,9 @@ body {
     box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
 }
 
-#scrollToTopBtn ion-icon {
+#scrollToTopBtn ion-icon,
+#start-random-icon-btn ion-icon,
+#start-sequential-icon-btn ion-icon {
     margin-right: 0;
 }
 
@@ -262,6 +273,16 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: #e9ecef;
+    background-color: #fafafa;
     transform: translateY(100%);
+}
+
+#notes-footer .container-xxl {
+    max-height: 140px;
+    overflow-y: auto;
+}
+
+#notes-footer ion-icon {
+    padding-top: 3px;
+    min-width: 25px;
 }
