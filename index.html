@@ -14,7 +14,7 @@
 
 <h1 class="text-center my-4">Flashcards</h1>
 
-<section id="data-loading-section" class="container">
+<section id="data-loading-section" class="container-lg">
     <div class="card mb-4 shadow-sm">
         <div class="card-header">
             <h2 class="my-0 py-3">1. Charger vos données</h2>
@@ -22,13 +22,50 @@
         <div class="card-body p-4">
             <div class="tabs-container">
                 <nav class="nav nav-tabs" id="dataTabs" role="tablist">
-                    <button class="nav-link active" id="sheet-tab" data-bs-toggle="tab" data-bs-target="#sheet-pane" type="button" role="tab" aria-controls="sheet-pane" aria-selected="true">Google Sheets</button>
-                    <button class="nav-link" id="text-tab" data-bs-toggle="tab" data-bs-target="#text-pane" type="button" role="tab" aria-controls="text-pane" aria-selected="false">Coller un texte</button>
+                    <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text-pane" type="button" role="tab" aria-controls="text-pane" aria-selected="false">Coller un texte</button>
+                    <button class="nav-link" id="sheet-tab" data-bs-toggle="tab" data-bs-target="#sheet-pane" type="button" role="tab" aria-controls="sheet-pane" aria-selected="true">Google Sheets</button>
                 </nav>
                 <div class="tab-content" id="dataTabContent">
-                    <div class="tab-pane fade show active" id="sheet-pane" role="tabpanel" aria-labelledby="sheet-tab">
+                    <div class="tab-pane fade show active" id="text-pane" role="tabpanel" aria-labelledby="text-tab">
                         <div class="my-4">
-                            <label for="url-input" class="form-label">Coller le lien de votre fichier CSV Google Sheet publique :</label>
+                            <label for="text-input" class="form-label">Coller votre texte ici :</label>
+                            <div class="input-group">
+                                <textarea id="text-input" class="form-control" rows="5" placeholder="Recto 1, Verso 1, Notes 1&#10;Recto 2, Verso 2, Notes 1"></textarea>
+                                <button id="clear-text-btn" class="btn btn-outline-secondary" type="button" title="Effacer">
+                                    <ion-icon name="close-circle-outline"></ion-icon>
+                                </button>
+                            </div>
+                            <div class="text-body-secondary">
+                                <ul>
+                                    <li><small>Donnez des valeurs séparées par des virgules, des points-virgules ou des tabulations.</small></li>
+                                    <li><small>Les colonnes Recto et Verso sont obligatoires. La colonne Notes est optionnelle.</small></li>
+                                    <li><small>Ne mettez pas d'en-têtes.</small></li>
+                                    <li><small>Votre navigateur garde dans sa mémoire locale le texte collé : vous pouvez rafraîchir la page et retrouver vos données actuelles.</small></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="input-group mb-4">
+                            <select class="form-select" id="example-select">
+                                <option value="">-- Ou coller un exemple --</option>
+                                <option value="example">Exemple très simple</option>
+                                <option value="multiplication">Tables de multiplication</option>
+                                <option value="verbs">Verbes irréguliers (3ème)</option>
+                                <option value="periodic">Symboles des éléments chimiques</option>
+                            </select>
+                            <button id="example-load-btn" class="btn btn-primary">Coller</button>
+                        </div>
+                        <div class="input-group mb-4">
+                            <label for="separator-select" class="input-group-text" id="basic-addon1">Séparateur :</label>
+                            <select id="separator-select" class="form-select">
+                                <option value=",">Virgule (,)</option>
+                                <option value=";">Point-virgule (;)</option>
+                                <option value="	">Tabulation</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="sheet-pane" role="tabpanel" aria-labelledby="sheet-tab">
+                        <div class="my-4">
+                            <label for="url-input" class="form-label">Coller le lien de votre fichier CSV Google Sheet public :</label>
                             <div class="input-group">
                                 <input type="url" id="url-input" class="form-control">
                                 <button id="clear-url-btn" class="btn btn-outline-secondary" type="button" title="Effacer">
@@ -41,35 +78,9 @@
                                     <li><small>Donnez un fichier CSV (valeurs séparées par des virgules).</small></li>
                                     <li><small>Les colonnes Recto et Verso sont obligatoires. La colonne Notes est optionnelle.</small></li>
                                     <li><small>Ne mettez pas d'en-têtes.</small></li>
-                                    <li><small><a href="https://support.google.com/docs/answer/183965" target="_blank">Comment rendre vos Google Sheets publiques ?</a> (lien externe)</small></li>
+                                    <li><small><a href="https://support.google.com/docs/answer/183965" target="_blank">Comment rendre votre fichier Google Sheets public ?</a> (lien externe)</small></li>
                                 </ul>
                             </div>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade" id="text-pane" role="tabpanel" aria-labelledby="text-tab">
-                        <div class="my-4">
-                            <label for="text-input" class="form-label">Ou coller votre texte ici :</label>
-                            <div class="input-group">
-                                <textarea id="text-input" class="form-control" rows="5" placeholder="Recto 1, Verso 1, Notes 1&#10;Recto 2, Verso 2, Notes 1"></textarea>
-                                <button id="clear-text-btn" class="btn btn-outline-secondary" type="button" title="Effacer">
-                                    <ion-icon name="close-circle-outline"></ion-icon>
-                                </button>
-                            </div>
-                            <div class="text-body-secondary">
-                                <ul>
-                                    <li><small>Donnez des valeurs séparées par des virgules, des points-virgules ou des tabulations.</small></li>
-                                    <li><small>Les colonnes Recto et Verso sont obligatoires. La colonne Notes est optionnelle.</small></li>
-                                    <li><small>Ne mettez pas d'en-têtes.</small></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="input-group mb-4">
-                            <label for="separator-select" class="input-group-text" id="basic-addon1">Séparateur :</label>
-                            <select id="separator-select" class="form-select">
-                                <option value=",">Virgule (,)</option>
-                                <option value=";">Point-virgule (;)</option>
-                                <option value="	">Tabulation</option>
-                            </select>
                         </div>
                     </div>
                 </div>
@@ -101,6 +112,14 @@
             </div>
         </div>
         <div class="card-body">
+            <div class="alert alert-light" role="alert">
+                <strong>Astuces :</strong>
+                <ul class="mb-0">
+                    <li>Une ligne correspond à une "flashcard".</li>
+                    <li>Avec le filtre par mots clés, seules les lignes visibles et cochées sont converties en "flashcards".</li>
+                    <li>Triez le tableau par ordre alphabétique en cliquant sur l'en-tête des colonnes.</li>
+                </ul>
+            </div>
             <div class="row">
                 <div class="col-auto">
                     <button id="swap-content-btn" class="btn btn-primary mb-3">
@@ -141,7 +160,7 @@
             </div>
             <div class="mb-3 mb-3">
                 <div class="input-group">
-                    <input type="text" id="filter-input" class="form-control" placeholder="Rechercher dans les colonnes Recto, Verso et Notes...">
+                    <input type="text" id="filter-input" class="form-control" placeholder="Filtrer les colonnes Recto, Verso et Notes...">
                     <button id="reset-filter-btn" class="btn btn-outline-secondary" type="button" title="Réinitialiser le filtre">
                         <ion-icon name="close-circle-outline"></ion-icon>
                     </button>

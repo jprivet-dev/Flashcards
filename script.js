@@ -162,6 +162,9 @@ class FlashcardsApp {
         this.useSheetBtn = document.getElementById('useSheetBtn');
         this.useTextBtn = document.getElementById('useTextBtn');
 
+        this.exampleSelect = document.getElementById('example-select');
+        this.exampleLoadBtn = document.getElementById('example-load-btn');
+
         this.currentCards = [];
         this.cardsToReview = [];
         this.flashcards = [];
@@ -171,9 +174,8 @@ class FlashcardsApp {
 
     attachEventListeners() {
         this.loadDataBtn.addEventListener('click', () => this.handleDataLoad());
-        this.textInput.addEventListener('input', () => this.saveTextToLocalStorage());
-        this.clearTextBtn.addEventListener('click', () => this.clearLocalStorage());
-        this.clearUrlBtn.addEventListener('click', () => this.clearUrl());
+        this.clearTextBtn.addEventListener('click', () => this.clearLocalStorageConfirm());
+        this.clearUrlBtn.addEventListener('click', () => this.clearUrlConfirm());
         this.startSequentialBtn.addEventListener('click', () => {this.startSession('sequential');});
         this.startRandomBtn.addEventListener('click', () => {this.startSession('random');});
         this.startSequentialIconBtn.addEventListener('click', () => this.startSession('sequential'));
@@ -205,7 +207,6 @@ class FlashcardsApp {
         });
 
         this.filterInput.addEventListener('input', () => this.filterTable(this.filterInput.value));
-        this.separatorSelect.addEventListener('change', () => this.saveTextToLocalStorage());
 
         this.resetFilterBtn.addEventListener('click', () => {
             this.filterInput.value = '';
@@ -213,6 +214,7 @@ class FlashcardsApp {
         });
 
         this.fontSelect.addEventListener('change', () => this.handleFontChange());
+        this.exampleLoadBtn.addEventListener('click', () => this.exampleSelect.value ? this.loadExampleData(this.exampleSelect.value) : null);
 
         let resizeTimer;
         window.addEventListener('resize', () => {
@@ -263,6 +265,45 @@ class FlashcardsApp {
         }
     }
 
+    async loadExampleData(type) {
+        let filePath = '';
+
+        if (this.textInput.value || this.urlInput.value) {
+            if (!confirm('Souhaitez-vous charger l\'exemple et écraser toutes les autres données (Google Sheet ou texte copié précédemment) ?')) {
+                return;
+            }
+
+            this.clearLocalStorage();
+            this.clearUrl();
+        }
+
+        if (type === 'example') {
+            filePath = 'csv/exemple-simple.csv';
+        } else if (type === 'multiplication') {
+            filePath = 'csv/tables-de-multiplication.csv';
+        } else if (type === 'verbs') {
+            filePath = 'csv/verbes-irréguliers-3ème.csv';
+        } else if (type === 'periodic') {
+            filePath = 'csv/éléments-chimiques-symbole-nom.csv';
+        }
+
+        try {
+            const response = await fetch(filePath);
+            if (!response.ok) {
+                throw new Error(`Impossible de charger le fichier : ${response.statusText}`);
+            }
+
+            this.textInput.value = await response.text();
+            this.separatorSelect.value = ',';
+            this.exampleSelect.value = '';
+            this.saveTextToLocalStorage();
+            this.hideDisplaySection();
+        } catch (error) {
+            alert('Erreur lors du chargement des données de l\'exemple.');
+            console.error('Erreur:', error);
+        }
+    }
+
     async loadFromSource(source) {
         let rawData;
         let separator = this.separatorSelect.value;
@@ -288,16 +329,23 @@ class FlashcardsApp {
                     timestamp: new Date().toISOString(),
                     data: rawData
                 };
+
                 localStorage.setItem(url, JSON.stringify(cacheEntry));
                 localStorage.removeItem('flashcard-text-data');
             } catch (error) {
                 alert('Erreur lors du chargement de l\'URL. Vérifiez que c\'est un lien public.');
+                console.error('Erreur:', error);
                 this.hideLoadingIndicator();
                 return;
             } finally {
                 this.hideLoadingIndicator();
-            }
 
+                if (source === 'url') {
+                    window.history.pushState({}, '', `?url=${encodeURIComponent(this.urlInput.value)}`);
+                } else {
+                    window.history.pushState({}, '', window.location.pathname);
+                }
+            }
         } else if (source === 'text') {
             rawData = this.textInput.value;
 
@@ -307,16 +355,12 @@ class FlashcardsApp {
             }
 
             rawData = this.sanitizeData(rawData);
+            this.saveTextToLocalStorage();
             this.urlInput.value = '';
         }
 
         if (rawData) {
             this.parseAndDisplayData(rawData, separator);
-            if (source === 'url') {
-                window.history.pushState({}, '', `?url=${encodeURIComponent(this.urlInput.value)}`);
-            } else {
-                window.history.pushState({}, '', window.location.pathname);
-            }
         }
     }
 
@@ -491,6 +535,15 @@ class FlashcardsApp {
     loadTextFromLocalStorage() {
         const savedData = localStorage.getItem('flashcard-text-data');
         if (savedData) {
+            const textTab = document.getElementById('text-tab');
+            const textPane = document.getElementById('text-pane');
+            const sheetTab = document.getElementById('sheet-tab');
+            const sheetPane = document.getElementById('sheet-pane');
+            sheetTab.classList.remove('active', 'show');
+            sheetPane.classList.remove('active', 'show');
+            textTab.classList.add('active');
+            textPane.classList.add('active', 'show');
+
             const data = JSON.parse(savedData);
 
             if (data.text) {
@@ -500,17 +553,6 @@ class FlashcardsApp {
             if (data.separator) {
                 this.separatorSelect.value = data.separator;
             }
-
-            const textTab = document.getElementById('text-tab');
-            const textPane = document.getElementById('text-pane');
-            const sheetTab = document.getElementById('sheet-tab');
-            const sheetPane = document.getElementById('sheet-pane');
-
-            sheetTab.classList.remove('active');
-            sheetPane.classList.remove('active', 'show');
-
-            textTab.classList.add('active');
-            textPane.classList.add('active', 'show');
 
             this.loadFromSource('text');
         }
@@ -524,28 +566,36 @@ class FlashcardsApp {
         localStorage.setItem('flashcard-text-data', JSON.stringify(data));
     }
 
-    clearLocalStorage() {
+    clearLocalStorageConfirm() {
         if (this.textInput.value && confirm('Êtes-vous sûr de vouloir effacer le texte ?')) {
-            this.textInput.value = '';
-            localStorage.removeItem('flashcard-text-data');
-            this.filterInput.value = '';
-            this.filterTable('');
-            this.hideTable();
-            this.dataDisplaySection.classList.add('d-none');
-            this.isContentSwapped = false;
+            this.clearLocalStorage();
+        }
+    }
+
+    clearLocalStorage() {
+        this.textInput.value = '';
+        localStorage.removeItem('flashcard-text-data');
+        this.hideDisplaySection();
+    }
+
+    clearUrlConfirm() {
+        if (this.urlInput.value && confirm('Êtes-vous sûr de vouloir effacer le lien ?')) {
+            this.clearUrl();
         }
     }
 
     clearUrl() {
-        if (this.urlInput.value && confirm('Êtes-vous sûr de vouloir effacer le lien ?')) {
-            this.urlInput.value = '';
-            window.history.pushState({}, '', window.location.pathname);
-            this.filterInput.value = '';
-            this.filterTable('');
-            this.hideTable();
-            this.dataDisplaySection.classList.add('d-none');
-            this.isContentSwapped = false;
-        }
+        this.urlInput.value = '';
+        window.history.pushState({}, '', window.location.pathname);
+        this.hideDisplaySection();
+    }
+
+    hideDisplaySection() {
+        this.filterInput.value = '';
+        this.filterTable('');
+        this.hideTable();
+        this.dataDisplaySection.classList.add('d-none');
+        this.isContentSwapped = false;
     }
 
     updateFilterButtonsCount() {
@@ -762,6 +812,15 @@ class FlashcardsApp {
         const separator = ',';
 
         if (sheetUrl) {
+            const textTab = document.getElementById('text-tab');
+            const textPane = document.getElementById('text-pane');
+            const sheetTab = document.getElementById('sheet-tab');
+            const sheetPane = document.getElementById('sheet-pane');
+            textTab.classList.remove('active', 'show');
+            textPane.classList.remove('active', 'show');
+            sheetTab.classList.add('active');
+            sheetPane.classList.add('active', 'show');
+
             this.urlInput.value = sheetUrl;
             const cachedData = localStorage.getItem(sheetUrl);
 

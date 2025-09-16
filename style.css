@@ -282,6 +282,12 @@ ion-icon {
     overflow-y: auto;
 }
 
+@media (max-width: 767.98px) {
+    #notes-footer .container-xxl {
+        max-height: 105px;
+    }
+}
+
 #notes-footer ion-icon {
     padding-top: 3px;
     min-width: 25px;
