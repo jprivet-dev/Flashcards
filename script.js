@@ -130,6 +130,7 @@ class FlashcardsApp {
         this.flashcardGridContainer = document.getElementById('flashcard-grid-container');
         this.flipAllRectoBtn = document.getElementById('flip-all-recto-btn');
         this.flipAllVersoBtn = document.getElementById('flip-all-verso-btn');
+        this.switchCardsSizeBtn = document.getElementById('switch-cards-size-btn');
         this.filterUnflippedBtns = document.querySelectorAll('.filter-unflipped-btn');
         this.unflippedCountSpans = document.querySelectorAll('.unflipped-count');
         this.showAllBtn = document.getElementById('show-all-btn');
@@ -188,6 +189,7 @@ class FlashcardsApp {
         this.startRandomIconBtn.addEventListener('click', () => this.startSession('random'));
         this.flipAllRectoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('recto'));
         this.flipAllVersoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('verso'));
+        this.switchCardsSizeBtn.addEventListener('click', () => this.switchCardsSize());
         this.backToDataBtn.addEventListener('click', () => this.showDataDisplaySection());
         this.forwardToDataBtn.addEventListener('click', () => this.showDataDisplaySection());
         this.backToLoadDataBtn.addEventListener('click', () => this.showDataLoadingSection());
@@ -357,7 +359,7 @@ class FlashcardsApp {
             this.urlInput.value = '';
         }
 
-        this.updateShareableLink(url)
+        this.updateShareableLink(url);
 
         if (rawData) {
             this.parseAndDisplayData(rawData, separator);
@@ -463,6 +465,28 @@ class FlashcardsApp {
         this.updateProgressBar();
         this.updateFilterButtonsCount();
         this.closeNotes();
+    }
+
+    switchCardsSize() {
+        const smallCardsSize = localStorage.getItem('small-cards-size');
+        this.setCardsSize(smallCardsSize !== 'true');
+    }
+
+    setCardsSize(smallCardsSize) {
+        localStorage.setItem('small-cards-size', smallCardsSize);
+
+        if (smallCardsSize) {
+            document.body.classList.add('small-cards-size');
+        } else {
+            document.body.classList.remove('small-cards-size');
+        }
+
+        this.flashcards.forEach(flashcard => flashcard.fitTexts());
+    }
+
+    initCardsSizeFromLocalStorage() {
+        const smallCardsSize = localStorage.getItem('small-cards-size');
+        this.setCardsSize(smallCardsSize === 'true');
     }
 
     updateProgressBar() {
@@ -908,6 +932,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     app.loadFromLocalStorage();
     app.loadFontFromLocalStorage();
+    app.initCardsSizeFromLocalStorage();
 
     if (sheetUrl) {
         app.urlInput.value = sheetUrl;
