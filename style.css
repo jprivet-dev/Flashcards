@@ -292,3 +292,14 @@ ion-icon {
     padding-top: 3px;
     min-width: 25px;
 }
+
+
+#flashcard-table {
+    min-width: 800px;
+}
+
+#flashcard-table th:not(:last-child),
+#flashcard-table td:not(:last-child) {
+    width: 1%;
+    white-space: nowrap;
+}
