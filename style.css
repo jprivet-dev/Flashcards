@@ -7,12 +7,12 @@
 }
 
 .nav-tabs {
-    --bs-nav-tabs-link-active-border-color: var(--bs-border-color) var(--bs-border-color) #fcfcfc;
+    --bs-nav-tabs-link-active-border-color: var(--bs-border-color) var(--bs-border-color) #f8f9fa;
 }
 
 .nav-tabs .nav-item.show .nav-link,
 .nav-tabs .nav-link.active {
-    --bs-nav-tabs-link-active-bg: #fcfcfc;
+    --bs-nav-tabs-link-active-bg: #f8f9fa;
 }
 
 .orange {
@@ -44,7 +44,7 @@
 }
 
 body {
-    background: #fcfcfc;
+    background: #f8f9fa;
     transition: padding-bottom 0.3s ease-out;
 }
 
@@ -88,10 +88,20 @@ body.small-cards-size #switch-cards-size-btn .contract {
     position: relative;
     width: 100%;
     height: 0;
-    padding-bottom: 60%;
+    padding-bottom: 100%;
 
     transform-style: preserve-3d;
     transition: transform 0.2s ease-out;
+}
+
+@media (max-width: 575.98px) {
+    .flashcard {
+        padding-bottom: 60%;
+    }
+
+    body.small-cards-size .flashcard {
+        padding-bottom: 100%;
+    }
 }
 
 @media (min-width: 576px) {
@@ -101,10 +111,6 @@ body.small-cards-size #switch-cards-size-btn .contract {
 
     body.small-cards-size #flashcard-grid-container {
         grid-template-columns: repeat(3, 1fr);
-    }
-
-    .flashcard {
-        padding-bottom: 100%;
     }
 }
 
@@ -294,10 +300,8 @@ body.small-cards-size #switch-cards-size-btn .contract {
     height: 10px;
 }
 
-.table th:first-child,
-.table td:first-child {
-    text-align: center;
-    vertical-align: middle;
+.table {
+    --bs-table-bg: #FFFFFF00;
 }
 
 .table input[type="checkbox"] {
