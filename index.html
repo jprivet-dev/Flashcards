@@ -12,81 +12,102 @@
 </head>
 <body>
 
-<h1 class="text-center my-4">Flashcards</h1>
+<div class="container-lg pt-4">
+    <header class="d-flex align-items-center pb-3 mb-4 border-bottom">
+        <h1 class="fs-4 m-0 p-0">Flashcards</h1>
+    </header>
+</div>
 
-<section id="data-loading-section" class="container-lg">
-    <div class="card mb-4 shadow-sm">
-        <div class="card-header">
-            <h2 class="my-0 py-3">1. Charger vos données</h2>
+<section id="data-loading-section">
+    <div class="container-lg">
+
+        <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center mb-4 g-2">
+            <h2 class="mb-2">1. Charger vos données</h2>
+            <button id="forward-to-data-btn" class="btn btn-primary rounded-pill mb-2 d-none" title="Revenir aux données">
+                Données
+                <ion-icon name="arrow-forward-outline"></ion-icon>
+            </button>
         </div>
-        <div class="card-body p-4">
-            <div class="tabs-container">
-                <nav class="nav nav-tabs" id="dataTabs" role="tablist">
-                    <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text-pane" type="button" role="tab" aria-controls="text-pane" aria-selected="false">Coller un texte</button>
-                    <button class="nav-link" id="sheet-tab" data-bs-toggle="tab" data-bs-target="#sheet-pane" type="button" role="tab" aria-controls="sheet-pane" aria-selected="true">Google Sheets</button>
-                </nav>
-                <div class="tab-content" id="dataTabContent">
-                    <div class="tab-pane fade show active" id="text-pane" role="tabpanel" aria-labelledby="text-tab">
-                        <div class="my-4">
-                            <label for="text-input" class="form-label">Coller votre texte ici :</label>
-                            <div class="input-group">
-                                <textarea id="text-input" class="form-control" rows="5" placeholder="Recto 1, Verso 1, Notes 1&#10;Recto 2, Verso 2, Notes 1"></textarea>
-                                <button id="clear-text-btn" class="btn btn-outline-secondary" type="button" title="Effacer">
-                                    <ion-icon name="close-circle-outline"></ion-icon>
-                                </button>
-                            </div>
-                            <div class="text-body-secondary">
-                                <ul>
-                                    <li><small>Donnez des valeurs séparées par des virgules, des points-virgules ou des tabulations.</small></li>
-                                    <li><small>Les colonnes Recto et Verso sont obligatoires. La colonne Notes est optionnelle.</small></li>
-                                    <li><small>Ne mettez pas d'en-têtes.</small></li>
-                                    <li><small>Votre navigateur garde dans sa mémoire locale le texte collé : vous pouvez rafraîchir la page et retrouver vos données actuelles.</small></li>
-                                </ul>
-                            </div>
+
+        <div class="tabs-container mb-4">
+            <nav class="nav nav-tabs" id="dataTabs" role="tablist">
+                <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text-pane" type="button" role="tab" aria-controls="text-pane" aria-selected="false">Coller un texte</button>
+                <button class="nav-link" id="sheet-tab" data-bs-toggle="tab" data-bs-target="#sheet-pane" type="button" role="tab" aria-controls="sheet-pane" aria-selected="true">Google Sheets</button>
+            </nav>
+            <div class="tab-content" id="dataTabContent">
+                <div class="tab-pane active" id="text-pane" role="tabpanel" aria-labelledby="text-tab">
+                    <div class="my-4">
+                        <label for="text-input" class="form-label">Coller votre texte ici :</label>
+                        <div class="input-group">
+                            <textarea id="text-input" class="form-control" rows="5" placeholder="Recto 1, Verso 1, Notes 1&#10;Recto 2, Verso 2, Notes 1"></textarea>
+                            <button id="clear-text-btn" class="btn btn-outline-secondary" type="button" title="Effacer">
+                                <ion-icon name="close-circle-outline"></ion-icon>
+                            </button>
                         </div>
-                        <div class="input-group mb-4">
-                            <select class="form-select" id="example-select">
-                                <option value="">-- Ou coller un exemple --</option>
-                                <option value="example">Exemple très simple</option>
-                                <option value="multiplication">Tables de multiplication</option>
-                                <option value="verbs">Verbes irréguliers (3ème)</option>
-                                <option value="periodic">Symboles des éléments chimiques</option>
-                            </select>
-                            <button id="example-load-btn" class="btn btn-primary">Coller</button>
-                        </div>
-                        <div class="input-group mb-4">
-                            <label for="separator-select" class="input-group-text" id="basic-addon1">Séparateur :</label>
-                            <select id="separator-select" class="form-select">
-                                <option value=",">Virgule (,)</option>
-                                <option value=";">Point-virgule (;)</option>
-                                <option value="	">Tabulation</option>
-                            </select>
+                        <div class="text-body-secondary mt-2">
+                            <ul>
+                                <li><small>Donnez des valeurs séparées par des virgules, des points-virgules ou des tabulations.</small></li>
+                                <li><small>Les colonnes Recto et Verso sont obligatoires. La colonne Notes est optionnelle.</small></li>
+                                <li><small>Ne mettez pas d'en-têtes.</small></li>
+                                <li><small>Votre navigateur garde dans sa mémoire locale le texte collé : vous pouvez rafraîchir la page et retrouver vos données actuelles.</small></li>
+                            </ul>
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="sheet-pane" role="tabpanel" aria-labelledby="sheet-tab">
-                        <div class="my-4">
-                            <label for="url-input" class="form-label">Coller le lien de votre fichier CSV Google Sheet public :</label>
-                            <div class="input-group">
-                                <input type="url" id="url-input" class="form-control">
-                                <button id="clear-url-btn" class="btn btn-outline-secondary" type="button" title="Effacer">
-                                    <ion-icon name="close-circle-outline"></ion-icon>
-                                </button>
-                            </div>
-                            <div class="text-body-secondary">
-                                <ul>
-                                    <li><small>Chargez des données uniquement à partir de sources Google Sheets fiables !</small></li>
-                                    <li><small>Donnez un fichier CSV (valeurs séparées par des virgules).</small></li>
-                                    <li><small>Les colonnes Recto et Verso sont obligatoires. La colonne Notes est optionnelle.</small></li>
-                                    <li><small>Ne mettez pas d'en-têtes.</small></li>
-                                    <li><small><a href="https://support.google.com/docs/answer/183965" target="_blank">Comment rendre votre fichier Google Sheets public ?</a> (lien externe)</small></li>
-                                </ul>
-                            </div>
+                    <div class="input-group mb-4">
+                        <select class="form-select" id="example-select">
+                            <option value="">-- Ou coller un exemple --</option>
+                            <option value="example">Exemple très simple</option>
+                            <option value="multiplication">Tables de multiplication</option>
+                            <option value="verbs">Verbes irréguliers (3ème)</option>
+                            <option value="periodic">Symboles des éléments chimiques</option>
+                        </select>
+                        <button id="example-load-btn" class="btn btn-primary">Coller</button>
+                    </div>
+                    <div class="input-group mb-4">
+                        <label for="separator-select" class="input-group-text" id="basic-addon1">Séparateur :</label>
+                        <select id="separator-select" class="form-select">
+                            <option value=",">Virgule (,)</option>
+                            <option value=";">Point-virgule (;)</option>
+                            <option value="	">Tabulation</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="tab-pane" id="sheet-pane" role="tabpanel" aria-labelledby="sheet-tab">
+                    <div class="my-4">
+                        <label for="url-input" class="form-label">Coller le lien de votre fichier CSV Google Sheets public :</label>
+                        <div class="input-group">
+                            <input type="url" id="url-input" class="form-control">
+                            <button id="clear-url-btn" class="btn btn-outline-secondary" type="button" title="Effacer">
+                                <ion-icon name="close-circle-outline"></ion-icon>
+                            </button>
+                        </div>
+                        <div class="text-body-secondary mt-2">
+                            <ul>
+                                <li><small>Chargez des données uniquement à partir de sources Google Sheets fiables !</small></li>
+                                <li><small>Donnez un fichier CSV (valeurs séparées par des virgules).</small></li>
+                                <li><small>Les colonnes Recto et Verso sont obligatoires. La colonne Notes est optionnelle.</small></li>
+                                <li><small>Ne mettez pas d'en-têtes.</small></li>
+                                <li><small><a href="https://support.google.com/docs/answer/183965" target="_blank">Comment rendre votre fichier Google Sheets public ?</a> (lien externe)</small></li>
+                            </ul>
                         </div>
                     </div>
+                    <div class="mb-3">
+                        <label for="shareable-url-input" class="form-label">Partager le lien :</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="shareable-url-input" readonly>
+                            <button class="btn btn-outline-secondary" type="button" id="copy-url-btn" title="Copier le lien">
+                                <ion-icon name="copy-outline"></ion-icon>
+                            </button>
+                        </div>
+                        <div class="text-body-secondary">
+                            <small>Le lien vers cette application "Flashcards" contiendra en paramètre le lien nécessaire vers le fichier Google Sheets.</small>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
-            <div class="d-grid gap-2 col-lg-6 mx-auto">
+            <div class="d-grid gap-2 col-lg-6 mx-auto my-5">
                 <button id="load-data-btn" class="btn btn-primary btn-lg rounded-pill">
                     <ion-icon name="cloud-upload-outline"></ion-icon>
                     Charger les données
@@ -94,41 +115,44 @@
             </div>
         </div>
     </div>
+</section>
 
-    <div id="data-display-section" class="card mb-4 shadow-sm d-none">
-        <div class="card-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <h2 class="my-0 py-3">2. Aperçu des données</h2>
-                <div class="d-flex gap-2">
-                    <div class="btn-group" role="group">
-                        <button id="start-sequential-icon-btn" class="btn btn-success btn-lg rounded-start-pill" title="Commencer la révision dans l'ordre">
-                            <ion-icon name="play-forward-outline"></ion-icon>
-                        </button>
-                        <button id="start-random-icon-btn" class="btn btn-warning btn-lg rounded-end-pill" title="Commencer la révision aléatoire">
-                            <ion-icon name="shuffle-outline"></ion-icon>
-                        </button>
-                    </div>
-                </div>
+<section id="data-display-section" class="mb-4 d-none">
+    <div class="container-lg">
+        <div class="d-flex justify-content-between mb-4">
+            <button class="btn btn-primary rounded-pill mb-md-0" id="back-to-load-data-btn" title="Charger vos données">
+                <ion-icon name="arrow-back-outline"></ion-icon>
+                Charger
+            </button>
+            <div class="d-flex align-items-end gap-2">
+                <button id="start-sequential-icon-btn" class="btn btn-success rounded-pill" title="Commencer la révision dans l'ordre">
+                    <ion-icon name="play-forward-outline"></ion-icon>
+                </button>
+                <button id="start-random-icon-btn" class="btn btn-warning rounded-pill" title="Commencer la révision aléatoire">
+                    <ion-icon name="shuffle-outline"></ion-icon>
+                </button>
             </div>
         </div>
-        <div class="card-body">
-            <div class="alert alert-light" role="alert">
-                <strong>Astuces :</strong>
-                <ul class="mb-0">
-                    <li>Une ligne correspond à une "flashcard".</li>
-                    <li>Avec le filtre par mots clés, seules les lignes visibles et cochées sont converties en "flashcards".</li>
-                    <li>Triez le tableau par ordre alphabétique en cliquant sur l'en-tête des colonnes.</li>
-                </ul>
-            </div>
+
+        <h2 class="m-0 pb-4">2. Aperçu des données <span id="from-google-sheet">(Google Sheets)</span></h2>
+
+        <strong>Astuces :</strong>
+        <ul class="mb-4">
+            <li>Une ligne correspond à une "flashcard".</li>
+            <li>Avec le filtre par mots clés, seules les lignes visibles et cochées sont converties en "flashcards".</li>
+            <li>Triez le tableau par ordre alphabétique en cliquant sur l'en-tête des colonnes.</li>
+        </ul>
+
+        <div class="border rounded p-4 mb-4">
             <div class="row">
                 <div class="col-auto">
-                    <button id="swap-content-btn" class="btn btn-primary mb-3">
+                    <button id="swap-content-btn" class="btn btn-primary mb-4">
                         <ion-icon name="swap-horizontal-outline"></ion-icon>
                         Inverser les données Recto et Verso
                     </button>
                 </div>
                 <div class="col-auto">
-                    <div class="input-group mb-3">
+                    <div class="input-group mb-4">
                         <label class="input-group-text" for="font-select">Choix de la police :</label>
                         <select class="form-select" id="font-select">
                             <option value="default">Par défaut</option>
@@ -158,7 +182,7 @@
                     <button id="unselectAll-btn" class="btn btn-secondary w-100">Désélectionner tout</button>
                 </div>
             </div>
-            <div class="mb-3 mb-3">
+            <div>
                 <div class="input-group">
                     <input type="text" id="filter-input" class="form-control" placeholder="Filtrer les colonnes Recto, Verso et Notes...">
                     <button id="reset-filter-btn" class="btn btn-outline-secondary" type="button" title="Réinitialiser le filtre">
@@ -169,63 +193,65 @@
                     <span id="visible-rows-count">0</span> carte(s) affichée(s) sur <span id="total-rows-count">0</span>.
                 </div>
             </div>
-            <div class="table-responsive">
-                <table id="flashcard-table" class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th><input type="checkbox" checked id="select-all-checkbox"></th>
-                        <th data-sort-index="1" class="text-center sortable">
-                            #
-                            <span class="sort-icon-container">
+        </div>
+
+        <div class="table-responsive">
+            <table id="flashcard-table" class="table table-striped">
+                <thead>
+                <tr>
+                    <th><input type="checkbox" checked id="select-all-checkbox"></th>
+                    <th data-sort-index="1" class="text-center sortable">
+                        #
+                        <span class="sort-icon-container">
                                 <ion-icon name="caret-up-outline" class="sort-icon asc-icon"></ion-icon>
                                 <ion-icon name="caret-down-outline" class="sort-icon desc-icon"></ion-icon>
                             </span>
-                        </th>
-                        <th data-sort-index="2" class="sortable">
-                            Recto
-                            <span class="sort-icon-container">
+                    </th>
+                    <th data-sort-index="2" class="sortable">
+                        Recto
+                        <span class="sort-icon-container">
                                 <ion-icon name="caret-up-outline" class="sort-icon asc-icon"></ion-icon>
                                 <ion-icon name="caret-down-outline" class="sort-icon desc-icon"></ion-icon>
                             </span>
-                        </th>
-                        <th data-sort-index="3" class="sortable">
-                            Verso
-                            <span class="sort-icon-container">
+                    </th>
+                    <th data-sort-index="3" class="sortable">
+                        Verso
+                        <span class="sort-icon-container">
                                 <ion-icon name="caret-up-outline" class="sort-icon asc-icon"></ion-icon>
                                 <ion-icon name="caret-down-outline" class="sort-icon desc-icon"></ion-icon>
                             </span>
-                        </th>
-                        <th data-sort-index="4" class="sortable">
-                            Notes
-                            <span class="sort-icon-container">
-                                <ion-icon name="caret-up-outline" class="sort-icon asc-icon"></ion-icon>
-                                <ion-icon name="caret-down-outline" class="sort-icon desc-icon"></ion-icon>
-                            </span>
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-            <div class="d-grid gap-2 col-lg-6 mx-auto my-3">
-                <button id="start-sequential-btn" class="btn btn-success btn-lg rounded-pill">
-                    <ion-icon name="play-forward-outline"></ion-icon>
-                    Commencer la révision dans l'ordre
-                </button>
-                <button id="start-random-btn" class="btn btn-warning btn-lg rounded-pill">
-                    <ion-icon name="shuffle-outline"></ion-icon>
-                    Commencer la révision aléatoire
-                </button>
-            </div>
+                    </th>
+                    <th data-sort-index="4" class="sortable">
+                        Notes
+                        <span class="sort-icon-container">
+                            <ion-icon name="caret-up-outline" class="sort-icon asc-icon"></ion-icon>
+                            <ion-icon name="caret-down-outline" class="sort-icon desc-icon"></ion-icon>
+                        </span>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-grid gap-2 col-lg-6 mx-auto my-5">
+            <button id="start-sequential-btn" class="btn btn-success btn-lg rounded-pill">
+                <ion-icon name="play-forward-outline"></ion-icon>
+                Commencer la révision dans l'ordre
+            </button>
+            <button id="start-random-btn" class="btn btn-warning btn-lg rounded-pill">
+                <ion-icon name="shuffle-outline"></ion-icon>
+                Commencer la révision aléatoire
+            </button>
         </div>
     </div>
 </section>
 
 <section id="flashcards-section" class="d-none mt-4">
-    <div class="container-xxl">
+    <div class="container-lg">
         <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center mb-4">
-            <button class="btn btn-primary rounded-pill mb-2 mb-md-0" id="back-to-data-btn" title="Revenir aux données">
+            <button id="back-to-data-btn" class="btn btn-primary rounded-pill mb-2 mb-md-0" title="Revenir aux données">
                 <ion-icon name="arrow-back-outline"></ion-icon>
                 Données
             </button>
@@ -272,7 +298,7 @@
 </div>
 
 <div id="notes-footer" class="shadow-lg">
-    <div class="container-xxl">
+    <div class="container-lg">
         <div class="d-flex justify-content-start m-0 py-3">
             <ion-icon name="information-circle" class="text-primary"></ion-icon>
             <p id="notes-content" class="m-0 p-0"></p>
@@ -291,14 +317,22 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Les deux champs (URL et texte) contiennent des données. Veuillez choisir la source que vous souhaitez utiliser :</p>
+                <p>Les deux champs (texte et Google Sheets) contiennent des données. Veuillez choisir la source que vous souhaitez utiliser :</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="useSheetBtn" data-bs-dismiss="modal">Utiliser Google Sheet</button>
-                <button type="button" class="btn btn-primary" id="useTextBtn" data-bs-dismiss="modal">Utiliser le texte copié</button>
+                <button type="button" class="btn btn-secondary" id="useTextBtn" data-bs-dismiss="modal">Utiliser le texte copié</button>
+                <button type="button" class="btn btn-primary" id="useSheetBtn" data-bs-dismiss="modal">Utiliser Google Sheets</button>
             </div>
         </div>
     </div>
+</div>
+
+<div class="container-lg">
+    <footer class="py-5 border-top">
+        <p class="text-body-secondary m-0">
+            Code <strong>Open Source</strong> disponible sur <a href="https://github.com/jprivet-dev/Flashcards" target="_blank">GitHub</a>.
+        </p>
+    </footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

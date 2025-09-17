@@ -113,15 +113,18 @@ class FlashcardsApp {
         this.loadDataBtn = document.getElementById('load-data-btn');
         this.dataLoadingSection = document.getElementById('data-loading-section');
         this.dataDisplaySection = document.getElementById('data-display-section');
+        this.flashcardsSection = document.getElementById('flashcards-section');
 
         this.startSequentialBtn = document.getElementById('start-sequential-btn');
         this.startRandomBtn = document.getElementById('start-random-btn');
         this.startSequentialIconBtn = document.getElementById('start-sequential-icon-btn');
         this.startRandomIconBtn = document.getElementById('start-random-icon-btn');
 
-        this.flashcardsSection = document.getElementById('flashcards-section');
         this.progressIndicator = document.getElementById('progress-indicator');
         this.backToDataBtn = document.getElementById('back-to-data-btn');
+        this.forwardToDataBtn = document.getElementById('forward-to-data-btn');
+        this.backToLoadDataBtn = document.getElementById('back-to-load-data-btn');
+        this.fromGoogleSheet = document.getElementById('from-google-sheet');
         this.scrollToTopBtn = document.getElementById('scrollToTopBtn');
 
         this.flashcardGridContainer = document.getElementById('flashcard-grid-container');
@@ -165,6 +168,9 @@ class FlashcardsApp {
         this.exampleSelect = document.getElementById('example-select');
         this.exampleLoadBtn = document.getElementById('example-load-btn');
 
+        this.shareableUrlInput = document.getElementById('shareable-url-input');
+        this.copyUrlBtn = document.getElementById('copy-url-btn');
+
         this.currentCards = [];
         this.cardsToReview = [];
         this.flashcards = [];
@@ -174,15 +180,17 @@ class FlashcardsApp {
 
     attachEventListeners() {
         this.loadDataBtn.addEventListener('click', () => this.handleDataLoad());
-        this.clearTextBtn.addEventListener('click', () => this.clearLocalStorageConfirm());
-        this.clearUrlBtn.addEventListener('click', () => this.clearUrlConfirm());
+        this.clearTextBtn.addEventListener('click', () => this.clearTextLocalStorageConfirm());
+        this.clearUrlBtn.addEventListener('click', () => this.clearUrlLocalStorageConfirm());
         this.startSequentialBtn.addEventListener('click', () => {this.startSession('sequential');});
         this.startRandomBtn.addEventListener('click', () => {this.startSession('random');});
         this.startSequentialIconBtn.addEventListener('click', () => this.startSession('sequential'));
         this.startRandomIconBtn.addEventListener('click', () => this.startSession('random'));
         this.flipAllRectoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('recto'));
         this.flipAllVersoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('verso'));
-        this.backToDataBtn.addEventListener('click', () => this.showDataSection());
+        this.backToDataBtn.addEventListener('click', () => this.showDataDisplaySection());
+        this.forwardToDataBtn.addEventListener('click', () => this.showDataDisplaySection());
+        this.backToLoadDataBtn.addEventListener('click', () => this.showDataLoadingSection());
         this.filterUnflippedBtns.forEach(btn => {
             btn.addEventListener('click', () => this.filterCards('unflipped'));
         });
@@ -190,31 +198,26 @@ class FlashcardsApp {
         this.selectAllCheckbox.addEventListener('change', () => this.toggleAllCheckboxes());
         window.addEventListener('scroll', () => this.scrollFunction());
         this.scrollToTopBtn.addEventListener('click', () => this.scrollToTop());
-
         this.selectRangeBtn.addEventListener('click', () => this.selectRowsByRange());
         this.unselectAllBtn.addEventListener('click', () => this.toggleAllCheckboxes(false));
-
         this.swapContentBtn.addEventListener('click', () => this.toggleContentSwap());
-
         this.useSheetBtn.addEventListener('click', () => this.loadFromSource('url'));
         this.useTextBtn.addEventListener('click', () => this.loadFromSource('text'));
-
         document.querySelectorAll('[data-sort-index]').forEach(header => {
             header.addEventListener('click', (e) => {
                 const columnIndex = parseInt(e.currentTarget.dataset.sortIndex, 10);
                 this.sortTable(columnIndex);
             });
         });
-
         this.filterInput.addEventListener('input', () => this.filterTable(this.filterInput.value));
-
         this.resetFilterBtn.addEventListener('click', () => {
             this.filterInput.value = '';
             this.filterTable('');
         });
-
         this.fontSelect.addEventListener('change', () => this.handleFontChange());
         this.exampleLoadBtn.addEventListener('click', () => this.exampleSelect.value ? this.loadExampleData(this.exampleSelect.value) : null);
+        this.copyUrlBtn.addEventListener('click', () => this.copyShareableUrl());
+        this.shareableUrlInput.addEventListener('click', (e) => e.target.select());
 
         let resizeTimer;
         window.addEventListener('resize', () => {
@@ -269,12 +272,12 @@ class FlashcardsApp {
         let filePath = '';
 
         if (this.textInput.value || this.urlInput.value) {
-            if (!confirm('Souhaitez-vous charger l\'exemple et écraser toutes les autres données (Google Sheet ou texte copié précédemment) ?')) {
+            if (!confirm('Souhaitez-vous charger l\'exemple et écraser toutes les autres données (Google Sheets ou texte copié précédemment) ?')) {
                 return;
             }
 
-            this.clearLocalStorage();
-            this.clearUrl();
+            this.clearTextLocalStorage();
+            this.clearUrlLocalStorage();
         }
 
         if (type === 'example') {
@@ -297,7 +300,7 @@ class FlashcardsApp {
             this.separatorSelect.value = ',';
             this.exampleSelect.value = '';
             this.saveTextToLocalStorage();
-            this.hideDisplaySection();
+            this.resetDataDisplaySection();
         } catch (error) {
             alert('Erreur lors du chargement des données de l\'exemple.');
             console.error('Erreur:', error);
@@ -307,9 +310,10 @@ class FlashcardsApp {
     async loadFromSource(source) {
         let rawData;
         let separator = this.separatorSelect.value;
+        let url = '';
 
         if (source === 'url') {
-            const url = this.urlInput.value;
+            url = this.urlInput.value;
 
             if (!url.includes('docs.google.com/spreadsheets')) {
                 alert('Veuillez entrer une URL de Google Sheets valide.');
@@ -339,12 +343,6 @@ class FlashcardsApp {
                 return;
             } finally {
                 this.hideLoadingIndicator();
-
-                if (source === 'url') {
-                    window.history.pushState({}, '', `?url=${encodeURIComponent(this.urlInput.value)}`);
-                } else {
-                    window.history.pushState({}, '', window.location.pathname);
-                }
             }
         } else if (source === 'text') {
             rawData = this.textInput.value;
@@ -359,8 +357,11 @@ class FlashcardsApp {
             this.urlInput.value = '';
         }
 
+        this.updateShareableLink(url)
+
         if (rawData) {
             this.parseAndDisplayData(rawData, separator);
+            this.showDataDisplaySection();
         }
     }
 
@@ -379,8 +380,6 @@ class FlashcardsApp {
         this.displayTable(this.currentCards);
         this.filterInput.value = '';
         this.filterTable('');
-        this.dataDisplaySection.classList.remove('d-none');
-        this.dataDisplaySection.scrollIntoView({ behavior: 'smooth' });
     }
 
     displayTable(cardsToDisplay) {
@@ -484,10 +483,30 @@ class FlashcardsApp {
         this.progressBar.style.width = percentage.toFixed(2) + '%';
     }
 
-    showDataSection() {
+    showDataLoadingSection() {
         this.dataLoadingSection.classList.remove('d-none');
+        this.dataDisplaySection.classList.add('d-none');
         this.flashcardsSection.classList.add('d-none');
         this.progressIndicator.classList.add('d-none');
+
+        this.closeNotes();
+        this.resetForwardToDataBtn();
+
+        window.scrollTo(0, 0);
+    }
+
+    showDataDisplaySection() {
+        this.dataLoadingSection.classList.add('d-none');
+        this.dataDisplaySection.classList.remove('d-none');
+        this.flashcardsSection.classList.add('d-none');
+        this.progressIndicator.classList.add('d-none');
+
+        if (this.urlInput.value === '') {
+            this.fromGoogleSheet.classList.add('d-none');
+        } else {
+            this.fromGoogleSheet.classList.remove('d-none');
+        }
+
         this.closeNotes();
 
         window.scrollTo(0, 0);
@@ -495,10 +514,19 @@ class FlashcardsApp {
 
     showFlashcardsSection() {
         this.dataLoadingSection.classList.add('d-none');
+        this.dataDisplaySection.classList.add('d-none');
         this.flashcardsSection.classList.remove('d-none');
         this.progressIndicator.classList.remove('d-none');
 
         window.scrollTo(0, 0);
+    }
+
+    resetForwardToDataBtn() {
+        if (this.flashcardTableBody.innerHTML.trim() === '') {
+            this.forwardToDataBtn.classList.add('d-none');
+        } else {
+            this.forwardToDataBtn.classList.remove('d-none');
+        }
     }
 
     filterCards(mode) {
@@ -532,6 +560,20 @@ class FlashcardsApp {
         this.selectAllCheckbox.checked = isChecked;
     }
 
+    loadFromLocalStorage() {
+        if (localStorage.getItem('flashcard-text-data')) {
+            this.loadTextFromLocalStorage();
+            return;
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const sheetUrl = urlParams.get('url');
+
+        if (sheetUrl) {
+            this.loadGoogleSheetDataFromCache();
+        }
+    }
+
     loadTextFromLocalStorage() {
         const savedData = localStorage.getItem('flashcard-text-data');
         if (savedData) {
@@ -539,10 +581,10 @@ class FlashcardsApp {
             const textPane = document.getElementById('text-pane');
             const sheetTab = document.getElementById('sheet-tab');
             const sheetPane = document.getElementById('sheet-pane');
-            sheetTab.classList.remove('active', 'show');
-            sheetPane.classList.remove('active', 'show');
+            sheetTab.classList.remove('active');
+            sheetPane.classList.remove('active');
             textTab.classList.add('active');
-            textPane.classList.add('active', 'show');
+            textPane.classList.add('active');
 
             const data = JSON.parse(savedData);
 
@@ -566,36 +608,38 @@ class FlashcardsApp {
         localStorage.setItem('flashcard-text-data', JSON.stringify(data));
     }
 
-    clearLocalStorageConfirm() {
+    clearTextLocalStorageConfirm() {
         if (this.textInput.value && confirm('Êtes-vous sûr de vouloir effacer le texte ?')) {
-            this.clearLocalStorage();
+            this.clearTextLocalStorage();
         }
     }
 
-    clearLocalStorage() {
+    clearTextLocalStorage() {
         this.textInput.value = '';
         localStorage.removeItem('flashcard-text-data');
-        this.hideDisplaySection();
+        this.resetDataDisplaySection();
     }
 
-    clearUrlConfirm() {
+    clearUrlLocalStorageConfirm() {
         if (this.urlInput.value && confirm('Êtes-vous sûr de vouloir effacer le lien ?')) {
-            this.clearUrl();
+            this.clearUrlLocalStorage();
         }
     }
 
-    clearUrl() {
+    clearUrlLocalStorage() {
+        localStorage.removeItem(this.urlInput.value);
         this.urlInput.value = '';
+        this.shareableUrlInput.value = '';
         window.history.pushState({}, '', window.location.pathname);
-        this.hideDisplaySection();
+        this.resetDataDisplaySection();
     }
 
-    hideDisplaySection() {
+    resetDataDisplaySection() {
         this.filterInput.value = '';
         this.filterTable('');
         this.hideTable();
-        this.dataDisplaySection.classList.add('d-none');
         this.isContentSwapped = false;
+        this.resetForwardToDataBtn();
     }
 
     updateFilterButtonsCount() {
@@ -816,10 +860,10 @@ class FlashcardsApp {
             const textPane = document.getElementById('text-pane');
             const sheetTab = document.getElementById('sheet-tab');
             const sheetPane = document.getElementById('sheet-pane');
-            textTab.classList.remove('active', 'show');
-            textPane.classList.remove('active', 'show');
+            textTab.classList.remove('active');
+            textPane.classList.remove('active');
             sheetTab.classList.add('active');
-            sheetPane.classList.add('active', 'show');
+            sheetPane.classList.add('active');
 
             this.urlInput.value = sheetUrl;
             const cachedData = localStorage.getItem(sheetUrl);
@@ -832,9 +876,26 @@ class FlashcardsApp {
 
                 if (hoursDiff < 24) {
                     this.parseAndDisplayData(parsedCache.data, separator);
+                    this.showDataDisplaySection();
                 }
             }
         }
+    }
+
+    updateShareableLink(url) {
+        if (url) {
+            this.shareableUrlInput.value = `${window.location.origin}${window.location.pathname}?url=${encodeURIComponent(url)}`;
+            window.history.pushState({}, '', this.shareableUrlInput.value);
+            return;
+        }
+
+        this.shareableUrlInput.value = '';
+    }
+
+    copyShareableUrl() {
+        this.shareableUrlInput.select();
+        document.execCommand('copy');
+        alert('Lien copié dans le presse-papiers !');
     }
 }
 
@@ -843,11 +904,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const sheetUrl = urlParams.get('url');
 
-    app.loadTextFromLocalStorage();
-    app.loadGoogleSheetDataFromCache();
+    console.log('sheetUrl', sheetUrl);
+
+    app.loadFromLocalStorage();
     app.loadFontFromLocalStorage();
 
     if (sheetUrl) {
         app.urlInput.value = sheetUrl;
+        app.updateShareableLink(sheetUrl);
     }
 });
