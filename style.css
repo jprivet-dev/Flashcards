@@ -175,31 +175,38 @@ body.small-cards-size #switch-cards-size-btn .contract {
     right: 1px;
 }
 
-.flashcard:nth-child(9n + 1) .card-front {
+.flashcard:nth-child(9n + 1) .card-front,
+#quiz-cards-container .col:nth-child(9n + 1) .card-front {
     background: #7FB52E2D;
 }
 
-.flashcard:nth-child(9n + 2) .card-front {
+.flashcard:nth-child(9n + 2) .card-front,
+#quiz-cards-container .col:nth-child(9n + 2) .card-front {
     background: #F6AE0E2D;
 }
 
-.flashcard:nth-child(9n + 3) .card-front {
+.flashcard:nth-child(9n + 3) .card-front,
+#quiz-cards-container .col:nth-child(9n + 3) .card-front {
     background: #C17B952D;
 }
 
-.flashcard:nth-child(9n + 4) .card-front {
+.flashcard:nth-child(9n + 4) .card-front,
+#quiz-cards-container .col:nth-child(9n + 4) .card-front {
     background: #1B95B72D;
 }
 
-.flashcard:nth-child(9n + 5) .card-front {
+.flashcard:nth-child(9n + 5) .card-front,
+#quiz-cards-container .col:nth-child(9n + 5) .card-front {
     background: #DD50102D;
 }
 
-.flashcard:nth-child(9n + 6) .card-front {
+.flashcard:nth-child(9n + 6) .card-front,
+#quiz-cards-container .col:nth-child(9n + 6) .card-front {
     background: #72BAB62D;
 }
 
-.flashcard:nth-child(9n + 7) .card-front {
+.flashcard:nth-child(9n + 7) .card-front,
+#quiz-cards-container .col:nth-child(9n + 7) .card-front {
     /*background: #70a9b22D;*/
     background: #EE775A2D;
     /*background: #AFCB292D;*/
@@ -210,7 +217,8 @@ body.small-cards-size #switch-cards-size-btn .contract {
     /*background: #EE775A2D;*/
 }
 
-.flashcard:nth-child(9n + 8) .card-front {
+.flashcard:nth-child(9n + 8) .card-front,
+#quiz-cards-container .col:nth-child(9n + 8) .card-front {
     /*background: #70a9b22D;*/
     /*background: #EE775A2D;*/
     background: #AFCB292D;
@@ -221,7 +229,8 @@ body.small-cards-size #switch-cards-size-btn .contract {
     /*background: #AFCB292D;*/
 }
 
-.flashcard:nth-child(9n + 9) .card-front {
+.flashcard:nth-child(9n + 9) .card-front,
+#quiz-cards-container .col:nth-child(9n + 9) .card-front {
     /*background: #70a9b22D;*/
     /*background: #EE775A2D;*/
     /*background: #AFCB292D;*/
@@ -429,4 +438,18 @@ ion-icon {
 #flashcard-table td:not(:last-child) {
     width: 1%;
     white-space: nowrap;
+}
+
+#quiz-cards-container .card-header {
+    position: relative;
+    height: 0;
+    padding: 0 0 80% 0;
+}
+
+#quiz-cards-container .card {
+    overflow: hidden;
+}
+
+#quiz-cards-container label {
+    cursor: pointer;
 }

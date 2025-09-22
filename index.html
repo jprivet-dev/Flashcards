@@ -23,7 +23,7 @@
 
         <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center mb-4 g-2">
             <h2 class="mb-2">1. Charger vos données</h2>
-            <button id="forward-to-data-btn" class="btn btn-primary rounded-pill mb-2 d-none" title="Revenir aux données">
+            <button class="show-data-btn btn btn-primary rounded-pill mb-2 d-none" title="Revenir aux données">
                 Données
                 <ion-icon name="arrow-forward-outline"></ion-icon>
             </button>
@@ -130,6 +130,9 @@
                 </button>
                 <button id="start-random-icon-btn" class="btn btn-warning rounded-pill" title="Commencer la révision aléatoire">
                     <ion-icon name="shuffle-outline"></ion-icon>
+                </button>
+                <button class="show-quiz-btn btn btn-primary rounded-pill" title="C'est parti pour le quiz !">
+                    <ion-icon name="rocket-outline"></ion-icon>
                 </button>
             </div>
         </div>
@@ -244,6 +247,10 @@
                 <ion-icon name="shuffle-outline"></ion-icon>
                 Commencer la révision aléatoire
             </button>
+            <button class="show-quiz-btn btn btn-primary btn-lg rounded-pill">
+                <ion-icon name="rocket-outline"></ion-icon>
+                C'est parti pour le quiz !
+            </button>
         </div>
     </div>
 </section>
@@ -251,7 +258,7 @@
 <section id="flashcards-section" class="d-none mt-4">
     <div class="container-lg">
         <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center mb-4">
-            <button id="back-to-data-btn" class="btn btn-primary rounded-pill mb-2 mb-md-0" title="Revenir aux données">
+            <button class="show-data-btn btn btn-primary rounded-pill mb-2 mb-md-0" title="Revenir aux données">
                 <ion-icon name="arrow-back-outline"></ion-icon>
                 Données
             </button>
@@ -290,12 +297,72 @@
     <div class="container-xxl g-0">
         <div id="flashcard-grid-container">
         </div>
-        <div class="text-center fs-4 my-5 py-5">
-            <button class="filter-unflipped-btn btn btn-outline-primary rounded-pill">
+        <div class="text-center my-5 py-5">
+            <button class="filter-unflipped-btn btn btn-outline-primary rounded-pill mb-4 d-block mx-auto">
                 <ion-icon name="sync-outline"></ion-icon>
                 Réviser avec les cartes non retournées <span class="unflipped-count badge rounded-pill text-bg-primary">0</span>
             </button>
+            <button class="show-quiz-btn btn btn-outline-primary rounded-pill d-block mx-auto">
+                <ion-icon name="rocket-outline"></ion-icon>
+                C'est parti pour le quiz !
+            </button>
         </div>
+    </div>
+</section>
+
+<section id="quiz-section" class="d-none">
+    <div class="container-lg">
+        <div class="d-flex justify-content-between mb-4">
+            <button class="show-data-btn btn btn-primary rounded-pill mb-2 mb-md-0" title="Revenir aux données">
+                <ion-icon name="arrow-back-outline"></ion-icon>
+                Données
+            </button>
+<!--            <button id="confettis-btn" class="btn btn-primary rounded-pill mb-2 mb-md-0" title="Revenir aux données">-->
+<!--                Confettis-->
+<!--            </button>-->
+            <button class="check-answers-btn btn btn-outline-primary rounded-pill mb-2 mb-md-0">
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                Vérifier les réponses
+            </button>
+        </div>
+        <div id="quiz-scores" class="card mb-5 text-center border-0 bg-transparent d-none">
+            <h3 class="card-title mb-4">Résultats du quiz</h3>
+            <div class="row g-4 justify-content-center">
+                <div class="col-sm-4">
+                    <div class="p-3 bg-info-subtle rounded-3 shadow-sm">
+                        <h2 class="fs-1 mb-1 text-info">
+                            <ion-icon name="analytics-outline"></ion-icon>
+                            <span id="percentage-score">0</span>%
+                        </h2>
+                        <small class="text-info">Taux de réussite</small>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="p-3 bg-success-subtle rounded-3 shadow-sm">
+                        <h2 class="fs-1 mb-1 text-success">
+                            <ion-icon name="checkmark-circle-outline"></ion-icon>
+                            <span id="correct-count">0</span>
+                        </h2>
+                        <small class="text-success">Bonnes réponses</small>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="p-3 bg-danger-subtle rounded-3 shadow-sm">
+                        <h2 class="fs-1 mb-1 text-danger">
+                            <ion-icon name="close-circle-outline"></ion-icon>
+                            <span id="incorrect-count">0</span>
+                        </h2>
+                        <small class="text-danger">Mauvaises réponses</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="quiz-cards-container" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-5 mb-4">
+        </div>
+        <button class="check-answers-btn btn btn-outline-primary rounded-pill d-block mx-auto my-5 btn-lg">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            Vérifier les réponses
+        </button>
     </div>
 </section>
 

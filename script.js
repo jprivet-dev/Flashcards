@@ -1,3 +1,56 @@
+function launchConfetti() {
+    const duration = 2 * 1000;
+    const defaults = { startVelocity: 40, ticks: 100, spread: 60, particleCount: 80, scalar: 1.2, zIndex: 0 };
+
+    // Top left corner to bottom right corner
+    setTimeout(() => {
+        confetti({
+            ...defaults,
+            angle: -30,
+            origin: { x: 0, y: 0 },
+        });
+    }, 0);
+
+    // Bottom right corner to top left
+    setTimeout(() => {
+        confetti({
+            ...defaults,
+            angle: 120,
+            origin: { x: 1, y: 1 },
+        });
+    }, duration * 0.25);
+
+    // Top right corner to bottom left
+    setTimeout(() => {
+        confetti({
+            ...defaults,
+            angle: 210,
+            origin: { x: 1, y: 0 },
+        });
+    }, duration * 0.5);
+
+    // Bottom left corner to top right corner
+    setTimeout(() => {
+        confetti({
+            ...defaults,
+            angle: 60,
+            origin: { x: 0, y: 1 },
+        });
+    }, duration * 0.75);
+
+    // Bouquet final au centre
+    setTimeout(() => {
+        confetti({
+            ...defaults,
+            particleCount: 200,
+            spread: 120,
+            origin: { y: 0.6 },
+            scalar: 1.8,
+            decay: 0.92,
+        });
+    }, duration);
+}
+
 class Flashcard {
     constructor(flashcardData, app) {
         this.app = app;
@@ -22,8 +75,8 @@ class Flashcard {
         }
 
         setTimeout(() => {
-            this.fitTextToContainer(front, flashcardData.recto);
-            this.fitTextToContainer(back, flashcardData.verso);
+            this.fitTextToContainer(front);
+            this.fitTextToContainer(back);
         }, 0);
 
         flashcardElement.appendChild(front);
@@ -114,6 +167,9 @@ class FlashcardsApp {
         this.dataLoadingSection = document.getElementById('data-loading-section');
         this.dataDisplaySection = document.getElementById('data-display-section');
         this.flashcardsSection = document.getElementById('flashcards-section');
+        this.quizSection = document.getElementById('quiz-section');
+        this.quizCardsContainer = document.getElementById('quiz-cards-container');
+        this.confettisBtn = document.getElementById('confettis-btn');
 
         this.startSequentialBtn = document.getElementById('start-sequential-btn');
         this.startRandomBtn = document.getElementById('start-random-btn');
@@ -121,8 +177,7 @@ class FlashcardsApp {
         this.startRandomIconBtn = document.getElementById('start-random-icon-btn');
 
         this.progressIndicator = document.getElementById('progress-indicator');
-        this.backToDataBtn = document.getElementById('back-to-data-btn');
-        this.forwardToDataBtn = document.getElementById('forward-to-data-btn');
+        this.showToDataBtns = document.querySelectorAll('.show-data-btn');
         this.backToLoadDataBtn = document.getElementById('back-to-load-data-btn');
         this.fromGoogleSheet = document.getElementById('from-google-sheet');
         this.scrollToTopBtn = document.getElementById('scrollToTopBtn');
@@ -133,6 +188,8 @@ class FlashcardsApp {
         this.switchCardsSizeBtn = document.getElementById('switch-cards-size-btn');
         this.filterUnflippedBtns = document.querySelectorAll('.filter-unflipped-btn');
         this.unflippedCountSpans = document.querySelectorAll('.unflipped-count');
+        this.showQuizBtns = document.querySelectorAll('.show-quiz-btn');
+        this.checkAnswersBtns = document.querySelectorAll('.check-answers-btn');
         this.showAllBtn = document.getElementById('show-all-btn');
         this.allCountSpan = document.getElementById('all-count');
         this.selectAllCheckbox = document.getElementById('select-all-checkbox');
@@ -180,22 +237,24 @@ class FlashcardsApp {
     }
 
     attachEventListeners() {
+        if (this.confettisBtn) {
+            this.confettisBtn.addEventListener('click', () => launchConfetti());
+        }
+
         this.loadDataBtn.addEventListener('click', () => this.handleDataLoad());
         this.clearTextBtn.addEventListener('click', () => this.clearTextLocalStorageConfirm());
         this.clearUrlBtn.addEventListener('click', () => this.clearUrlLocalStorageConfirm());
-        this.startSequentialBtn.addEventListener('click', () => {this.startSession('sequential');});
-        this.startRandomBtn.addEventListener('click', () => {this.startSession('random');});
+        this.startSequentialBtn.addEventListener('click', () => this.startSession('sequential'));
+        this.startRandomBtn.addEventListener('click', () => this.startSession('random'));
         this.startSequentialIconBtn.addEventListener('click', () => this.startSession('sequential'));
         this.startRandomIconBtn.addEventListener('click', () => this.startSession('random'));
         this.flipAllRectoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('recto'));
         this.flipAllVersoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('verso'));
         this.switchCardsSizeBtn.addEventListener('click', () => this.switchCardsSize());
-        this.backToDataBtn.addEventListener('click', () => this.showDataDisplaySection());
-        this.forwardToDataBtn.addEventListener('click', () => this.showDataDisplaySection());
+        this.showToDataBtns.forEach(btn => btn.addEventListener('click', () => this.showDataDisplaySection()));
         this.backToLoadDataBtn.addEventListener('click', () => this.showDataLoadingSection());
-        this.filterUnflippedBtns.forEach(btn => {
-            btn.addEventListener('click', () => this.filterCards('unflipped'));
-        });
+        this.filterUnflippedBtns.forEach(btn => btn.addEventListener('click', () => this.filterCards('unflipped')));
+        this.showQuizBtns.forEach(btn => btn.addEventListener('click', () => this.showQuiz()));
         this.showAllBtn.addEventListener('click', () => this.filterCards('all'));
         this.selectAllCheckbox.addEventListener('change', () => this.toggleAllCheckboxes());
         window.addEventListener('scroll', () => this.scrollFunction());
@@ -221,11 +280,16 @@ class FlashcardsApp {
         this.copyUrlBtn.addEventListener('click', () => this.copyShareableUrl());
         this.shareableUrlInput.addEventListener('click', (e) => e.target.select());
 
+        this.checkAnswersBtns.forEach(btn => btn.addEventListener('click', () => this.checkAnswers()));
+
         let resizeTimer;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => {
                 this.flashcards.forEach(flashcard => flashcard.fitTexts());
+                if (this.quiz) {
+                    this.quiz.fitTexts();
+                }
             }, 250);
         });
     }
@@ -512,10 +576,10 @@ class FlashcardsApp {
         this.dataDisplaySection.classList.add('d-none');
         this.flashcardsSection.classList.add('d-none');
         this.progressIndicator.classList.add('d-none');
+        this.quizSection.classList.add('d-none');
 
         this.closeNotes();
         this.resetForwardToDataBtn();
-
         window.scrollTo(0, 0);
     }
 
@@ -524,6 +588,7 @@ class FlashcardsApp {
         this.dataDisplaySection.classList.remove('d-none');
         this.flashcardsSection.classList.add('d-none');
         this.progressIndicator.classList.add('d-none');
+        this.quizSection.classList.add('d-none');
 
         if (this.urlInput.value === '') {
             this.fromGoogleSheet.classList.add('d-none');
@@ -532,7 +597,6 @@ class FlashcardsApp {
         }
 
         this.closeNotes();
-
         window.scrollTo(0, 0);
     }
 
@@ -541,15 +605,27 @@ class FlashcardsApp {
         this.dataDisplaySection.classList.add('d-none');
         this.flashcardsSection.classList.remove('d-none');
         this.progressIndicator.classList.remove('d-none');
+        this.quizSection.classList.add('d-none');
 
+        window.scrollTo(0, 0);
+    }
+
+    showQuizSection() {
+        this.dataLoadingSection.classList.add('d-none');
+        this.dataDisplaySection.classList.add('d-none');
+        this.flashcardsSection.classList.add('d-none');
+        this.progressIndicator.classList.add('d-none');
+        this.quizSection.classList.remove('d-none');
+
+        this.closeNotes();
         window.scrollTo(0, 0);
     }
 
     resetForwardToDataBtn() {
         if (this.flashcardTableBody.innerHTML.trim() === '') {
-            this.forwardToDataBtn.classList.add('d-none');
+            this.showToDataBtns.classList.add('d-none');
         } else {
-            this.forwardToDataBtn.classList.remove('d-none');
+            this.showToDataBtns.classList.remove('d-none');
         }
     }
 
@@ -920,6 +996,236 @@ class FlashcardsApp {
         this.shareableUrlInput.select();
         document.execCommand('copy');
         alert('Lien copié dans le presse-papiers !');
+    }
+
+    showQuiz() {
+        const visibleRows = Array.from(this.flashcardTableBody.querySelectorAll('tr'))
+            .filter(row => row.style.display !== 'none');
+
+        const selectedCheckboxes = visibleRows.map(row => row.querySelector('.flashcard-checkbox'))
+            .filter(checkbox => checkbox && checkbox.checked);
+
+        if (selectedCheckboxes.length === 0) {
+            alert('Veuillez sélectionner au moins une carte pour commencer la révision.');
+            return;
+        }
+
+        this.cardsToReview = [...selectedCheckboxes].map(checkbox => {
+            const index = checkbox.getAttribute('data-card-index');
+            return this.currentCards[index];
+        });
+
+        this.shuffleArray(this.cardsToReview);
+
+        const flashcardsData = [];
+
+        this.cardsToReview.forEach(flashcardRawData => {
+            const flashcardData = {
+                recto: this.isContentSwapped ? flashcardRawData.verso : flashcardRawData.recto,
+                verso: this.isContentSwapped ? flashcardRawData.recto : flashcardRawData.verso,
+            };
+
+            flashcardsData.push(flashcardData);
+        });
+
+        this.showQuizSection();
+        this.quiz = new Quiz(flashcardsData, this.quizCardsContainer);
+    }
+
+    checkAnswers() {
+        this.scrollToTop();
+        this.quiz.checkAnswers();
+    }
+}
+
+class Quiz {
+    constructor(flashcardsData, container) {
+        this.flashcardsData = flashcardsData;
+        this.container = container;
+        this.questions = this.generateQuestions();
+        this.render();
+    }
+
+    generateQuestions() {
+        const dataCopy = [...this.flashcardsData];
+        const questions = [];
+
+        this.flashcardsData.forEach((flashcardData, index) => {
+            const correctAnswer = flashcardData.verso;
+            const otherAnswers = this.getOtherAnswers(dataCopy, index);
+            const answers = [...otherAnswers, correctAnswer];
+            this.shuffleArray(answers);
+
+            questions.push({
+                recto: flashcardData.recto,
+                correctAnswer: correctAnswer,
+                answers: answers
+            });
+        });
+
+        return questions;
+    }
+
+    getOtherAnswers(flashcardsData, currentIndex) {
+        const otherData = flashcardsData.filter((item, index) => index !== currentIndex);
+        this.shuffleArray(otherData);
+
+        const otherAnswers = [];
+        const correctAnswer = flashcardsData[currentIndex].verso;
+
+        let i = 0;
+        while (otherAnswers.length < 2 && i < otherData.length) {
+            const potentialAnswer = otherData[i].verso;
+
+            if (potentialAnswer !== correctAnswer) {
+                if (!otherAnswers.includes(potentialAnswer)) {
+                    otherAnswers.push(potentialAnswer);
+                }
+            }
+            i++;
+        }
+
+        return otherAnswers;
+    }
+
+    shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    render() {
+        document.querySelector('#quiz-section .card').classList.add('d-none');
+        document.querySelectorAll('.check-answers-btn').forEach(btn => btn.classList.remove('d-none'));
+
+        this.container.innerHTML = '';
+        this.questions.forEach((question, index) => {
+            const card = document.createElement('div');
+            card.className = 'col';
+
+            card.innerHTML = `
+                <div class="card h-100 rounded-4 border-0 shadow-sm">
+                    <div class="card-header fs-3 text-center border-0">
+                        <div class="card-front">
+                            ${question.recto.replace(/\|\|/g, '<br>').replace(/\n/g, '<br>')}
+                        </div>
+                    </div>
+                    <ul class="list-group list-group-flush fs-5">
+                        ${question.answers.map((answer, answerIndex) => `
+                            <li class="list-group-item p-0">
+                                <div class="form-check">
+                                    <label class="form-check-label d-block px-3 py-2">
+                                        <input class="form-check-input" type="radio" name="question-${index}" id="q${index}-a${answerIndex}" value="${answer}">
+                                        ${answer.replace(/\|\|/g, '<br>').replace(/\n/g, ' ')}
+                                    </label>
+                                </div>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+            this.container.appendChild(card);
+        });
+
+        setTimeout(() => {
+            this.fitTexts();
+        }, 0);
+    }
+
+    checkAnswers() {
+        let correctCount = 0;
+        const totalQuestions = this.questions.length;
+
+        const correctCountElement = document.getElementById('correct-count');
+        const incorrectCountElement = document.getElementById('incorrect-count');
+        const percentageScoreElement = document.getElementById('percentage-score');
+        const quizScoreContainer = document.getElementById('quiz-scores');
+
+        document.querySelectorAll('#quiz-cards-container .quiz-card').forEach(card => {
+            card.querySelectorAll('li').forEach(li => {
+                li.classList.remove('bg-success-subtle', 'text-success', 'bg-danger-subtle', 'text-danger');
+            });
+        });
+
+        this.questions.forEach((question, index) => {
+            const selectedAnswer = document.querySelector(`input[name="question-${index}"]:checked`);
+            const listItem = selectedAnswer ? selectedAnswer.closest('li') : null;
+
+            if (listItem) {
+                if (selectedAnswer.value === question.correctAnswer) {
+                    listItem.classList.add('bg-success-subtle', 'text-success');
+                    correctCount++;
+                } else {
+                    listItem.classList.add('bg-danger-subtle', 'text-danger');
+                    const correctElement = document.querySelector(`input[name="question-${index}"][value="${question.correctAnswer}"]`).closest('li');
+                    if (correctElement) {
+                        correctElement.classList.add('bg-success-subtle', 'text-success');
+                    }
+                }
+            }
+        });
+
+        const incorrectCount = totalQuestions - correctCount;
+        const percentage = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+
+        correctCountElement.textContent = correctCount;
+        incorrectCountElement.textContent = incorrectCount;
+        percentageScoreElement.textContent = percentage;
+
+        if (quizScoreContainer) {
+            gsap.fromTo(quizScoreContainer,
+                {
+                    opacity: 0,
+                    y: -50,
+                    scale: 0.8,
+                },
+                {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    duration: 0.8,
+                    ease: 'back.out(1.7)',
+                    onStart: () => {
+                        quizScoreContainer.classList.remove('d-none');
+                    }
+                }
+            );
+        }
+
+        if (correctCount === totalQuestions && totalQuestions > 0) {
+            launchConfetti();
+        }
+
+        document.querySelectorAll('.check-answers-btn').forEach(btn => btn.classList.add('d-none'));
+    }
+
+    fitTexts() {
+        document.querySelectorAll('#quiz-cards-container .card-front').forEach(cardFront => this.fitTextToContainer(cardFront));
+    }
+
+    fitTextToContainer(element) {
+        const words = element.textContent.split(' ').filter(word => word !== '');
+        const textWithoutSpaces = element.textContent.replace(/\s/g, '');
+
+        if (words.length > 7) {
+            element.classList.add('text-start');
+        }
+
+        let fontSize = 2.3;
+
+        if (words.length > 3 && textWithoutSpaces.length > 10) {
+            fontSize = 1.8;
+        }
+
+        const minFontSize = 0.6;
+
+        element.style.fontSize = `${fontSize}rem`;
+
+        while ((element.scrollWidth > element.clientWidth || element.scrollHeight > element.clientHeight) && fontSize > minFontSize) {
+            fontSize -= 0.2;
+            element.style.fontSize = `${fontSize}rem`;
+        }
     }
 }
 
