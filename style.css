@@ -453,14 +453,3 @@ ion-icon {
 #quiz-cards-container label {
     cursor: pointer;
 }
-
-.bg-success {
-    --bs-bg-opacity: 1;
-    background-color: #00ff347a !important;
-}
-
-.bg-danger {
-    --bs-bg-opacity: 1;
-    background-color: #ff000047 !important;
-}
-

@@ -1060,13 +1060,13 @@ class Quiz {
 
             if (listItem) {
                 if (selectedAnswer.value === question.correctAnswer) {
-                    listItem.classList.add('bg-success');
+                    listItem.classList.add('bg-success-subtle', 'text-success');
                     score++;
                 } else {
-                    listItem.classList.add('bg-danger');
+                    listItem.classList.add('bg-danger-subtle', 'text-danger');
                     const correctElement = document.querySelector(`input[name="question-${index}"][value="${question.correctAnswer}"]`).closest('li');
                     if (correctElement) {
-                        correctElement.classList.add('bg-success');
+                        correctElement.classList.add('bg-success-subtle', 'text-success');
                     }
                 }
             }

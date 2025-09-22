@@ -313,10 +313,42 @@
                 <ion-icon name="arrow-back-outline"></ion-icon>
                 Données
             </button>
-            <button class="check-answers-btn btn btn-outline-primary rounded-pill d-block">
+            <button class="check-answers-btn btn btn-outline-primary rounded-pill mb-2 mb-md-0">
                 <ion-icon name="checkmark-circle-outline"></ion-icon>
                 Vérifier les réponses
             </button>
+        </div>
+        <div class="card mb-5 text-center border-0 bg-transparent">
+            <h3 class="card-title mb-4">Résultats du quiz</h3>
+            <div class="row g-4 justify-content-center">
+                <div class="col-sm-4">
+                    <div class="p-3 bg-success-subtle rounded-3">
+                        <h2 class="fs-1 mb-1 text-success">
+                            <ion-icon name="checkmark-circle-outline"></ion-icon>
+                            <span id="correct-count">0</span>
+                        </h2>
+                        <small class="text-success">Bonnes réponses</small>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="p-3 bg-danger-subtle rounded-3">
+                        <h2 class="fs-1 mb-1 text-danger">
+                            <ion-icon name="close-circle-outline"></ion-icon>
+                            <span id="incorrect-count">0</span>
+                        </h2>
+                        <small class="text-danger">Mauvaises réponses</small>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="p-3 bg-info-subtle rounded-3">
+                        <h2 class="fs-1 mb-1 text-info">
+                            <ion-icon name="analytics-outline"></ion-icon>
+                            <span id="percentage-score">0</span>%
+                        </h2>
+                        <small class="text-info">Taux de réussite</small>
+                    </div>
+                </div>
+            </div>
         </div>
         <div id="quiz-cards-container" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-5">
         </div>
