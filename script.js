@@ -1069,7 +1069,23 @@ class Quiz {
     getOtherAnswers(flashcardsData, currentIndex) {
         const otherData = flashcardsData.filter((item, index) => index !== currentIndex);
         this.shuffleArray(otherData);
-        return otherData.slice(0, 2).map(item => item.verso);
+
+        const otherAnswers = [];
+        const correctAnswer = flashcardsData[currentIndex].verso;
+
+        let i = 0;
+        while (otherAnswers.length < 2 && i < otherData.length) {
+            const potentialAnswer = otherData[i].verso;
+
+            if (potentialAnswer !== correctAnswer) {
+                if (!otherAnswers.includes(potentialAnswer)) {
+                    otherAnswers.push(potentialAnswer);
+                }
+            }
+            i++;
+        }
+
+        return otherAnswers;
     }
 
     shuffleArray(array) {
@@ -1124,7 +1140,7 @@ class Quiz {
         const correctCountElement = document.getElementById('correct-count');
         const incorrectCountElement = document.getElementById('incorrect-count');
         const percentageScoreElement = document.getElementById('percentage-score');
-        const quizScoreContainer = document.querySelector('#quiz-section .card');
+        const quizScoreContainer = document.getElementById('quiz-scores');
 
         document.querySelectorAll('#quiz-cards-container .quiz-card').forEach(card => {
             card.querySelectorAll('li').forEach(li => {
