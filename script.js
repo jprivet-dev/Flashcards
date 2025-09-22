@@ -114,6 +114,8 @@ class FlashcardsApp {
         this.dataLoadingSection = document.getElementById('data-loading-section');
         this.dataDisplaySection = document.getElementById('data-display-section');
         this.flashcardsSection = document.getElementById('flashcards-section');
+        this.quizSection = document.getElementById('quiz-section');
+        this.quizCardsContainer = document.getElementById('quiz-cards-container');
 
         this.startSequentialBtn = document.getElementById('start-sequential-btn');
         this.startRandomBtn = document.getElementById('start-random-btn');
@@ -121,8 +123,7 @@ class FlashcardsApp {
         this.startRandomIconBtn = document.getElementById('start-random-icon-btn');
 
         this.progressIndicator = document.getElementById('progress-indicator');
-        this.backToDataBtn = document.getElementById('back-to-data-btn');
-        this.forwardToDataBtn = document.getElementById('forward-to-data-btn');
+        this.showToDataBtns = document.querySelectorAll('.show-data-btn');
         this.backToLoadDataBtn = document.getElementById('back-to-load-data-btn');
         this.fromGoogleSheet = document.getElementById('from-google-sheet');
         this.scrollToTopBtn = document.getElementById('scrollToTopBtn');
@@ -133,6 +134,8 @@ class FlashcardsApp {
         this.switchCardsSizeBtn = document.getElementById('switch-cards-size-btn');
         this.filterUnflippedBtns = document.querySelectorAll('.filter-unflipped-btn');
         this.unflippedCountSpans = document.querySelectorAll('.unflipped-count');
+        this.showQuizBtns = document.querySelectorAll('.show-quiz-btn');
+        this.checkAnswersBtns = document.querySelectorAll('.check-answers-btn');
         this.showAllBtn = document.getElementById('show-all-btn');
         this.allCountSpan = document.getElementById('all-count');
         this.selectAllCheckbox = document.getElementById('select-all-checkbox');
@@ -190,11 +193,13 @@ class FlashcardsApp {
         this.flipAllRectoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('recto'));
         this.flipAllVersoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('verso'));
         this.switchCardsSizeBtn.addEventListener('click', () => this.switchCardsSize());
-        this.backToDataBtn.addEventListener('click', () => this.showDataDisplaySection());
-        this.forwardToDataBtn.addEventListener('click', () => this.showDataDisplaySection());
+        this.showToDataBtns.forEach(btn => btn.addEventListener('click', () => this.showDataDisplaySection()));
         this.backToLoadDataBtn.addEventListener('click', () => this.showDataLoadingSection());
         this.filterUnflippedBtns.forEach(btn => {
             btn.addEventListener('click', () => this.filterCards('unflipped'));
+        });
+        this.showQuizBtns.forEach(btn => {
+            btn.addEventListener('click', () => this.showQuiz());
         });
         this.showAllBtn.addEventListener('click', () => this.filterCards('all'));
         this.selectAllCheckbox.addEventListener('change', () => this.toggleAllCheckboxes());
@@ -220,6 +225,8 @@ class FlashcardsApp {
         this.exampleLoadBtn.addEventListener('click', () => this.exampleSelect.value ? this.loadExampleData(this.exampleSelect.value) : null);
         this.copyUrlBtn.addEventListener('click', () => this.copyShareableUrl());
         this.shareableUrlInput.addEventListener('click', (e) => e.target.select());
+
+        this.checkAnswersBtns.forEach(btn => btn.addEventListener('click', () => this.checkAnswers()));
 
         let resizeTimer;
         window.addEventListener('resize', () => {
@@ -512,10 +519,10 @@ class FlashcardsApp {
         this.dataDisplaySection.classList.add('d-none');
         this.flashcardsSection.classList.add('d-none');
         this.progressIndicator.classList.add('d-none');
+        this.quizSection.classList.add('d-none');
 
         this.closeNotes();
         this.resetForwardToDataBtn();
-
         window.scrollTo(0, 0);
     }
 
@@ -524,6 +531,7 @@ class FlashcardsApp {
         this.dataDisplaySection.classList.remove('d-none');
         this.flashcardsSection.classList.add('d-none');
         this.progressIndicator.classList.add('d-none');
+        this.quizSection.classList.add('d-none');
 
         if (this.urlInput.value === '') {
             this.fromGoogleSheet.classList.add('d-none');
@@ -532,7 +540,6 @@ class FlashcardsApp {
         }
 
         this.closeNotes();
-
         window.scrollTo(0, 0);
     }
 
@@ -541,15 +548,27 @@ class FlashcardsApp {
         this.dataDisplaySection.classList.add('d-none');
         this.flashcardsSection.classList.remove('d-none');
         this.progressIndicator.classList.remove('d-none');
+        this.quizSection.classList.add('d-none');
 
+        window.scrollTo(0, 0);
+    }
+
+    showQuizSection() {
+        this.dataLoadingSection.classList.add('d-none');
+        this.dataDisplaySection.classList.add('d-none');
+        this.flashcardsSection.classList.add('d-none');
+        this.progressIndicator.classList.add('d-none');
+        this.quizSection.classList.remove('d-none');
+
+        this.closeNotes();
         window.scrollTo(0, 0);
     }
 
     resetForwardToDataBtn() {
         if (this.flashcardTableBody.innerHTML.trim() === '') {
-            this.forwardToDataBtn.classList.add('d-none');
+            this.showToDataBtns.classList.add('d-none');
         } else {
-            this.forwardToDataBtn.classList.remove('d-none');
+            this.showToDataBtns.classList.remove('d-none');
         }
     }
 
@@ -920,6 +939,140 @@ class FlashcardsApp {
         this.shareableUrlInput.select();
         document.execCommand('copy');
         alert('Lien copié dans le presse-papiers !');
+    }
+
+    showQuiz() {
+        const visibleRows = Array.from(this.flashcardTableBody.querySelectorAll('tr'))
+            .filter(row => row.style.display !== 'none');
+
+        const selectedCheckboxes = visibleRows.map(row => row.querySelector('.flashcard-checkbox'))
+            .filter(checkbox => checkbox && checkbox.checked);
+
+        if (selectedCheckboxes.length === 0) {
+            alert('Veuillez sélectionner au moins une carte pour commencer la révision.');
+            return;
+        }
+
+        this.cardsToReview = [...selectedCheckboxes].map(checkbox => {
+            const index = checkbox.getAttribute('data-card-index');
+            return this.currentCards[index];
+        });
+
+        this.shuffleArray(this.cardsToReview);
+
+        const flashcardsData = [];
+
+        this.cardsToReview.forEach(flashcardRawData => {
+            const flashcardData = {
+                recto: this.isContentSwapped ? flashcardRawData.verso : flashcardRawData.recto,
+                verso: this.isContentSwapped ? flashcardRawData.recto : flashcardRawData.verso,
+            };
+
+            flashcardsData.push(flashcardData);
+        });
+
+        this.showQuizSection();
+        this.quiz = new Quiz(flashcardsData, this.quizCardsContainer);
+    }
+
+    checkAnswers() {
+        this.quiz.checkAnswers();
+    }
+}
+
+class Quiz {
+    constructor(flashcardsData, container) {
+        this.flashcardsData = flashcardsData;
+        this.container = container;
+        this.questions = this.generateQuestions();
+        this.render();
+    }
+
+    generateQuestions() {
+        const dataCopy = [...this.flashcardsData];
+        const questions = [];
+
+        this.flashcardsData.forEach((flashcardData, index) => {
+            const correctAnswer = flashcardData.verso;
+            const otherAnswers = this.getOtherAnswers(dataCopy, index);
+            const answers = [...otherAnswers, correctAnswer];
+            this.shuffleArray(answers);
+
+            questions.push({
+                recto: flashcardData.recto,
+                correctAnswer: correctAnswer,
+                answers: answers
+            });
+        });
+
+        return questions;
+    }
+
+    getOtherAnswers(flashcardsData, currentIndex) {
+        const otherData = flashcardsData.filter((item, index) => index !== currentIndex);
+        this.shuffleArray(otherData);
+        return otherData.slice(0, 2).map(item => item.verso);
+    }
+
+    shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    render() {
+        this.container.innerHTML = '';
+        this.questions.forEach((question, index) => {
+            const card = document.createElement('div');
+            card.className = 'col';
+
+            card.innerHTML = `
+                <div class="card h-100 rounded-4 border-0 shadow-sm">
+                    <div class="card-header fs-3 text-center border-0">
+                        <div class="card-front">
+                            ${question.recto.replace(/\|\|/g, '<br>').replace(/\n/g, '<br>')}
+                        </div>
+                    </div>
+                    <ul class="list-group list-group-flush fs-5">
+                        ${question.answers.map((answer, answerIndex) => `
+                            <li class="list-group-item p-0">
+                                <div class="form-check">
+                                    <label class="form-check-label d-block px-3 py-2">
+                                        <input class="form-check-input" type="radio" name="question-${index}" id="q${index}-a${answerIndex}" value="${answer}">
+                                        ${answer.replace(/\|\|/g, '<br>').replace(/\n/g, ' ')}
+                                    </label>
+                                </div>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+            this.container.appendChild(card);
+        });
+    }
+
+    checkAnswers() {
+        let score = 0;
+        this.questions.forEach((question, index) => {
+            const selectedAnswer = document.querySelector(`input[name="question-${index}"]:checked`);
+            const listItem = selectedAnswer ? selectedAnswer.closest('li') : null;
+
+            if (listItem) {
+                if (selectedAnswer.value === question.correctAnswer) {
+                    listItem.classList.add('bg-success');
+                    score++;
+                } else {
+                    listItem.classList.add('bg-danger');
+                    const correctElement = document.querySelector(`input[name="question-${index}"][value="${question.correctAnswer}"]`).closest('li');
+                    if (correctElement) {
+                        correctElement.classList.add('bg-success');
+                    }
+                }
+            }
+        });
+
+        alert(`Tu as obtenu ${score} sur ${this.questions.length} bonnes réponses !`);
     }
 }
 
