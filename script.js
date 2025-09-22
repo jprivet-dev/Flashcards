@@ -1,3 +1,56 @@
+function launchConfetti() {
+    const duration = 2 * 1000;
+    const defaults = { startVelocity: 40, ticks: 100, spread: 60, particleCount: 80, scalar: 1.2, zIndex: 0 };
+
+    // Top left corner to bottom right corner
+    setTimeout(() => {
+        confetti({
+            ...defaults,
+            angle: -30,
+            origin: { x: 0, y: 0 },
+        });
+    }, 0);
+
+    // Bottom right corner to top left
+    setTimeout(() => {
+        confetti({
+            ...defaults,
+            angle: 120,
+            origin: { x: 1, y: 1 },
+        });
+    }, duration * 0.25);
+
+    // Top right corner to bottom left
+    setTimeout(() => {
+        confetti({
+            ...defaults,
+            angle: 210,
+            origin: { x: 1, y: 0 },
+        });
+    }, duration * 0.5);
+
+    // Bottom left corner to top right corner
+    setTimeout(() => {
+        confetti({
+            ...defaults,
+            angle: 60,
+            origin: { x: 0, y: 1 },
+        });
+    }, duration * 0.75);
+
+    // Bouquet final au centre
+    setTimeout(() => {
+        confetti({
+            ...defaults,
+            particleCount: 200,
+            spread: 120,
+            origin: { y: 0.6 },
+            scalar: 1.8,
+            decay: 0.92,
+        });
+    }, duration);
+}
+
 class Flashcard {
     constructor(flashcardData, app) {
         this.app = app;
@@ -22,8 +75,8 @@ class Flashcard {
         }
 
         setTimeout(() => {
-            this.fitTextToContainer(front, flashcardData.recto);
-            this.fitTextToContainer(back, flashcardData.verso);
+            this.fitTextToContainer(front);
+            this.fitTextToContainer(back);
         }, 0);
 
         flashcardElement.appendChild(front);
@@ -116,6 +169,7 @@ class FlashcardsApp {
         this.flashcardsSection = document.getElementById('flashcards-section');
         this.quizSection = document.getElementById('quiz-section');
         this.quizCardsContainer = document.getElementById('quiz-cards-container');
+        this.confettisBtn = document.getElementById('confettis-btn');
 
         this.startSequentialBtn = document.getElementById('start-sequential-btn');
         this.startRandomBtn = document.getElementById('start-random-btn');
@@ -183,11 +237,15 @@ class FlashcardsApp {
     }
 
     attachEventListeners() {
+        if (this.confettisBtn) {
+            this.confettisBtn.addEventListener('click', () => launchConfetti());
+        }
+
         this.loadDataBtn.addEventListener('click', () => this.handleDataLoad());
         this.clearTextBtn.addEventListener('click', () => this.clearTextLocalStorageConfirm());
         this.clearUrlBtn.addEventListener('click', () => this.clearUrlLocalStorageConfirm());
-        this.startSequentialBtn.addEventListener('click', () => {this.startSession('sequential');});
-        this.startRandomBtn.addEventListener('click', () => {this.startSession('random');});
+        this.startSequentialBtn.addEventListener('click', () => this.startSession('sequential'));
+        this.startRandomBtn.addEventListener('click', () => this.startSession('random'));
         this.startSequentialIconBtn.addEventListener('click', () => this.startSession('sequential'));
         this.startRandomIconBtn.addEventListener('click', () => this.startSession('random'));
         this.flipAllRectoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('recto'));
@@ -195,12 +253,8 @@ class FlashcardsApp {
         this.switchCardsSizeBtn.addEventListener('click', () => this.switchCardsSize());
         this.showToDataBtns.forEach(btn => btn.addEventListener('click', () => this.showDataDisplaySection()));
         this.backToLoadDataBtn.addEventListener('click', () => this.showDataLoadingSection());
-        this.filterUnflippedBtns.forEach(btn => {
-            btn.addEventListener('click', () => this.filterCards('unflipped'));
-        });
-        this.showQuizBtns.forEach(btn => {
-            btn.addEventListener('click', () => this.showQuiz());
-        });
+        this.filterUnflippedBtns.forEach(btn => btn.addEventListener('click', () => this.filterCards('unflipped')));
+        this.showQuizBtns.forEach(btn => btn.addEventListener('click', () => this.showQuiz()));
         this.showAllBtn.addEventListener('click', () => this.filterCards('all'));
         this.selectAllCheckbox.addEventListener('change', () => this.toggleAllCheckboxes());
         window.addEventListener('scroll', () => this.scrollFunction());
@@ -233,6 +287,9 @@ class FlashcardsApp {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => {
                 this.flashcards.forEach(flashcard => flashcard.fitTexts());
+                if (this.quiz) {
+                    this.quiz.fitTexts();
+                }
             }, 250);
         });
     }
@@ -976,6 +1033,7 @@ class FlashcardsApp {
     }
 
     checkAnswers() {
+        this.scrollToTop();
         this.quiz.checkAnswers();
     }
 }
@@ -1022,6 +1080,9 @@ class Quiz {
     }
 
     render() {
+        document.querySelector('#quiz-section .card').classList.add('d-none');
+        document.querySelectorAll('.check-answers-btn').forEach(btn => btn.classList.remove('d-none'));
+
         this.container.innerHTML = '';
         this.questions.forEach((question, index) => {
             const card = document.createElement('div');
@@ -1050,10 +1111,27 @@ class Quiz {
             `;
             this.container.appendChild(card);
         });
+
+        setTimeout(() => {
+            this.fitTexts();
+        }, 0);
     }
 
     checkAnswers() {
-        let score = 0;
+        let correctCount = 0;
+        const totalQuestions = this.questions.length;
+
+        const correctCountElement = document.getElementById('correct-count');
+        const incorrectCountElement = document.getElementById('incorrect-count');
+        const percentageScoreElement = document.getElementById('percentage-score');
+        const quizScoreContainer = document.querySelector('#quiz-section .card');
+
+        document.querySelectorAll('#quiz-cards-container .quiz-card').forEach(card => {
+            card.querySelectorAll('li').forEach(li => {
+                li.classList.remove('bg-success-subtle', 'text-success', 'bg-danger-subtle', 'text-danger');
+            });
+        });
+
         this.questions.forEach((question, index) => {
             const selectedAnswer = document.querySelector(`input[name="question-${index}"]:checked`);
             const listItem = selectedAnswer ? selectedAnswer.closest('li') : null;
@@ -1061,7 +1139,7 @@ class Quiz {
             if (listItem) {
                 if (selectedAnswer.value === question.correctAnswer) {
                     listItem.classList.add('bg-success-subtle', 'text-success');
-                    score++;
+                    correctCount++;
                 } else {
                     listItem.classList.add('bg-danger-subtle', 'text-danger');
                     const correctElement = document.querySelector(`input[name="question-${index}"][value="${question.correctAnswer}"]`).closest('li');
@@ -1072,7 +1150,66 @@ class Quiz {
             }
         });
 
-        alert(`Tu as obtenu ${score} sur ${this.questions.length} bonnes réponses !`);
+        const incorrectCount = totalQuestions - correctCount;
+        const percentage = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+
+        correctCountElement.textContent = correctCount;
+        incorrectCountElement.textContent = incorrectCount;
+        percentageScoreElement.textContent = percentage;
+
+        if (quizScoreContainer) {
+            gsap.fromTo(quizScoreContainer,
+                {
+                    opacity: 0,
+                    y: -50,
+                    scale: 0.8,
+                },
+                {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    duration: 0.8,
+                    ease: 'back.out(1.7)',
+                    onStart: () => {
+                        quizScoreContainer.classList.remove('d-none');
+                    }
+                }
+            );
+        }
+
+        if (correctCount === totalQuestions && totalQuestions > 0) {
+            launchConfetti();
+        }
+
+        document.querySelectorAll('.check-answers-btn').forEach(btn => btn.classList.add('d-none'));
+    }
+
+    fitTexts() {
+        document.querySelectorAll('#quiz-cards-container .card-front').forEach(cardFront => this.fitTextToContainer(cardFront));
+    }
+
+    fitTextToContainer(element) {
+        const words = element.textContent.split(' ').filter(word => word !== '');
+        const textWithoutSpaces = element.textContent.replace(/\s/g, '');
+
+        if (words.length > 7) {
+            element.classList.add('text-start');
+        }
+
+        let fontSize = 2.3;
+
+        if (words.length > 3 && textWithoutSpaces.length > 10) {
+            fontSize = 1.8;
+        }
+
+        const minFontSize = 0.6;
+
+        element.style.fontSize = `${fontSize}rem`;
+
+        while ((element.scrollWidth > element.clientWidth || element.scrollHeight > element.clientHeight) && fontSize > minFontSize) {
+            fontSize -= 0.2;
+            element.style.fontSize = `${fontSize}rem`;
+        }
     }
 }
 
