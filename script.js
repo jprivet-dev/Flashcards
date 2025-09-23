@@ -582,7 +582,6 @@ class FlashcardsApp {
         this.quizSection.classList.add('d-none');
 
         this.closeNotes();
-        this.resetForwardToDataBtn();
         window.scrollTo(0, 0);
     }
 
@@ -622,14 +621,6 @@ class FlashcardsApp {
 
         this.closeNotes();
         window.scrollTo(0, 0);
-    }
-
-    resetForwardToDataBtn() {
-        if (this.flashcardTableBody.innerHTML.trim() === '') {
-            this.showDataBtns.forEach(btn => btn.classList.add('d-none'));
-        } else {
-            this.showDataBtns.forEach(btn => btn.classList.remove('d-none'));
-        }
     }
 
     filterCards(mode) {
@@ -742,7 +733,6 @@ class FlashcardsApp {
         this.filterTable('');
         this.hideTable();
         this.isContentSwapped = false;
-        this.resetForwardToDataBtn();
     }
 
     updateFilterButtonsCount() {
