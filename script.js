@@ -169,7 +169,7 @@ class FlashcardsApp {
         this.flashcardsSection = document.getElementById('flashcards-section');
         this.quizSection = document.getElementById('quiz-section');
         this.quizCardsContainer = document.getElementById('quiz-cards-container');
-        this.confettisBtn = document.getElementById('confettis-btn');
+        this.confettisBtn = document.getElementById('confetti-btn');
 
         this.startSequentialBtn = document.getElementById('start-sequential-btn');
         this.startRandomBtn = document.getElementById('start-random-btn');
@@ -177,7 +177,7 @@ class FlashcardsApp {
         this.startRandomIconBtn = document.getElementById('start-random-icon-btn');
 
         this.progressIndicator = document.getElementById('progress-indicator');
-        this.showToDataBtns = document.querySelectorAll('.show-data-btn');
+        this.showDataBtns = document.querySelectorAll('.show-data-btn');
         this.backToLoadDataBtn = document.getElementById('back-to-load-data-btn');
         this.fromGoogleSheet = document.getElementById('from-google-sheet');
         this.scrollToTopBtn = document.getElementById('scrollToTopBtn');
@@ -185,7 +185,7 @@ class FlashcardsApp {
         this.flashcardGridContainer = document.getElementById('flashcard-grid-container');
         this.flipAllRectoBtn = document.getElementById('flip-all-recto-btn');
         this.flipAllVersoBtn = document.getElementById('flip-all-verso-btn');
-        this.switchCardsSizeBtn = document.getElementById('switch-cards-size-btn');
+        this.switchCardsSizeBtns = document.querySelectorAll('.switch-cards-size-btn');
         this.filterUnflippedBtns = document.querySelectorAll('.filter-unflipped-btn');
         this.unflippedCountSpans = document.querySelectorAll('.unflipped-count');
         this.showQuizBtns = document.querySelectorAll('.show-quiz-btn');
@@ -250,8 +250,8 @@ class FlashcardsApp {
         this.startRandomIconBtn.addEventListener('click', () => this.startSession('random'));
         this.flipAllRectoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('recto'));
         this.flipAllVersoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('verso'));
-        this.switchCardsSizeBtn.addEventListener('click', () => this.switchCardsSize());
-        this.showToDataBtns.forEach(btn => btn.addEventListener('click', () => this.showDataDisplaySection()));
+        this.switchCardsSizeBtns.forEach(btn => btn.addEventListener('click', () => this.switchCardsSize()));
+        this.showDataBtns.forEach(btn => btn.addEventListener('click', () => this.showDataDisplaySection()));
         this.backToLoadDataBtn.addEventListener('click', () => this.showDataLoadingSection());
         this.filterUnflippedBtns.forEach(btn => btn.addEventListener('click', () => this.filterCards('unflipped')));
         this.showQuizBtns.forEach(btn => btn.addEventListener('click', () => this.showQuiz()));
@@ -546,6 +546,9 @@ class FlashcardsApp {
         }
 
         this.flashcards.forEach(flashcard => flashcard.fitTexts());
+        if (this.quiz) {
+            this.quiz.fitTexts();
+        }
     }
 
     initCardsSizeFromLocalStorage() {
@@ -623,9 +626,9 @@ class FlashcardsApp {
 
     resetForwardToDataBtn() {
         if (this.flashcardTableBody.innerHTML.trim() === '') {
-            this.showToDataBtns.classList.add('d-none');
+            this.showDataBtns.forEach(btn => btn.classList.add('d-none'));
         } else {
-            this.showToDataBtns.classList.remove('d-none');
+            this.showDataBtns.forEach(btn => btn.classList.remove('d-none'));
         }
     }
 
@@ -1102,28 +1105,26 @@ class Quiz {
         this.container.innerHTML = '';
         this.questions.forEach((question, index) => {
             const card = document.createElement('div');
-            card.className = 'col';
+            card.className = 'card h-100 rounded-4 border-0 shadow-sm';
 
             card.innerHTML = `
-                <div class="card h-100 rounded-4 border-0 shadow-sm">
-                    <div class="card-header fs-3 text-center border-0">
-                        <div class="card-front">
-                            ${question.recto.replace(/\|\|/g, '<br>').replace(/\n/g, '<br>')}
-                        </div>
+                <div class="card-header fs-3 text-center border-0">
+                    <div class="card-front">
+                        ${question.recto.replace(/\|\|/g, '<br>').replace(/\n/g, '<br>')}
                     </div>
-                    <ul class="list-group list-group-flush fs-5">
-                        ${question.answers.map((answer, answerIndex) => `
-                            <li class="list-group-item p-0">
-                                <div class="form-check">
-                                    <label class="form-check-label d-block px-3 py-2">
-                                        <input class="form-check-input" type="radio" name="question-${index}" id="q${index}-a${answerIndex}" value="${answer}">
-                                        ${answer.replace(/\|\|/g, '<br>').replace(/\n/g, ' ')}
-                                    </label>
-                                </div>
-                            </li>
-                        `).join('')}
-                    </ul>
                 </div>
+                <ul class="list-group list-group-flush fs-5">
+                    ${question.answers.map((answer, answerIndex) => `
+                        <li class="list-group-item p-0">
+                            <div class="form-check">
+                                <label class="form-check-label d-block px-3 py-2">
+                                    <input class="form-check-input" type="radio" name="question-${index}" id="q${index}-a${answerIndex}" value="${answer}">
+                                    ${answer.replace(/\|\|/g, '<br>').replace(/\n/g, ' ')}
+                                </label>
+                            </div>
+                        </li>
+                    `).join('')}
+                </ul>
             `;
             this.container.appendChild(card);
         });
@@ -1134,6 +1135,15 @@ class Quiz {
     }
 
     checkAnswers() {
+        const unansweredQuestions = this.questions.some((question, index) => {
+            return !document.querySelector(`input[name="question-${index}"]:checked`);
+        });
+
+        if (unansweredQuestions) {
+            alert("Il manque une ou plusieurs réponses. Complèter le quiz avant de valider !");
+            return;
+        }
+
         let correctCount = 0;
         const totalQuestions = this.questions.length;
 

@@ -56,11 +56,11 @@ body.notes-active {
     white-space: nowrap !important;
 }
 
-#switch-cards-size-btn .expand {
+.switch-cards-size-btn .expand {
     display: none;
 }
 
-#switch-cards-size-btn .contract {
+.switch-cards-size-btn .contract {
     display: inherit;
 }
 
@@ -76,11 +76,11 @@ body.small-cards-size #flashcard-grid-container {
     grid-template-columns: repeat(2, 1fr);
 }
 
-body.small-cards-size #switch-cards-size-btn .expand {
+body.small-cards-size .switch-cards-size-btn .expand {
     display: inherit;
 }
 
-body.small-cards-size #switch-cards-size-btn .contract {
+body.small-cards-size .switch-cards-size-btn .contract {
     display: none;
 }
 
@@ -176,37 +176,37 @@ body.small-cards-size #switch-cards-size-btn .contract {
 }
 
 .flashcard:nth-child(9n + 1) .card-front,
-#quiz-cards-container .col:nth-child(9n + 1) .card-front {
+#quiz-cards-container .card:nth-child(9n + 1) .card-front {
     background: #7FB52E2D;
 }
 
 .flashcard:nth-child(9n + 2) .card-front,
-#quiz-cards-container .col:nth-child(9n + 2) .card-front {
+#quiz-cards-container .card:nth-child(9n + 2) .card-front {
     background: #F6AE0E2D;
 }
 
 .flashcard:nth-child(9n + 3) .card-front,
-#quiz-cards-container .col:nth-child(9n + 3) .card-front {
+#quiz-cards-container .card:nth-child(9n + 3) .card-front {
     background: #C17B952D;
 }
 
 .flashcard:nth-child(9n + 4) .card-front,
-#quiz-cards-container .col:nth-child(9n + 4) .card-front {
+#quiz-cards-container .card:nth-child(9n + 4) .card-front {
     background: #1B95B72D;
 }
 
 .flashcard:nth-child(9n + 5) .card-front,
-#quiz-cards-container .col:nth-child(9n + 5) .card-front {
+#quiz-cards-container .card:nth-child(9n + 5) .card-front {
     background: #DD50102D;
 }
 
 .flashcard:nth-child(9n + 6) .card-front,
-#quiz-cards-container .col:nth-child(9n + 6) .card-front {
+#quiz-cards-container .card:nth-child(9n + 6) .card-front {
     background: #72BAB62D;
 }
 
 .flashcard:nth-child(9n + 7) .card-front,
-#quiz-cards-container .col:nth-child(9n + 7) .card-front {
+#quiz-cards-container .card:nth-child(9n + 7) .card-front {
     /*background: #70a9b22D;*/
     background: #EE775A2D;
     /*background: #AFCB292D;*/
@@ -218,7 +218,7 @@ body.small-cards-size #switch-cards-size-btn .contract {
 }
 
 .flashcard:nth-child(9n + 8) .card-front,
-#quiz-cards-container .col:nth-child(9n + 8) .card-front {
+#quiz-cards-container .card:nth-child(9n + 8) .card-front {
     /*background: #70a9b22D;*/
     /*background: #EE775A2D;*/
     background: #AFCB292D;
@@ -230,7 +230,7 @@ body.small-cards-size #switch-cards-size-btn .contract {
 }
 
 .flashcard:nth-child(9n + 9) .card-front,
-#quiz-cards-container .col:nth-child(9n + 9) .card-front {
+#quiz-cards-container .card:nth-child(9n + 9) .card-front {
     /*background: #70a9b22D;*/
     /*background: #EE775A2D;*/
     /*background: #AFCB292D;*/
@@ -363,7 +363,7 @@ ion-icon {
 #scrollToTopBtn ion-icon,
 #start-random-icon-btn ion-icon,
 #start-sequential-icon-btn ion-icon,
-#switch-cards-size-btn ion-icon {
+.switch-cards-size-btn ion-icon {
     margin-right: 0;
 }
 
@@ -440,16 +440,103 @@ ion-icon {
     white-space: nowrap;
 }
 
-#quiz-cards-container .card-header {
-    position: relative;
-    height: 0;
-    padding: 0 0 80% 0;
+#quiz-cards-container {
+    gap: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
 }
 
 #quiz-cards-container .card {
     overflow: hidden;
 }
 
+#quiz-cards-container .card-header {
+    position: relative;
+    height: 0;
+    padding: 0 0 80% 0;
+}
+
+#quiz-cards-container .card-front {
+    position: absolute;
+    backface-visibility: hidden;
+    padding: 10px 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    line-height: 1.3em;
+    color: #000000b5;
+}
+
+#quiz-cards-container .card-front {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
 #quiz-cards-container label {
     cursor: pointer;
+}
+
+
+body.small-cards-size #quiz-cards-container {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 575.98px) {
+    #quiz-cards-container .card-header {
+        padding-bottom: 60%;
+    }
+}
+
+@media (min-width: 576px) {
+    #quiz-cards-container {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    body.small-cards-size #quiz-cards-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 768px) {
+    #quiz-cards-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    body.small-cards-size #quiz-cards-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 992px) {
+    #quiz-cards-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    body.small-cards-size #quiz-cards-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1200px) {
+    #quiz-cards-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    body.small-cards-size #quiz-cards-container {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (min-width: 1400px) {
+    #quiz-cards-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    body.small-cards-size #quiz-cards-container {
+        grid-template-columns: repeat(4, 1fr);
+    }
 }
