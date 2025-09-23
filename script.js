@@ -1135,6 +1135,15 @@ class Quiz {
     }
 
     checkAnswers() {
+        const unansweredQuestions = this.questions.some((question, index) => {
+            return !document.querySelector(`input[name="question-${index}"]:checked`);
+        });
+
+        if (unansweredQuestions) {
+            alert("Il manque une ou plusieurs réponses. Complèter le quiz avant de valider !");
+            return;
+        }
+
         let correctCount = 0;
         const totalQuestions = this.questions.length;
 
