@@ -1060,22 +1060,48 @@ class Quiz {
     }
 
     getOtherAnswers(flashcardsData, currentIndex) {
-        const otherData = flashcardsData.filter((item, index) => index !== currentIndex);
-        this.shuffleArray(otherData);
-
         const otherAnswers = [];
         const correctAnswer = flashcardsData[currentIndex].verso;
+        const currentRecto = flashcardsData[currentIndex].recto;
+
+        // Récupérer la première lettre de la bonne réponse pour la logique de pertinence
+        const firstLetter = correctAnswer[0] ? correctAnswer[0].toLowerCase() : '';
+
+        // D'abord, on filtre les cartes dont le recto n'est pas le même que la carte actuelle
+        const relevantFlashcards = flashcardsData.filter(fc => fc.recto !== currentRecto);
+
+        // Ensuite, on filtre toutes les réponses de ces cartes qui commencent par la même lettre
+        const potentialLures = relevantFlashcards
+            .map(fc => fc.verso)
+            .filter(verso => verso[0] && verso[0].toLowerCase() === firstLetter);
+
+        // Mélanger cette liste de leurres potentiels
+        this.shuffleArray(potentialLures);
 
         let i = 0;
-        while (otherAnswers.length < 2 && i < otherData.length) {
-            const potentialAnswer = otherData[i].verso;
+        while (otherAnswers.length < 2 && i < potentialLures.length) {
+            const potentialAnswer = potentialLures[i];
 
-            if (potentialAnswer !== correctAnswer) {
-                if (!otherAnswers.includes(potentialAnswer)) {
-                    otherAnswers.push(potentialAnswer);
-                }
+            // S'assurer que le leurre n'est pas la bonne réponse et qu'il n'a pas déjà été ajouté
+            if (potentialAnswer !== correctAnswer && !otherAnswers.includes(potentialAnswer)) {
+                otherAnswers.push(potentialAnswer);
             }
             i++;
+        }
+
+        // Plan de secours : si on n'a pas assez de leurres "proches", on prend des leurres aléatoires
+        if (otherAnswers.length < 2) {
+            const allVersos = [...new Set(relevantFlashcards.map(fc => fc.verso))];
+            this.shuffleArray(allVersos);
+
+            let j = 0;
+            while (otherAnswers.length < 2 && j < allVersos.length) {
+                const potentialAnswer = allVersos[j];
+                if (potentialAnswer !== correctAnswer && !otherAnswers.includes(potentialAnswer)) {
+                    otherAnswers.push(potentialAnswer);
+                }
+                j++;
+            }
         }
 
         return otherAnswers;
@@ -1130,7 +1156,7 @@ class Quiz {
         });
 
         if (unansweredQuestions) {
-            alert("Il manque une ou plusieurs réponses. Complèter le quiz avant de valider !");
+            alert('Il manque une ou plusieurs réponses. Complèter le quiz avant de valider !');
             return;
         }
 
