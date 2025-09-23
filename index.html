@@ -206,23 +206,23 @@
                     <th data-sort-index="1" class="text-center sortable">
                         #
                         <span class="sort-icon-container">
-                                <ion-icon name="caret-up-outline" class="sort-icon asc-icon"></ion-icon>
-                                <ion-icon name="caret-down-outline" class="sort-icon desc-icon"></ion-icon>
-                            </span>
+                            <ion-icon name="caret-up-outline" class="sort-icon asc-icon"></ion-icon>
+                            <ion-icon name="caret-down-outline" class="sort-icon desc-icon"></ion-icon>
+                        </span>
                     </th>
                     <th data-sort-index="2" class="sortable">
                         Recto
                         <span class="sort-icon-container">
-                                <ion-icon name="caret-up-outline" class="sort-icon asc-icon"></ion-icon>
-                                <ion-icon name="caret-down-outline" class="sort-icon desc-icon"></ion-icon>
-                            </span>
+                            <ion-icon name="caret-up-outline" class="sort-icon asc-icon"></ion-icon>
+                            <ion-icon name="caret-down-outline" class="sort-icon desc-icon"></ion-icon>
+                        </span>
                     </th>
                     <th data-sort-index="3" class="sortable">
                         Verso
                         <span class="sort-icon-container">
-                                <ion-icon name="caret-up-outline" class="sort-icon asc-icon"></ion-icon>
-                                <ion-icon name="caret-down-outline" class="sort-icon desc-icon"></ion-icon>
-                            </span>
+                            <ion-icon name="caret-up-outline" class="sort-icon asc-icon"></ion-icon>
+                            <ion-icon name="caret-down-outline" class="sort-icon desc-icon"></ion-icon>
+                        </span>
                     </th>
                     <th data-sort-index="4" class="sortable">
                         Notes
@@ -283,7 +283,7 @@
                         Verso
                     </button>
                 </div>
-                <button class="btn btn-outline-primary rounded-pill" id="switch-cards-size-btn" title="Changer la taille des cartes">
+                <button class="switch-cards-size-btn btn btn-outline-primary rounded-pill" title="Changer la taille des cartes">
                     <span class="expand">
                         <ion-icon name="expand-outline"></ion-icon>
                     </span>
@@ -312,18 +312,28 @@
 
 <section id="quiz-section" class="d-none">
     <div class="container-lg">
-        <div class="d-flex justify-content-between mb-4">
-            <button class="show-data-btn btn btn-primary rounded-pill mb-2 mb-md-0" title="Revenir aux données">
+        <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center mb-4">
+            <button class="show-data-btn btn btn-primary rounded-pill mb-3 mb-md-0" title="Revenir aux données">
                 <ion-icon name="arrow-back-outline"></ion-icon>
                 Données
             </button>
-<!--            <button id="confettis-btn" class="btn btn-primary rounded-pill mb-2 mb-md-0" title="Revenir aux données">-->
-<!--                Confettis-->
-<!--            </button>-->
-            <button class="check-answers-btn btn btn-outline-primary rounded-pill mb-2 mb-md-0">
-                <ion-icon name="checkmark-circle-outline"></ion-icon>
-                Vérifier les réponses
-            </button>
+            <div class="d-flex flex-column flex-md-row gap-2">
+                <!--            <button id="confetti-btn" class="btn btn-primary rounded-pill mb-2 mb-md-0" title="Revenir aux données">-->
+                <!--                Confettis-->
+                <!--            </button>-->
+                <button class="check-answers-btn btn btn-outline-primary rounded-pill mb-2 mb-md-0">
+                    <ion-icon name="checkmark-circle-outline"></ion-icon>
+                    Vérifier
+                </button>
+                <button class="switch-cards-size-btn btn btn-outline-primary rounded-pill" title="Changer la taille des cartes">
+                    <span class="expand">
+                        <ion-icon name="expand-outline"></ion-icon>
+                    </span>
+                    <span class="contract">
+                        <ion-icon name="contract-outline"></ion-icon>
+                    </span>
+                </button>
+            </div>
         </div>
         <div id="quiz-scores" class="card mb-5 text-center border-0 bg-transparent d-none">
             <h3 class="card-title mb-4">Résultats du quiz</h3>
@@ -357,7 +367,7 @@
                 </div>
             </div>
         </div>
-        <div id="quiz-cards-container" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-5 mb-4">
+        <div id="quiz-cards-container" class="g-4 mb-4">
         </div>
         <button class="check-answers-btn btn btn-outline-primary rounded-pill d-block mx-auto my-5 btn-lg">
             <ion-icon name="checkmark-circle-outline"></ion-icon>
