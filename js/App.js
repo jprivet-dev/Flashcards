@@ -274,8 +274,15 @@ export class App {
     }
 
     displayTable(cardsToDisplay) {
-        this.flashcardTableBody.innerHTML = '';
+        const checkboxes = document.querySelectorAll('.flashcard-checkbox');
+        let notCheckedIndexes = [];
+        checkboxes.forEach((checkbox, index) => {
+            if (!checkbox.checked) {
+                notCheckedIndexes.push(index);
+            }
+        });
 
+        this.flashcardTableBody.innerHTML = '';
         this.startRowSelect.innerHTML = '';
         this.endRowSelect.innerHTML = '';
 
@@ -283,10 +290,11 @@ export class App {
             const recto = this.isContentSwapped ? card.verso : card.recto;
             const verso = this.isContentSwapped ? card.recto : card.verso;
             const notes = card.notes || '-';
+            const checkedAttribute = notCheckedIndexes.includes(index) ? '' : ' checked';
 
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td><input type="checkbox" class="flashcard-checkbox" checked data-card-index="${index}"></td>
+                <td><input type="checkbox" class="flashcard-checkbox" data-card-index="${index}"${checkedAttribute}></td>
                 <td class="text-center">${index + 1}</td>
                 <td>${recto}</td>
                 <td>${verso}</td>
