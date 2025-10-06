@@ -3,6 +3,8 @@ import { Quiz } from './Quiz.js';
 
 export class App {
     constructor() {
+        this.initActionDelegation();
+
         this.urlInput = document.getElementById('url-input');
         this.clearUrlBtn = document.getElementById('clear-url-btn');
         this.textInput = document.getElementById('text-input');
@@ -79,6 +81,28 @@ export class App {
         this.flashcards = [];
 
         this.attachEventListeners();
+    }
+
+    initActionDelegation() {
+        const actionElements = document.querySelectorAll('[data-action]');
+
+        actionElements.forEach(element => {
+            const actionName = element.dataset.action;
+            const actionParam = element.dataset.param;
+
+            if (typeof this[actionName] === 'function') {
+                element.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    if (actionParam) {
+                        this[actionName](actionParam);
+                    } else {
+                        this[actionName]();
+                    }
+                });
+            } else {
+                console.error(`Erreur d'initialisation : La méthode App.${actionName} n'est pas définie.`);
+            }
+        });
     }
 
     attachEventListeners() {
