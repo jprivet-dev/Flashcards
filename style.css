@@ -361,9 +361,8 @@ ion-icon {
 }
 
 #scrollToTopBtn ion-icon,
-#start-random-icon-btn ion-icon,
-#start-sequential-icon-btn ion-icon,
-.switch-cards-size-btn ion-icon {
+.switch-cards-size-btn ion-icon,
+.ion-icon-me-0 {
     margin-right: 0;
 }
 
