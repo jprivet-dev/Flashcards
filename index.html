@@ -23,7 +23,7 @@
 
         <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center mb-4 g-2">
             <h2 class="mb-2">1. Charger vos données</h2>
-            <button class="show-data-btn btn btn-primary rounded-pill mb-2 d-none" title="Revenir aux données">
+            <button data-action="showDataDisplaySection" class="show-data-btn btn btn-primary rounded-pill mb-2 d-none" title="Revenir aux données">
                 Données
                 <ion-icon name="arrow-forward-outline"></ion-icon>
             </button>
@@ -40,7 +40,7 @@
                         <label for="text-input" class="form-label">Coller votre texte ici :</label>
                         <div class="input-group">
                             <textarea id="text-input" class="form-control" rows="5" placeholder="Recto 1, Verso 1, Notes 1&#10;Recto 2, Verso 2, Notes 1"></textarea>
-                            <button id="clear-text-btn" class="btn btn-outline-secondary" type="button" title="Effacer">
+                            <button data-action="clearTextLocalStorageConfirm" id="clear-text-btn" class="btn btn-outline-secondary" type="button" title="Effacer">
                                 <ion-icon name="close-circle-outline"></ion-icon>
                             </button>
                         </div>
@@ -61,7 +61,7 @@
                             <option value="verbs">Verbes irréguliers (3ème)</option>
                             <option value="periodic">Symboles des éléments chimiques</option>
                         </select>
-                        <button id="example-load-btn" class="btn btn-primary">Coller</button>
+                        <button data-action="copyExample" id="example-load-btn" class="btn btn-primary">Coller</button>
                     </div>
                     <div class="input-group mb-4">
                         <label for="separator-select" class="input-group-text" id="basic-addon1">Séparateur :</label>
@@ -77,7 +77,7 @@
                         <label for="url-input" class="form-label">Coller le lien de votre fichier CSV Google Sheets public :</label>
                         <div class="input-group">
                             <input type="url" id="url-input" class="form-control">
-                            <button id="clear-url-btn" class="btn btn-outline-secondary" type="button" title="Effacer">
+                            <button data-action="clearUrlLocalStorageConfirm" id="clear-url-btn" class="btn btn-outline-secondary" type="button" title="Effacer">
                                 <ion-icon name="close-circle-outline"></ion-icon>
                             </button>
                         </div>
@@ -95,7 +95,7 @@
                         <label for="shareable-url-input" class="form-label">Partager le lien :</label>
                         <div class="input-group">
                             <input type="text" class="form-control" id="shareable-url-input" readonly>
-                            <button class="btn btn-outline-secondary" type="button" id="copy-url-btn" title="Copier le lien">
+                            <button data-action="copyShareableUrl" class="btn btn-outline-secondary" type="button" id="copy-url-btn" title="Copier le lien">
                                 <ion-icon name="copy-outline"></ion-icon>
                             </button>
                         </div>
@@ -108,7 +108,7 @@
             </div>
 
             <div class="d-grid gap-2 col-lg-6 mx-auto my-5">
-                <button id="load-data-btn" class="btn btn-primary btn-lg rounded-pill">
+                <button data-action="handleDataLoad"  id="load-data-btn" class="btn btn-primary btn-lg rounded-pill">
                     <ion-icon name="cloud-upload-outline"></ion-icon>
                     Charger les données
                 </button>
@@ -120,18 +120,18 @@
 <section id="data-display-section" class="mb-4 d-none">
     <div class="container-lg">
         <div class="d-flex justify-content-between mb-4">
-            <button class="btn btn-primary rounded-pill mb-md-0" id="back-to-load-data-btn" title="Charger vos données">
+            <button data-action="showDataLoadingSection" class="btn btn-primary rounded-pill mb-md-0" id="back-to-load-data-btn" title="Charger vos données">
                 <ion-icon name="arrow-back-outline"></ion-icon>
                 Charger
             </button>
             <div class="d-flex align-items-end gap-2">
-                <button id="start-sequential-icon-btn" class="btn btn-success rounded-pill" title="Commencer la révision dans l'ordre">
+                <button data-action="startSession" data-param="sequential" id="start-sequential-icon-btn" class="btn btn-success rounded-pill" title="Commencer la révision dans l'ordre">
                     <ion-icon name="play-forward-outline"></ion-icon>
                 </button>
-                <button id="start-random-icon-btn" class="btn btn-warning rounded-pill" title="Commencer la révision aléatoire">
+                <button data-action="startSession" data-param="random" id="start-random-icon-btn" class="btn btn-warning rounded-pill" title="Commencer la révision aléatoire">
                     <ion-icon name="shuffle-outline"></ion-icon>
                 </button>
-                <button class="show-quiz-btn btn btn-primary rounded-pill" title="C'est parti pour le quiz !">
+                <button data-action="showQuiz" class="show-quiz-btn btn btn-primary rounded-pill" title="C'est parti pour le quiz !">
                     <ion-icon name="rocket-outline"></ion-icon>
                 </button>
             </div>
@@ -149,7 +149,7 @@
         <div class="border rounded p-4 mb-4">
             <div class="row">
                 <div class="col-auto">
-                    <button id="swap-content-btn" class="btn btn-primary mb-4">
+                    <button data-action="toggleContentSwap" id="swap-content-btn" class="btn btn-primary mb-4">
                         <ion-icon name="swap-horizontal-outline"></ion-icon>
                         Inverser les données Recto et Verso
                     </button>
@@ -179,16 +179,16 @@
                     <select id="end-row-select" class="form-select"></select>
                 </div>
                 <div class="col-sm-auto">
-                    <button id="select-range-btn" class="btn btn-primary w-100">Sélectionner</button>
+                    <button data-action="selectRowsByRange" id="select-range-btn" class="btn btn-primary w-100">Sélectionner</button>
                 </div>
                 <div class="col-sm-auto">
-                    <button id="unselectAll-btn" class="btn btn-secondary w-100">Désélectionner tout</button>
+                    <button data-action="toggleAllCheckboxes" data-param="false" id="unselectAll-btn" class="btn btn-secondary w-100">Désélectionner tout</button>
                 </div>
             </div>
             <div>
                 <div class="input-group">
                     <input type="text" id="filter-input" class="form-control" placeholder="Filtrer les colonnes Recto, Verso et Notes...">
-                    <button id="reset-filter-btn" class="btn btn-outline-secondary" type="button" title="Réinitialiser le filtre">
+                    <button data-action="resetFilter" id="reset-filter-btn" class="btn btn-outline-secondary" type="button" title="Réinitialiser le filtre">
                         <ion-icon name="close-circle-outline"></ion-icon>
                     </button>
                 </div>
@@ -239,11 +239,11 @@
         </div>
 
         <div class="d-grid gap-2 col-lg-6 mx-auto my-5">
-            <button id="start-sequential-btn" class="btn btn-success btn-lg rounded-pill">
+            <button data-action="startSession" data-param="sequential" id="start-sequential-btn" class="btn btn-success btn-lg rounded-pill">
                 <ion-icon name="play-forward-outline"></ion-icon>
                 Commencer la révision dans l'ordre
             </button>
-            <button id="start-random-btn" class="btn btn-warning btn-lg rounded-pill">
+            <button data-action="startSession" data-param="random" id="start-random-btn" class="btn btn-warning btn-lg rounded-pill">
                 <ion-icon name="shuffle-outline"></ion-icon>
                 Commencer la révision aléatoire
             </button>
@@ -258,32 +258,32 @@
 <section id="flashcards-section" class="d-none mt-4">
     <div class="container-lg">
         <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center mb-4">
-            <button class="show-data-btn btn btn-primary rounded-pill mb-2 mb-md-0" title="Revenir aux données">
+            <button data-action="showDataDisplaySection" class="show-data-btn btn btn-primary rounded-pill mb-2 mb-md-0" title="Revenir aux données">
                 <ion-icon name="arrow-back-outline"></ion-icon>
                 Données
             </button>
             <div class="d-flex flex-column flex-md-row gap-2">
                 <div class="btn-group" role="group">
-                    <button class="filter-unflipped-btn btn btn-outline-primary rounded-start-pill" title="Réviser avec les cartes non retournées">
+                    <button data-action="filterCards" class="filter-unflipped-btn btn btn-outline-primary rounded-start-pill" title="Réviser avec les cartes non retournées">
                         <ion-icon name="sync-outline"></ion-icon>
                         Réviser <span class="unflipped-count badge rounded-pill text-bg-primary">0</span>
                     </button>
-                    <button class="btn btn-outline-primary rounded-end-pill" id="show-all-btn" title="Afficher toutes les cartes">
+                    <button data-action="filterCards" data-param="all" class="btn btn-outline-primary rounded-end-pill" id="show-all-btn" title="Afficher toutes les cartes">
                         <ion-icon name="grid-outline"></ion-icon>
                         Toutes <span id="all-count" class="badge rounded-pill text-bg-primary">0</span>
                     </button>
                 </div>
                 <div class="btn-group" role="group">
-                    <button class="btn btn-outline-primary rounded-start-pill" id="flip-all-recto-btn" title="Toutes les cartes au recto">
+                    <button data-action="flipAllFlashcardsTo" data-param="recto" class="btn btn-outline-primary rounded-start-pill" id="flip-all-recto-btn" title="Toutes les cartes au recto">
                         <ion-icon name="arrow-undo-outline"></ion-icon>
                         Recto
                     </button>
-                    <button class="btn btn-outline-primary rounded-end-pill" id="flip-all-verso-btn" title="Toutes les cartes au verso">
+                    <button data-action="flipAllFlashcardsTo" data-param="verso" class="btn btn-outline-primary rounded-end-pill" id="flip-all-verso-btn" title="Toutes les cartes au verso">
                         <ion-icon name="arrow-redo-outline"></ion-icon>
                         Verso
                     </button>
                 </div>
-                <button class="switch-cards-size-btn btn btn-outline-primary rounded-pill" title="Changer la taille des cartes">
+                <button data-action="switchCardsSize" class="switch-cards-size-btn btn btn-outline-primary rounded-pill" title="Changer la taille des cartes">
                     <span class="expand">
                         <ion-icon name="expand-outline"></ion-icon>
                     </span>
@@ -298,11 +298,11 @@
         <div id="flashcard-grid-container">
         </div>
         <div class="text-center my-5 py-5">
-            <button class="filter-unflipped-btn btn btn-outline-primary rounded-pill mb-4 d-block mx-auto">
+            <button data-action="filterCards" class="filter-unflipped-btn btn btn-outline-primary rounded-pill mb-4 d-block mx-auto">
                 <ion-icon name="sync-outline"></ion-icon>
                 Réviser avec les cartes non retournées <span class="unflipped-count badge rounded-pill text-bg-primary">0</span>
             </button>
-            <button class="show-quiz-btn btn btn-outline-primary rounded-pill d-block mx-auto">
+            <button data-action="showQuiz" class="show-quiz-btn btn btn-outline-primary rounded-pill d-block mx-auto">
                 <ion-icon name="rocket-outline"></ion-icon>
                 C'est parti pour le quiz !
             </button>
@@ -313,19 +313,19 @@
 <section id="quiz-section" class="d-none">
     <div class="container-lg">
         <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center mb-4">
-            <button class="show-data-btn btn btn-primary rounded-pill mb-3 mb-md-0" title="Revenir aux données">
+            <button data-action="showDataDisplaySection" class="show-data-btn btn btn-primary rounded-pill mb-3 mb-md-0" title="Revenir aux données">
                 <ion-icon name="arrow-back-outline"></ion-icon>
                 Données
             </button>
             <div class="d-flex flex-column flex-md-row gap-2">
-                <!--            <button id="confetti-btn" class="btn btn-primary rounded-pill mb-2 mb-md-0" title="Revenir aux données">-->
+                <!--            <button data-action="launchConfetti" id="confetti-btn" class="btn btn-primary rounded-pill mb-2 mb-md-0" title="Revenir aux données">-->
                 <!--                Confettis-->
                 <!--            </button>-->
-                <button class="check-answers-btn btn btn-outline-primary rounded-pill mb-2 mb-md-0">
+                <button data-action="checkAnswers" class="check-answers-btn btn btn-outline-primary rounded-pill mb-2 mb-md-0">
                     <ion-icon name="checkmark-circle-outline"></ion-icon>
                     Vérifier
                 </button>
-                <button class="switch-cards-size-btn btn btn-outline-primary rounded-pill" title="Changer la taille des cartes">
+                <button data-action="switchCardsSize" class="switch-cards-size-btn btn btn-outline-primary rounded-pill" title="Changer la taille des cartes">
                     <span class="expand">
                         <ion-icon name="expand-outline"></ion-icon>
                     </span>
@@ -369,7 +369,7 @@
         </div>
         <div id="quiz-cards-container" class="g-4 mb-4">
         </div>
-        <button class="check-answers-btn btn btn-outline-primary rounded-pill d-block mx-auto my-5 btn-lg">
+        <button data-action="checkAnswers" class="check-answers-btn btn btn-outline-primary rounded-pill d-block mx-auto my-5 btn-lg">
             <ion-icon name="checkmark-circle-outline"></ion-icon>
             Vérifier les réponses
         </button>
@@ -389,7 +389,7 @@
             <p id="notes-content" class="m-0 p-0"></p>
         </div>
     </div>
-    <button id="scrollToTopBtn" class="btn btn-primary text-center" title="Aller en haut de la page">
+    <button data-action="scrollToTop" id="scrollToTopBtn" class="btn btn-primary text-center" title="Aller en haut de la page">
         <ion-icon name="arrow-up-outline"></ion-icon>
     </button>
 </div>
@@ -405,8 +405,8 @@
                 <p>Les deux champs (texte et Google Sheets) contiennent des données. Veuillez choisir la source que vous souhaitez utiliser :</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="useTextBtn" data-bs-dismiss="modal">Utiliser le texte copié</button>
-                <button type="button" class="btn btn-primary" id="useSheetBtn" data-bs-dismiss="modal">Utiliser Google Sheets</button>
+                <button data-action="loadFromSource" data-param="text" type="button" class="btn btn-secondary" id="useTextBtn" data-bs-dismiss="modal">Utiliser le texte copié</button>
+                <button data-action="loadFromSource" data-param="url" type="button" class="btn btn-primary" id="useSheetBtn" data-bs-dismiss="modal">Utiliser Google Sheets</button>
             </div>
         </div>
     </div>

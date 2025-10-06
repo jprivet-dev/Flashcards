@@ -6,38 +6,38 @@ export class App {
         this.initActionDelegation();
 
         this.urlInput = document.getElementById('url-input');
-        this.clearUrlBtn = document.getElementById('clear-url-btn');
+        // this.clearUrlBtn = document.getElementById('clear-url-btn');
         this.textInput = document.getElementById('text-input');
-        this.clearTextBtn = document.getElementById('clear-text-btn');
+        // this.clearTextBtn = document.getElementById('clear-text-btn');
         this.separatorSelect = document.getElementById('separator-select');
-        this.loadDataBtn = document.getElementById('load-data-btn');
+        // this.loadDataBtn = document.getElementById('load-data-btn');
         this.dataLoadingSection = document.getElementById('data-loading-section');
         this.dataDisplaySection = document.getElementById('data-display-section');
         this.flashcardsSection = document.getElementById('flashcards-section');
         this.quizSection = document.getElementById('quiz-section');
         this.quizCardsContainer = document.getElementById('quiz-cards-container');
-        this.confettisBtn = document.getElementById('confetti-btn');
+        // this.confettisBtn = document.getElementById('confetti-btn');
 
-        this.startSequentialBtn = document.getElementById('start-sequential-btn');
-        this.startRandomBtn = document.getElementById('start-random-btn');
-        this.startSequentialIconBtn = document.getElementById('start-sequential-icon-btn');
-        this.startRandomIconBtn = document.getElementById('start-random-icon-btn');
+        // this.startSequentialBtn = document.getElementById('start-sequential-btn');
+        // this.startRandomBtn = document.getElementById('start-random-btn');
+        // this.startSequentialIconBtn = document.getElementById('start-sequential-icon-btn');
+        // this.startRandomIconBtn = document.getElementById('start-random-icon-btn');
 
         this.progressIndicator = document.getElementById('progress-indicator');
-        this.showDataBtns = document.querySelectorAll('.show-data-btn');
-        this.backToLoadDataBtn = document.getElementById('back-to-load-data-btn');
+        // this.showDataBtns = document.querySelectorAll('.show-data-btn');
+        // this.backToLoadDataBtn = document.getElementById('back-to-load-data-btn');
         this.fromGoogleSheet = document.getElementById('from-google-sheet');
         this.scrollToTopBtn = document.getElementById('scrollToTopBtn');
 
         this.flashcardGridContainer = document.getElementById('flashcard-grid-container');
-        this.flipAllRectoBtn = document.getElementById('flip-all-recto-btn');
-        this.flipAllVersoBtn = document.getElementById('flip-all-verso-btn');
-        this.switchCardsSizeBtns = document.querySelectorAll('.switch-cards-size-btn');
-        this.filterUnflippedBtns = document.querySelectorAll('.filter-unflipped-btn');
+        // this.flipAllRectoBtn = document.getElementById('flip-all-recto-btn');
+        // this.flipAllVersoBtn = document.getElementById('flip-all-verso-btn');
+        // this.switchCardsSizeBtns = document.querySelectorAll('.switch-cards-size-btn');
+        // this.filterUnflippedBtns = document.querySelectorAll('.filter-unflipped-btn');
         this.unflippedCountSpans = document.querySelectorAll('.unflipped-count');
-        this.showQuizBtns = document.querySelectorAll('.show-quiz-btn');
-        this.checkAnswersBtns = document.querySelectorAll('.check-answers-btn');
-        this.showAllBtn = document.getElementById('show-all-btn');
+        // this.showQuizBtns = document.querySelectorAll('.show-quiz-btn');
+        // this.checkAnswersBtns = document.querySelectorAll('.check-answers-btn');
+        // this.showAllBtn = document.getElementById('show-all-btn');
         this.allCountSpan = document.getElementById('all-count');
         this.selectAllCheckbox = document.getElementById('select-all-checkbox');
 
@@ -50,31 +50,31 @@ export class App {
         this.currentSortOrder = 'asc';
 
         this.filterInput = document.getElementById('filter-input');
-        this.resetFilterBtn = document.getElementById('reset-filter-btn');
+        // this.resetFilterBtn = document.getElementById('reset-filter-btn');
         this.visibleRowsCountSpan = document.getElementById('visible-rows-count');
         this.totalRowsCountSpan = document.getElementById('total-rows-count');
         this.fontSelect = document.getElementById('font-select');
 
         this.startRowSelect = document.getElementById('start-row-select');
         this.endRowSelect = document.getElementById('end-row-select');
-        this.selectRangeBtn = document.getElementById('select-range-btn');
-        this.unselectAllBtn = document.getElementById('unselectAll-btn');
+        // this.selectRangeBtn = document.getElementById('select-range-btn');
+        // this.unselectAllBtn = document.getElementById('unselectAll-btn');
 
-        this.swapContentBtn = document.getElementById('swap-content-btn');
+        // this.swapContentBtn = document.getElementById('swap-content-btn');
         this.isContentSwapped = false;
 
         this.notesFooter = document.getElementById('notes-footer');
         this.notesContent = document.getElementById('notes-content');
 
         this.choiceModal = new bootstrap.Modal(document.getElementById('choiceModal'));
-        this.useSheetBtn = document.getElementById('useSheetBtn');
-        this.useTextBtn = document.getElementById('useTextBtn');
+        // this.useSheetBtn = document.getElementById('useSheetBtn');
+        // this.useTextBtn = document.getElementById('useTextBtn');
 
         this.exampleSelect = document.getElementById('example-select');
-        this.exampleLoadBtn = document.getElementById('example-load-btn');
+        // this.exampleLoadBtn = document.getElementById('example-load-btn');
 
         this.shareableUrlInput = document.getElementById('shareable-url-input');
-        this.copyUrlBtn = document.getElementById('copy-url-btn');
+        // this.copyUrlBtn = document.getElementById('copy-url-btn');
 
         this.currentCards = [];
         this.cardsToReview = [];
@@ -106,33 +106,33 @@ export class App {
     }
 
     attachEventListeners() {
-        if (this.confettisBtn) {
-            this.confettisBtn.addEventListener('click', () => launchConfetti());
-        }
+        // if (this.confettisBtn) {
+        //     this.confettisBtn.addEventListener('click', () => launchConfetti());
+        // }
 
-        this.loadDataBtn.addEventListener('click', () => this.handleDataLoad());
-        this.clearTextBtn.addEventListener('click', () => this.clearTextLocalStorageConfirm());
-        this.clearUrlBtn.addEventListener('click', () => this.clearUrlLocalStorageConfirm());
-        this.startSequentialBtn.addEventListener('click', () => this.startSession('sequential'));
-        this.startRandomBtn.addEventListener('click', () => this.startSession('random'));
-        this.startSequentialIconBtn.addEventListener('click', () => this.startSession('sequential'));
-        this.startRandomIconBtn.addEventListener('click', () => this.startSession('random'));
-        this.flipAllRectoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('recto'));
-        this.flipAllVersoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('verso'));
-        this.switchCardsSizeBtns.forEach(btn => btn.addEventListener('click', () => this.switchCardsSize()));
-        this.showDataBtns.forEach(btn => btn.addEventListener('click', () => this.showDataDisplaySection()));
-        this.backToLoadDataBtn.addEventListener('click', () => this.showDataLoadingSection());
-        this.filterUnflippedBtns.forEach(btn => btn.addEventListener('click', () => this.filterCards('unflipped')));
-        this.showQuizBtns.forEach(btn => btn.addEventListener('click', () => this.showQuiz()));
-        this.showAllBtn.addEventListener('click', () => this.filterCards('all'));
+        // this.loadDataBtn.addEventListener('click', () => this.handleDataLoad());
+        // this.clearTextBtn.addEventListener('click', () => this.clearTextLocalStorageConfirm());
+        // this.clearUrlBtn.addEventListener('click', () => this.clearUrlLocalStorageConfirm());
+        // this.startSequentialBtn.addEventListener('click', () => this.startSession('sequential'));
+        // this.startRandomBtn.addEventListener('click', () => this.startSession('random'));
+        // this.startSequentialIconBtn.addEventListener('click', () => this.startSession('sequential'));
+        // this.startRandomIconBtn.addEventListener('click', () => this.startSession('random'));
+        // this.flipAllRectoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('recto'));
+        // this.flipAllVersoBtn.addEventListener('click', () => this.flipAllFlashcardsTo('verso'));
+        // this.switchCardsSizeBtns.forEach(btn => btn.addEventListener('click', () => this.switchCardsSize()));
+        // this.showDataBtns.forEach(btn => btn.addEventListener('click', () => this.showDataDisplaySection()));
+        // this.backToLoadDataBtn.addEventListener('click', () => this.showDataLoadingSection());
+        // this.filterUnflippedBtns.forEach(btn => btn.addEventListener('click', () => this.filterCards('unflipped')));
+        // this.showQuizBtns.forEach(btn => btn.addEventListener('click', () => this.showQuiz()));
+        // this.showAllBtn.addEventListener('click', () => this.filterCards('all'));
         this.selectAllCheckbox.addEventListener('change', () => this.toggleAllCheckboxes());
         window.addEventListener('scroll', () => this.scrollFunction());
-        this.scrollToTopBtn.addEventListener('click', () => this.scrollToTop());
-        this.selectRangeBtn.addEventListener('click', () => this.selectRowsByRange());
-        this.unselectAllBtn.addEventListener('click', () => this.toggleAllCheckboxes(false));
-        this.swapContentBtn.addEventListener('click', () => this.toggleContentSwap());
-        this.useSheetBtn.addEventListener('click', () => this.loadFromSource('url'));
-        this.useTextBtn.addEventListener('click', () => this.loadFromSource('text'));
+        // this.scrollToTopBtn.addEventListener('click', () => this.scrollToTop());
+        // this.selectRangeBtn.addEventListener('click', () => this.selectRowsByRange());
+        // this.unselectAllBtn.addEventListener('click', () => this.toggleAllCheckboxes(false));
+        // this.swapContentBtn.addEventListener('click', () => this.toggleContentSwap());
+        // this.useSheetBtn.addEventListener('click', () => this.loadFromSource('url'));
+        // this.useTextBtn.addEventListener('click', () => this.loadFromSource('text'));
         document.querySelectorAll('[data-sort-index]').forEach(header => {
             header.addEventListener('click', (e) => {
                 const columnIndex = parseInt(e.currentTarget.dataset.sortIndex, 10);
@@ -140,16 +140,15 @@ export class App {
             });
         });
         this.filterInput.addEventListener('input', () => this.filterTable(this.filterInput.value));
-        this.resetFilterBtn.addEventListener('click', () => {
-            this.filterInput.value = '';
-            this.filterTable('');
-        });
+        // this.resetFilterBtn.addEventListener('click', () => {
+        //     this.resetFilter();
+        // });
         this.fontSelect.addEventListener('change', () => this.handleFontChange());
-        this.exampleLoadBtn.addEventListener('click', () => this.exampleSelect.value ? this.loadExampleData(this.exampleSelect.value) : null);
-        this.copyUrlBtn.addEventListener('click', () => this.copyShareableUrl());
+        // this.exampleLoadBtn.addEventListener('click', () => this.copyExample());
+        // this.copyUrlBtn.addEventListener('click', () => this.copyShareableUrl());
         this.shareableUrlInput.addEventListener('click', (e) => e.target.select());
 
-        this.checkAnswersBtns.forEach(btn => btn.addEventListener('click', () => this.checkAnswers()));
+        // this.checkAnswersBtns.forEach(btn => btn.addEventListener('click', () => this.checkAnswers()));
 
         let resizeTimer;
         window.addEventListener('resize', () => {
@@ -161,6 +160,15 @@ export class App {
                 }
             }, 250);
         });
+    }
+
+    resetFilter() {
+        this.filterInput.value = '';
+        this.filterTable('');
+    }
+
+    copyExample() {
+        this.exampleSelect.value ? this.loadExampleData(this.exampleSelect.value) : null;
     }
 
     startSession(mode) {
