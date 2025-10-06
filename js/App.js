@@ -57,7 +57,7 @@ export class App {
                 element.addEventListener('click', (event) => {
                     event.preventDefault();
                     if (actionParam) {
-                        this[actionName](actionParam);
+                        this[actionName](this.getTypedParam(actionParam));
                     } else {
                         this[actionName]();
                     }
@@ -66,6 +66,22 @@ export class App {
                 console.error(`Erreur d'initialisation : La méthode App.${actionName} n'est pas définie.`);
             }
         });
+    }
+
+    getTypedParam(value) {
+        if (value === 'true') {
+            return true;
+        }
+
+        if (value === 'false') {
+            return false;
+        }
+
+        if (!isNaN(value) && value !== "") {
+            return Number(value);
+        }
+
+        return value;
     }
 
     attachEventListeners() {
