@@ -29,6 +29,7 @@ export class Quiz {
     }
 
     getOtherAnswers(flashcardsData, currentIndex) {
+        const limit = 3;
         const otherAnswers = [];
         const correctAnswer = flashcardsData[currentIndex].verso;
         const currentRecto = flashcardsData[currentIndex].recto;
@@ -48,7 +49,7 @@ export class Quiz {
         this.shuffleArray(potentialLures);
 
         let i = 0;
-        while (otherAnswers.length < 2 && i < potentialLures.length) {
+        while (otherAnswers.length < limit && i < potentialLures.length) {
             const potentialAnswer = potentialLures[i];
 
             // S'assurer que le leurre n'est pas la bonne réponse et qu'il n'a pas déjà été ajouté
@@ -59,12 +60,12 @@ export class Quiz {
         }
 
         // Plan de secours : si on n'a pas assez de leurres "proches", on prend des leurres aléatoires
-        if (otherAnswers.length < 2) {
+        if (otherAnswers.length < limit) {
             const allVersos = [...new Set(relevantFlashcards.map(fc => fc.verso))];
             this.shuffleArray(allVersos);
 
             let j = 0;
-            while (otherAnswers.length < 2 && j < allVersos.length) {
+            while (otherAnswers.length < limit && j < allVersos.length) {
                 const potentialAnswer = allVersos[j];
                 if (potentialAnswer !== correctAnswer && !otherAnswers.includes(potentialAnswer)) {
                     otherAnswers.push(potentialAnswer);
