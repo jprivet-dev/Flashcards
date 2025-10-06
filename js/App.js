@@ -14,7 +14,6 @@ export class App {
         this.endRowSelect = document.getElementById('end-row-select');
         this.exampleSelect = document.getElementById('example-select');
         this.filterInput = document.getElementById('filter-input');
-        this.filterInput = document.getElementById('filter-input');
         this.flashcardGridContainer = document.getElementById('flashcard-grid-container');
         this.flashcardTableBody = document.querySelector('#flashcard-table tbody');
         this.flashcardsSection = document.getElementById('flashcards-section');
@@ -313,6 +312,8 @@ export class App {
             this.startRowSelect.value = 1;
             this.endRowSelect.value = cardsToDisplay.length;
         }
+
+        this.filterTable(this.filterInput.value);
     }
 
     hideTable() {
