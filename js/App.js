@@ -21,6 +21,7 @@ export class App {
         this.fontSelect = document.getElementById('font-select');
         this.fromGoogleSheet = document.getElementById('from-google-sheet');
         this.isContentSwapped = false;
+        this.loadDataBtn = document.getElementById('load-data-btn');
         this.notesContent = document.getElementById('notes-content');
         this.notesFooter = document.getElementById('notes-footer');
         this.progressBar = document.getElementById('progress-bar');
