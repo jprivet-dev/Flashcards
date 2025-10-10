@@ -77,7 +77,7 @@ export class App {
             return false;
         }
 
-        if (!isNaN(value) && value !== "") {
+        if (!isNaN(value) && value !== '') {
             return Number(value);
         }
 
@@ -114,10 +114,6 @@ export class App {
         this.filterTable('');
     }
 
-    copyExample() {
-        this.exampleSelect.value ? this.loadExampleData(this.exampleSelect.value) : null;
-    }
-
     startSession(mode) {
         const visibleRows = Array.from(this.flashcardTableBody.querySelectorAll('tr'))
             .filter(row => row.style.display !== 'none');
@@ -146,9 +142,13 @@ export class App {
     handleDataLoad() {
         const urlExists = this.urlInput.value.length > 0;
         const textExists = this.textInput.value.length > 0;
+        const exampleSelectValue = this.exampleSelect.value;
+        const exampleSelectLabel = this.exampleSelect.options[this.exampleSelect.selectedIndex].text;
 
         if (urlExists && textExists) {
             this.choiceModal.show();
+        } else if (exampleSelectValue) {
+            this.loadExampleData(exampleSelectValue, exampleSelectLabel);
         } else if (urlExists) {
             this.loadFromSource('url');
         } else if (textExists) {
@@ -158,11 +158,11 @@ export class App {
         }
     }
 
-    async loadExampleData(type) {
+    async loadExampleData(type, label) {
         let filePath = '';
 
         if (this.textInput.value || this.urlInput.value) {
-            if (!confirm('Souhaitez-vous charger l\'exemple et écraser toutes les autres données (Google Sheets ou texte copié précédemment) ?')) {
+            if (!confirm(`Souhaitez-vous charger l'exemple "${label}" et écraser toutes les autres données (Google Sheets ou texte copié précédemment) ?`)) {
                 return;
             }
 
@@ -191,6 +191,7 @@ export class App {
             this.exampleSelect.value = '';
             this.saveTextToLocalStorage();
             this.resetDataDisplaySection();
+            this.loadFromSource('text');
         } catch (error) {
             alert('Erreur lors du chargement des données de l\'exemple.');
             console.error('Erreur:', error);
