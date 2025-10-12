@@ -43,6 +43,8 @@ export class App {
         this.cardsToReview = [];
         this.flashcards = [];
 
+        this.hintModeState = -1;
+
         this.attachEventListeners();
     }
 
@@ -107,6 +109,43 @@ export class App {
                 }
             }, 250);
         });
+    }
+
+    initHintMode() {
+        this.flashcards.forEach(cardInstance => {
+            cardInstance.updateVersoDisplay(this.hintModeState);
+        });
+
+        const button = document.querySelector('[data-action="toggleHintMode"]');
+
+        if (button) {
+            let newIconName = 'eye-outline';
+            let titleText = "Mode Indice (révèle progressivement le verso)";
+            let visibleCount = -1;
+
+            switch (this.hintModeState) {
+                case 0: visibleCount = 0; newIconName = 'eye-off-outline'; break;
+                case 1: visibleCount = 1; newIconName = 'eye-off-outline'; break;
+                case 2: visibleCount = 2; newIconName = 'eye-off-outline'; break;
+                case 3: visibleCount = 3; newIconName = 'eye-off-outline'; break;
+            }
+
+            if (this.hintModeState >= 0) {
+                titleText = `Mode Indice : ${visibleCount} lettre(s) visible(s) (clic pour révéler l'étape suivante)`;
+            }
+
+            button.querySelector('ion-icon').setAttribute('name', newIconName);
+            button.querySelector('span').textContent = visibleCount >= 0 ? visibleCount : '';
+            button.title = titleText;
+        }
+    }
+
+    toggleHintMode() {
+        ++this.hintModeState;
+        if (this.hintModeState > 3) {
+            this.hintModeState = -1;
+        }
+        this.initHintMode();
     }
 
     resetFilter() {
@@ -355,6 +394,7 @@ export class App {
 
         this.updateProgressBar();
         this.updateFilterButtonsCount();
+        this.initHintMode();
     }
 
     flipAllFlashcardsTo(face) {

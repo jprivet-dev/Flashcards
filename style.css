@@ -231,6 +231,33 @@ body.small-cards-size .switch-cards-size-btn .contract {
 .card-back {
     position: absolute;
     backface-visibility: hidden;
+}
+
+.card-back {
+    transform: rotateY(180deg);
+    border-width: 10px;
+    border-style: solid;
+
+    top: 0;
+    right: 0;
+    bottom: 1px;
+    left: 1px;
+}
+
+.card-front {
+    top: 0;
+    left: 0;
+    bottom: 1px;
+    right: 1px;
+}
+
+.card-front .text,
+.card-back .text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
     padding: 10px 15px;
     display: flex;
     flex-direction: column;
@@ -241,11 +268,10 @@ body.small-cards-size .switch-cards-size-btn .contract {
     color: #000000b5;
 }
 
-.card-front {
-    top: 0;
-    left: 0;
-    bottom: 1px;
-    right: 1px;
+.card-back button {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
 }
 
 .flashcard:nth-child(9n + 1) .card-front,
@@ -312,17 +338,6 @@ body.small-cards-size .switch-cards-size-btn .contract {
     /*background: #7FB52E2D;*/
     /*background: #EE775A2D;*/
     /*background: #7FB52E2D;*/
-}
-
-.card-back {
-    transform: rotateY(180deg);
-    border-width: 10px;
-    border-style: solid;
-
-    top: 0;
-    right: 0;
-    bottom: 1px;
-    left: 1px;
 }
 
 .flashcard:nth-child(9n + 1) .card-back {
