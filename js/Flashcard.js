@@ -1,33 +1,57 @@
 export class Flashcard {
     constructor(flashcardData, app) {
+        this.flashcardData = flashcardData;
         this.app = app;
+        this.lastHintLevel = 0;
+        this.revealAll = false;
 
         const flashcardElement = document.createElement('div');
         flashcardElement.className = 'flashcard';
 
-        const front = document.createElement('div');
-        front.className = 'card-body card-front rounded-0';
-        front.innerHTML = flashcardData.recto.replace(/\|\|/g, '<br>').replace(/\n/g, '<br>');
+        const cardFront = document.createElement('div');
+        cardFront.className = 'card-body card-front rounded-0';
 
-        if (flashcardData.recto.includes('\n')) {
-            front.classList.add('preserve-whitespace');
+        const cardFrontText = document.createElement('div');
+        cardFrontText.className = 'text';
+        cardFrontText.innerHTML = this.flashcardData.recto.replace(/\|\|/g, '<br>').replace(/\n/g, '<br>');
+        cardFront.appendChild(cardFrontText);
+
+        if (this.flashcardData.recto.includes('\n')) {
+            cardFrontText.classList.add('preserve-whitespace');
         }
 
-        const back = document.createElement('div');
-        back.className = 'card-body card-back rounded-0';
-        back.innerHTML = flashcardData.verso.replace(/\|\|/g, '<br>').replace(/\n/g, '<br>');
+        const cardBack = document.createElement('div');
+        cardBack.className = 'card-body card-back rounded-0';
 
-        if (flashcardData.verso.includes('\n')) {
-            back.classList.add('preserve-whitespace');
+        const cardBackText = document.createElement('div');
+        cardBackText.className = 'text';
+        cardBackText.innerHTML = this.flashcardData.verso.replace(/\|\|/g, '<br>').replace(/\n/g, '<br>');
+        cardBack.appendChild(cardBackText);
+
+        const cardBackRevealBtn = document.createElement('button');
+        cardBackRevealBtn.className = 'btn btn-outline-secondary btn-sm rounded-pill d-none';
+        const cardBackRevealIcon = document.createElement('ion-icon');
+        cardBackRevealIcon.setAttribute('name', 'eye-outline');
+        cardBackRevealBtn.appendChild(cardBackRevealIcon);
+        cardBack.appendChild(cardBackRevealBtn);
+
+        if (this.flashcardData.verso.includes('\n')) {
+            cardBackText.classList.add('preserve-whitespace');
         }
 
         setTimeout(() => {
-            this.fitTextToContainer(front);
-            this.fitTextToContainer(back);
+            this.fitTextToContainer(cardFrontText);
+            this.fitTextToContainer(cardBackText);
         }, 0);
 
-        flashcardElement.appendChild(front);
-        flashcardElement.appendChild(back);
+        flashcardElement.appendChild(cardFront);
+        flashcardElement.appendChild(cardBack);
+
+        cardBackRevealBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.revealVerso();
+        });
 
         this.element = flashcardElement;
     }
@@ -71,11 +95,11 @@ export class Flashcard {
     }
 
     fitTexts() {
-        const front = this.element.querySelector('.card-front');
-        const back = this.element.querySelector('.card-back');
+        const cardFrontText = this.element.querySelector('.card-front .text');
+        const cardBackText = this.element.querySelector('.card-back .text');
 
-        this.fitTextToContainer(front);
-        this.fitTextToContainer(back);
+        this.fitTextToContainer(cardFrontText);
+        this.fitTextToContainer(cardBackText);
     }
 
     fitTextToContainer(element) {
@@ -100,5 +124,80 @@ export class Flashcard {
             fontSize -= 0.2;
             element.style.fontSize = `${fontSize}rem`;
         }
+    }
+
+    maskWord(text, visibleLetters) {
+        if (visibleLetters < 0) {
+            return text;
+        }
+
+        const wordRegex = /([a-zA-Z0-9àâçéèêëîïôöùûüÿñæœÀÂÇÉÈÊËÎÏÔÖÙÛÜŸÑÆŒ]+)/g;
+
+        return text.replace(wordRegex, (match) => {
+            const word = match;
+
+            if (word.length <= visibleLetters) {
+                return word;
+            }
+
+            const visiblePart = word.substring(0, visibleLetters);
+            const maskedPart = '*'.repeat(word.length - visibleLetters);
+
+            return visiblePart + maskedPart;
+        });
+    }
+
+    updateVersoDisplay(hintLevel, force = false) {
+        const cardBackBtn = this.element.querySelector('.card-back button');
+        const cardBackIcon = cardBackBtn.querySelector('ion-icon');
+
+        if (force) {
+            cardBackIcon.setAttribute('name', this.revealAll ? 'eye-off-outline' : 'eye-outline');
+        } else {
+            this.lastHintLevel = hintLevel;
+            this.revealAll = false;
+
+            cardBackIcon.setAttribute('name', 'eye-outline');
+
+            if (hintLevel >= 0) {
+                cardBackBtn.classList.remove('d-none');
+            } else {
+                cardBackBtn.classList.add('d-none');
+            }
+        }
+
+        const cardBackText = this.element.querySelector('.card-back .text');
+        if (!cardBackText) return;
+
+        let visibleCount = -1;
+
+        switch (hintLevel) {
+            case 0:
+                visibleCount = 0;
+                break;
+            case 1:
+                visibleCount = 1;
+                break;
+            case 2:
+                visibleCount = 2;
+                break;
+            case 3:
+                visibleCount = 3;
+                break;
+            default:
+                visibleCount = -1; // Désactive le masquage
+                break;
+        }
+
+        const displayContent = visibleCount >= 0 ? this.maskWord(this.flashcardData.verso, visibleCount) : this.flashcardData.verso;
+        cardBackText.innerHTML = displayContent.replace(/\|\|/g, '<br>').replace(/\n/g, '<br>');
+
+        this.fitTextToContainer(cardBackText);
+    }
+
+    revealVerso() {
+        this.revealAll = !this.revealAll;
+        const hintLevel = this.revealAll ? -1 : this.lastHintLevel;
+        this.updateVersoDisplay(hintLevel, true);
     }
 }
