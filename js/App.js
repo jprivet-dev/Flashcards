@@ -5,6 +5,8 @@ export class App {
     constructor() {
         this.initActionDelegation();
 
+        this.headTitle = document.querySelectorAll('head title');
+        this.h1MainTitle = document.getElementById('h1-main-title');
         this.allCountSpan = document.getElementById('all-count');
         this.choiceModal = new bootstrap.Modal(document.getElementById('choiceModal'));
         this.currentSortColumnIndex = null;
@@ -33,9 +35,11 @@ export class App {
         this.separatorSelect = document.getElementById('separator-select');
         this.shareableUrlInput = document.getElementById('shareable-url-input');
         this.startRowSelect = document.getElementById('start-row-select');
+        this.titleTextInput = document.getElementById('title-text-input');
         this.textInput = document.getElementById('text-input');
         this.totalRowsCountSpan = document.getElementById('total-rows-count');
         this.unflippedCountSpans = document.querySelectorAll('.unflipped-count');
+        this.titleUrlInput = document.getElementById('title-url-input');
         this.urlInput = document.getElementById('url-input');
         this.visibleRowsCountSpan = document.getElementById('visible-rows-count');
 
@@ -120,14 +124,26 @@ export class App {
 
         if (button) {
             let newIconName = 'eye-outline';
-            let titleText = "Mode Indice (révèle progressivement le verso)";
+            let titleText = 'Mode Indice (révèle progressivement le verso)';
             let visibleCount = -1;
 
             switch (this.hintModeState) {
-                case 0: visibleCount = 0; newIconName = 'eye-off-outline'; break;
-                case 1: visibleCount = 1; newIconName = 'eye-off-outline'; break;
-                case 2: visibleCount = 2; newIconName = 'eye-off-outline'; break;
-                case 3: visibleCount = 3; newIconName = 'eye-off-outline'; break;
+                case 0:
+                    visibleCount = 0;
+                    newIconName = 'eye-off-outline';
+                    break;
+                case 1:
+                    visibleCount = 1;
+                    newIconName = 'eye-off-outline';
+                    break;
+                case 2:
+                    visibleCount = 2;
+                    newIconName = 'eye-off-outline';
+                    break;
+                case 3:
+                    visibleCount = 3;
+                    newIconName = 'eye-off-outline';
+                    break;
             }
 
             if (this.hintModeState >= 0) {
@@ -181,27 +197,27 @@ export class App {
     handleDataLoad() {
         const urlExists = this.urlInput.value.length > 0;
         const textExists = this.textInput.value.length > 0;
-        const exampleSelectValue = this.exampleSelect.value;
-        const exampleSelectLabel = this.exampleSelect.options[this.exampleSelect.selectedIndex].text;
+        const exampleSelectValue = this.sanitizeData(this.exampleSelect.value);
+        const exampleSelectTitle = this.sanitizeData(this.exampleSelect.options[this.exampleSelect.selectedIndex].text);
 
         if (urlExists && textExists) {
             this.choiceModal.show();
         } else if (exampleSelectValue) {
-            this.loadExampleData(exampleSelectValue, exampleSelectLabel);
+            this.loadExampleData(exampleSelectValue, exampleSelectTitle);
         } else if (urlExists) {
             this.loadFromSource('url');
         } else if (textExists) {
             this.loadFromSource('text');
         } else {
-            alert('Veuillez entrer une URL ou du texte.');
+            alert('Veuillez renseigner une URL ou coller du texte.');
         }
     }
 
-    async loadExampleData(type, label) {
+    async loadExampleData(type, title) {
         let filePath = '';
 
         if (this.textInput.value || this.urlInput.value) {
-            if (!confirm(`Souhaitez-vous charger l'exemple "${label}" et écraser toutes les autres données (Google Sheets ou texte copié précédemment) ?`)) {
+            if (!confirm(`Souhaitez-vous charger l'exemple "${title}" et écraser toutes les autres données (Google Sheets ou texte copié précédemment) ?`)) {
                 return;
             }
 
@@ -225,6 +241,8 @@ export class App {
                 throw new Error(`Impossible de charger le fichier : ${response.statusText}`);
             }
 
+            this.titleTextInput.value = title;
+            this.updateTitle(title);
             this.textInput.value = await response.text();
             this.separatorSelect.value = ',';
             this.exampleSelect.value = '';
@@ -243,6 +261,14 @@ export class App {
         let url = '';
 
         if (source === 'url') {
+            let title = this.titleUrlInput.value;
+            title = this.sanitizeData(title);
+
+            if (!title) {
+                alert('Veuillez renseigner un titre.');
+                return;
+            }
+
             url = this.urlInput.value;
 
             if (!url.includes('docs.google.com/spreadsheets')) {
@@ -257,11 +283,15 @@ export class App {
                 const response = await fetch(url);
                 rawData = await response.text();
                 rawData = this.sanitizeData(rawData);
+                this.updateTitle(title);
+
+                this.titleTextInput.value = '';
                 this.textInput.value = '';
 
                 const cacheEntry = {
                     timestamp: new Date().toISOString(),
-                    data: rawData
+                    title: title,
+                    data: rawData,
                 };
 
                 localStorage.setItem(url, JSON.stringify(cacheEntry));
@@ -274,6 +304,8 @@ export class App {
             } finally {
                 this.hideLoadingIndicator();
             }
+
+            this.updateShareableLink(title, url);
         } else if (source === 'text') {
             rawData = this.textInput.value;
 
@@ -282,17 +314,37 @@ export class App {
                 return;
             }
 
+            let title = this.titleTextInput.value;
+            title = this.sanitizeData(title);
+
+            if (!title) {
+                alert('Veuillez renseigner un titre.');
+                return;
+            }
+
+            this.updateTitle(title);
+
             rawData = this.sanitizeData(rawData);
             this.saveTextToLocalStorage();
+            this.titleUrlInput.value = '';
             this.urlInput.value = '';
         }
-
-        this.updateShareableLink(url);
 
         if (rawData) {
             this.parseAndDisplayData(rawData, separator);
             this.showDataDisplaySection();
         }
+    }
+
+    updateTitle(title) {
+        const finalTitle = title ? `Flashcards - ${title}` : 'Flashcards';
+        console.log(finalTitle);
+        this.headTitle.forEach(element => element.textContent = finalTitle);
+        this.h1MainTitle.textContent = finalTitle;
+    }
+
+    clearTitle() {
+        this.updateTitle('');
     }
 
     parseAndDisplayData(rawData, separator) {
@@ -557,6 +609,12 @@ export class App {
 
             const data = JSON.parse(savedData);
 
+            if (data.title) {
+                let title = this.sanitizeData(data.title);
+                this.titleTextInput.value = title;
+                this.updateTitle(title);
+            }
+
             if (data.text) {
                 this.textInput.value = data.text;
             }
@@ -571,6 +629,7 @@ export class App {
 
     saveTextToLocalStorage() {
         const data = {
+            title: this.sanitizeData(this.titleTextInput.value),
             text: this.textInput.value,
             separator: this.separatorSelect.value
         };
@@ -584,6 +643,8 @@ export class App {
     }
 
     clearTextLocalStorage() {
+        this.titleTextInput.value = '';
+        this.clearTitle();
         this.textInput.value = '';
         localStorage.removeItem('flashcard-text-data');
         this.resetDataDisplaySection();
@@ -597,7 +658,9 @@ export class App {
 
     clearUrlLocalStorage() {
         localStorage.removeItem(this.urlInput.value);
+        this.titleUrlInput.value = '';
         this.urlInput.value = '';
+        this.clearTitle();
         this.shareableUrlInput.value = '';
         window.history.pushState({}, '', window.location.pathname);
         this.resetDataDisplaySection();
@@ -640,7 +703,7 @@ export class App {
 
     sanitizeData(text) {
         const tempElement = document.createElement('div');
-        tempElement.textContent = text;
+        tempElement.textContent = text.trim();
         return tempElement.innerHTML;
     }
 
@@ -820,6 +883,7 @@ export class App {
 
     loadGoogleSheetDataFromCache() {
         const urlParams = new URLSearchParams(window.location.search);
+        const title = this.sanitizeData(urlParams.get('title'));
         const sheetUrl = urlParams.get('url');
         const separator = ',';
 
@@ -833,6 +897,8 @@ export class App {
             sheetTab.classList.add('active');
             sheetPane.classList.add('active');
 
+            this.titleUrlInput.value = title;
+            this.updateTitle(title);
             this.urlInput.value = sheetUrl;
             const cachedData = localStorage.getItem(sheetUrl);
 
@@ -850,9 +916,9 @@ export class App {
         }
     }
 
-    updateShareableLink(url) {
-        if (url) {
-            this.shareableUrlInput.value = `${window.location.origin}${window.location.pathname}?url=${encodeURIComponent(url)}`;
+    updateShareableLink(title, url) {
+        if (title && url) {
+            this.shareableUrlInput.value = `${window.location.origin}${window.location.pathname}?title=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
             window.history.pushState({}, '', this.shareableUrlInput.value);
             return;
         }

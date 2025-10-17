@@ -14,7 +14,7 @@
 
 <div class="container-lg pt-4">
     <header class="d-flex align-items-center pb-3 mb-4 border-bottom">
-        <h1 class="fs-4 m-0 p-0">Flashcards</h1>
+        <h1 id="h1-main-title" class="fs-4 m-0 p-0">Flashcards</h1>
     </header>
 </div>
 
@@ -36,6 +36,10 @@
             </nav>
             <div class="tab-content" id="dataTabContent">
                 <div class="tab-pane active" id="text-pane" role="tabpanel" aria-labelledby="text-tab">
+                    <div class="my-4">
+                        <label for="title-text-input" class="form-label">Renseigner un titre :</label>
+                        <input type="text" id="title-text-input" class="form-control"></input>
+                    </div>
                     <div class="my-4">
                         <label for="text-input" class="form-label">Coller votre texte ici :</label>
                         <div class="input-group">
@@ -61,6 +65,12 @@
                             <option value="verbs">Verbes irréguliers (3ème)</option>
                             <option value="periodic">Symboles des éléments chimiques</option>
                         </select>
+                        <div class="text-body-secondary mt-2">
+                            <ul>
+                                <li><small>L'exemple que vous choisirez sera chargé automatiquement dans l'espace "Coller votre texte ici"</small></li>
+                                <li><small>Le titre sera renseigné automatiquement.</small></li>
+                            </ul>
+                        </div>
                     </div>
                     <div class="input-group mb-4">
                         <label for="separator-select" class="input-group-text" id="basic-addon1">Séparateur :</label>
@@ -72,6 +82,10 @@
                     </div>
                 </div>
                 <div class="tab-pane" id="sheet-pane" role="tabpanel" aria-labelledby="sheet-tab">
+                    <div class="my-4">
+                        <label for="title-url-input" class="form-label">Renseigner un titre :</label>
+                        <input type="text" id="title-url-input" class="form-control"></input>
+                    </div>
                     <div class="my-4">
                         <label for="url-input" class="form-label">Coller le lien de votre fichier CSV Google Sheets public :</label>
                         <div class="input-group">
