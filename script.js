@@ -13,6 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sheetUrl) {
         app.titleUrlInput.value = title;
         app.urlInput.value = sheetUrl;
-        app.updateShareableLink(title, sheetUrl);
+        app.updateShareableCSVLink(title, sheetUrl);
     }
 });

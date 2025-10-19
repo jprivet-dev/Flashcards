@@ -33,8 +33,8 @@ export class App {
         this.scrollToTopBtn = document.getElementById('scrollToTopBtn');
         this.selectAllCheckbox = document.getElementById('select-all-checkbox');
         this.separatorSelect = document.getElementById('separator-select');
-        this.shareableUrlInputWrapper = document.getElementById('shareable-url-input-wrapper');
-        this.shareableUrlInput = document.getElementById('shareable-url-input');
+        this.shareableCSVLinkInputWrapper = document.getElementById('shareable-csv-link-input-wrapper');
+        this.shareableCSVLinkInput = document.getElementById('shareable-csv-link-input');
         this.startRowSelect = document.getElementById('start-row-select');
         this.titleTextInput = document.getElementById('title-text-input');
         this.textInput = document.getElementById('text-input');
@@ -102,7 +102,7 @@ export class App {
         });
         this.filterInput.addEventListener('input', () => this.filterTable(this.filterInput.value));
         this.fontSelect.addEventListener('change', () => this.handleFontChange());
-        this.shareableUrlInput.addEventListener('click', (e) => e.target.select());
+        this.shareableCSVLinkInput.addEventListener('click', (e) => e.target.select());
 
         let resizeTimer;
         window.addEventListener('resize', () => {
@@ -306,7 +306,7 @@ export class App {
                 this.hideLoadingIndicator();
             }
 
-            this.updateShareableLink(title, url);
+            this.updateShareableCSVLink(title, url);
         } else if (source === 'text') {
             rawData = this.textInput.value;
 
@@ -656,7 +656,7 @@ export class App {
         this.titleUrlInput.value = '';
         this.urlInput.value = '';
         this.clearTitle();
-        this.updateShareableLink('', '');
+        this.updateShareableCSVLink('', '');
         this.resetDataDisplaySection();
     }
 
@@ -910,21 +910,21 @@ export class App {
         }
     }
 
-    updateShareableLink(title, url) {
+    updateShareableCSVLink(title, url) {
         if (title && url) {
-            this.shareableUrlInput.value = `${window.location.origin}${window.location.pathname}?title=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
-            window.history.pushState({}, '', this.shareableUrlInput.value);
-            this.shareableUrlInputWrapper.classList.remove('d-none');
+            this.shareableCSVLinkInput.value = `${window.location.origin}${window.location.pathname}?title=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+            window.history.pushState({}, '', this.shareableCSVLinkInput.value);
+            this.shareableCSVLinkInputWrapper.classList.remove('d-none');
             return;
         }
 
-        this.shareableUrlInputWrapper.classList.add('d-none');
-        this.shareableUrlInput.value = '';
+        this.shareableCSVLinkInputWrapper.classList.add('d-none');
+        this.shareableCSVLinkInput.value = '';
         window.history.pushState({}, '', window.location.pathname);
     }
 
     copyShareableUrl() {
-        this.shareableUrlInput.select();
+        this.shareableCSVLinkInput.select();
         document.execCommand('copy');
         alert('Lien copié dans le presse-papiers !');
     }
