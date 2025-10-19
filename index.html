@@ -37,7 +37,7 @@
             <div class="tab-content" id="dataTabContent">
                 <div class="tab-pane active" id="text-pane" role="tabpanel" aria-labelledby="text-tab">
                     <div class="my-4">
-                        <label for="title-text-input" class="form-label">Renseigner un titre :</label>
+                        <label for="title-text-input" class="form-label">Renseigner un titre <span class="text-secondary">(optionnel)</span> :</label>
                         <input type="text" id="title-text-input" class="form-control"></input>
                     </div>
                     <div class="my-4">
@@ -52,7 +52,7 @@
                             <ul>
                                 <li><small>Donnez des valeurs séparées par des virgules, des points-virgules ou des tabulations.</small></li>
                                 <li><small>Les colonnes Recto et Verso sont obligatoires. La colonne Notes est optionnelle.</small></li>
-                                <li><small>Ne mettez pas d'en-têtes.</small></li>
+                                <li><small>Ne mettez pas d'en-têtes aux colonnes Recto, Verso et Notes.</small></li>
                                 <li><small>Votre navigateur garde dans sa mémoire locale le texte collé : vous pouvez rafraîchir la page et retrouver vos données actuelles.</small></li>
                             </ul>
                         </div>
@@ -83,11 +83,11 @@
                 </div>
                 <div class="tab-pane" id="sheet-pane" role="tabpanel" aria-labelledby="sheet-tab">
                     <div class="my-4">
-                        <label for="title-url-input" class="form-label">Renseigner un titre :</label>
+                        <label for="title-url-input" class="form-label">Renseigner un titre <span class="text-secondary">(obligatoire)</span> :</label>
                         <input type="text" id="title-url-input" class="form-control"></input>
                     </div>
                     <div class="my-4">
-                        <label for="url-input" class="form-label">Coller le lien de votre fichier CSV Google Sheets public :</label>
+                        <label for="url-input" class="form-label">Renseigner le lien vers votre fichier CSV Google Sheets public <span class="text-secondary">(obligatoire)</span> :</label>
                         <div class="input-group">
                             <input type="url" id="url-input" class="form-control">
                             <button data-action="clearUrlLocalStorageConfirm" class="btn btn-outline-secondary" type="button" title="Effacer">
@@ -99,24 +99,11 @@
                                 <li><small>Chargez des données uniquement à partir de sources Google Sheets fiables !</small></li>
                                 <li><small>Donnez un fichier CSV (valeurs séparées par des virgules).</small></li>
                                 <li><small>Les colonnes Recto et Verso sont obligatoires. La colonne Notes est optionnelle.</small></li>
-                                <li><small>Ne mettez pas d'en-têtes.</small></li>
+                                <li><small>Ne mettez pas d'en-têtes aux colonnes Recto, Verso et Notes.</small></li>
                                 <li><small><a href="https://support.google.com/docs/answer/183965" target="_blank">Comment rendre votre fichier Google Sheets public ?</a> (lien externe)</small></li>
                             </ul>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="shareable-url-input" class="form-label">Partager le lien :</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="shareable-url-input" readonly>
-                            <button data-action="copyShareableUrl" class="btn btn-outline-secondary" type="button" id="copy-url-btn" title="Copier le lien">
-                                <ion-icon name="copy-outline"></ion-icon>
-                            </button>
-                        </div>
-                        <div class="text-body-secondary">
-                            <small>Le lien vers cette application "Flashcards" contiendra en paramètre le lien nécessaire vers le fichier Google Sheets.</small>
-                        </div>
-                    </div>
-
                 </div>
             </div>
 
@@ -152,12 +139,22 @@
 
         <h2 class="m-0 pb-4">2. Aperçu des données <span id="from-google-sheet">(Google Sheets)</span></h2>
 
-        <strong>Astuces :</strong>
-        <ul class="mb-4">
-            <li>Une ligne correspond à une "flashcard".</li>
-            <li>Avec le filtre par mots clés, seules les lignes visibles et cochées sont converties en "flashcards".</li>
-            <li>Triez le tableau par ordre alphabétique en cliquant sur l'en-tête des colonnes.</li>
-        </ul>
+        <div id="shareable-url-input-wrapper" class="mb-4 d-none">
+            <label for="shareable-url-input" class="form-label">Partager le lien :</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="shareable-url-input" readonly>
+                <button data-action="copyShareableUrl" class="btn btn-outline-secondary" type="button" id="copy-url-btn" title="Copier le lien">
+                    <ion-icon name="copy-outline"></ion-icon>
+                </button>
+            </div>
+            <div class="text-body-secondary">
+                <ul>
+                    <li><small>Le lien à partager contiendra en paramètres le titre de cette page et le lien vers le fichier CSV (Google Sheets) à charger.</small></li>
+                    <li><small>Les données du fichier CSV (Google Sheets) seront chargées et gardées 24H en mémoire dans le navigateur (Chrome, Firefox, Edge, ...).</small></li>
+                    <li><small>Au-delà de 24H, les données seront chargées et mises à jour à partir du fichier CSV (Google Sheets).</small></li>
+                </ul>
+            </div>
+        </div>
 
         <div class="border rounded p-4 mb-4">
             <div class="row">

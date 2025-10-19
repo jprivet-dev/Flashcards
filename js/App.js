@@ -33,6 +33,7 @@ export class App {
         this.scrollToTopBtn = document.getElementById('scrollToTopBtn');
         this.selectAllCheckbox = document.getElementById('select-all-checkbox');
         this.separatorSelect = document.getElementById('separator-select');
+        this.shareableUrlInputWrapper = document.getElementById('shareable-url-input-wrapper');
         this.shareableUrlInput = document.getElementById('shareable-url-input');
         this.startRowSelect = document.getElementById('start-row-select');
         this.titleTextInput = document.getElementById('title-text-input');
@@ -316,12 +317,6 @@ export class App {
 
             let title = this.titleTextInput.value;
             title = this.sanitizeData(title);
-
-            if (!title) {
-                alert('Veuillez renseigner un titre.');
-                return;
-            }
-
             this.updateTitle(title);
 
             rawData = this.sanitizeData(rawData);
@@ -661,8 +656,7 @@ export class App {
         this.titleUrlInput.value = '';
         this.urlInput.value = '';
         this.clearTitle();
-        this.shareableUrlInput.value = '';
-        window.history.pushState({}, '', window.location.pathname);
+        this.updateShareableLink('', '');
         this.resetDataDisplaySection();
     }
 
@@ -920,10 +914,13 @@ export class App {
         if (title && url) {
             this.shareableUrlInput.value = `${window.location.origin}${window.location.pathname}?title=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
             window.history.pushState({}, '', this.shareableUrlInput.value);
+            this.shareableUrlInputWrapper.classList.remove('d-none');
             return;
         }
 
+        this.shareableUrlInputWrapper.classList.add('d-none');
         this.shareableUrlInput.value = '';
+        window.history.pushState({}, '', window.location.pathname);
     }
 
     copyShareableUrl() {
