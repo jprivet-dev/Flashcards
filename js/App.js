@@ -201,13 +201,12 @@ export class App {
     handleDataLoad() {
         const urlExists = this.urlInput.value.length > 0;
         const textExists = this.textInput.value.length > 0;
-        const exampleSelectValue = this.sanitizeData(this.exampleSelect.value);
-        const exampleSelectTitle = this.sanitizeData(this.exampleSelect.options[this.exampleSelect.selectedIndex].text);
+        const example = this.sanitizeData(this.exampleSelect.value);
 
         if (urlExists && textExists) {
             this.choiceModal.show();
-        } else if (exampleSelectValue) {
-            this.loadExampleData(exampleSelectValue, exampleSelectTitle);
+        } else if (example) {
+            this.loadExampleData(example);
         } else if (urlExists) {
             this.loadFromSource('url');
         } else if (textExists) {
@@ -217,8 +216,26 @@ export class App {
         }
     }
 
-    async loadExampleData(type, title) {
+    async loadExampleData(example) {
         let filePath = '';
+
+        if (example === 'exemple-simple') {
+            filePath = 'csv/exemple-simple.csv';
+        } else if (example === 'tables-multiplication') {
+            filePath = 'csv/tables-de-multiplication.csv';
+        } else if (example === 'verbes-irreguliers') {
+            filePath = 'csv/verbes-irreguliers-3ème.csv';
+        } else if (example === 'elements-chimiques') {
+            filePath = 'csv/elements-chimiques-symbole-nom.csv';
+        }
+
+        if (!filePath) {
+            alert(`L'exemple "${example}" n'existe pas. Veuillez choisir une exemple disponible dans la liste.`);
+            this.updateShareableExample('');
+            return;
+        }
+
+        const title = this.sanitizeData(this.exampleSelect.options[this.exampleSelect.selectedIndex].text);
 
         if (this.textInput.value || this.urlInput.value) {
             if (!confirm(`Souhaitez-vous charger l'exemple "${title}" et écraser toutes les autres données (Google Sheets ou texte copié précédemment) ?`)) {
@@ -227,16 +244,6 @@ export class App {
 
             this.clearTextLocalStorage();
             this.clearUrlLocalStorage();
-        }
-
-        if (type === 'example') {
-            filePath = 'csv/exemple-simple.csv';
-        } else if (type === 'multiplication') {
-            filePath = 'csv/tables-de-multiplication.csv';
-        } else if (type === 'verbs') {
-            filePath = 'csv/verbes-irréguliers-3ème.csv';
-        } else if (type === 'periodic') {
-            filePath = 'csv/éléments-chimiques-symbole-nom.csv';
         }
 
         try {
@@ -250,7 +257,7 @@ export class App {
             this.textInput.value = await response.text();
             this.separatorSelect.value = ',';
             this.exampleSelect.value = '';
-            this.updateShareableExample(type);
+            this.updateShareableExample(example);
             this.saveTextToLocalStorage();
             this.resetDataDisplaySection();
             this.loadFromSource('text');
@@ -337,7 +344,6 @@ export class App {
 
     updateTitle(title) {
         const finalTitle = title ? `Flashcards - ${title}` : 'Flashcards';
-        console.log(finalTitle);
         this.headTitle.forEach(element => element.textContent = finalTitle);
         this.h1MainTitle.textContent = finalTitle;
     }
@@ -581,15 +587,12 @@ export class App {
     }
 
     loadFromLocalStorage(url, title, example) {
-        if (localStorage.getItem('flashcard-text-data')) {
-            this.loadTextFromLocalStorage();
-            return;
-        }
-
         if (url && title) {
             this.loadGoogleSheetDataFromCache(url, title);
         } else if (example) {
-            this.loadExampleDataFromCache(example);
+            this.loadExampleData(example);
+        } else if (localStorage.getItem('flashcard-text-data')) {
+            this.loadTextFromLocalStorage();
         }
     }
 
@@ -907,10 +910,6 @@ export class App {
         }
     }
 
-    loadExampleDataFromCache(example) {
-
-    }
-
     updateShareableCSVLink(url, title) {
         if (url && title) {
             this.shareableCSVLinkInput.value = `${window.location.origin}${window.location.pathname}?title=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
@@ -940,6 +939,7 @@ export class App {
 
         this.shareableExampleInputWrapper.classList.add('d-none');
         this.shareableExampleInput.value = '';
+        this.exampleSelect.value = '';
         window.history.pushState({}, '', window.location.pathname);
     }
 
