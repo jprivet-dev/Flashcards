@@ -221,8 +221,30 @@ export class App {
 
         if (example === 'exemple-simple') {
             filePath = 'csv/exemple-simple.csv';
-        } else if (example === 'tables-multiplication') {
-            filePath = 'csv/tables-de-multiplication.csv';
+        } else if (example === 'tables-multiplication-toutes') {
+            filePath = 'csv/tables-de-multiplication-toutes.csv';
+        } else if (example === 'table-multiplication-2') {
+            filePath = 'csv/table-de-multiplication-2.csv';
+        } else if (example === 'table-multiplication-3') {
+            filePath = 'csv/table-de-multiplication-3.csv';
+        } else if (example === 'table-multiplication-4') {
+            filePath = 'csv/table-de-multiplication-4.csv';
+        } else if (example === 'table-multiplication-5') {
+            filePath = 'csv/table-de-multiplication-5.csv';
+        } else if (example === 'table-multiplication-6') {
+            filePath = 'csv/table-de-multiplication-6.csv';
+        } else if (example === 'table-multiplication-7') {
+            filePath = 'csv/table-de-multiplication-7.csv';
+        } else if (example === 'table-multiplication-8') {
+            filePath = 'csv/table-de-multiplication-8.csv';
+        } else if (example === 'table-multiplication-9') {
+            filePath = 'csv/table-de-multiplication-9.csv';
+        } else if (example === 'table-multiplication-10') {
+            filePath = 'csv/table-de-multiplication-10.csv';
+        } else if (example === 'table-multiplication-11') {
+            filePath = 'csv/table-de-multiplication-11.csv';
+        } else if (example === 'table-multiplication-12') {
+            filePath = 'csv/table-de-multiplication-12.csv';
         } else if (example === 'verbes-irreguliers') {
             filePath = 'csv/verbes-irreguliers-3ème.csv';
         } else if (example === 'elements-chimiques') {
