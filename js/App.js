@@ -33,8 +33,10 @@ export class App {
         this.scrollToTopBtn = document.getElementById('scrollToTopBtn');
         this.selectAllCheckbox = document.getElementById('select-all-checkbox');
         this.separatorSelect = document.getElementById('separator-select');
-        this.shareableUrlInputWrapper = document.getElementById('shareable-url-input-wrapper');
-        this.shareableUrlInput = document.getElementById('shareable-url-input');
+        this.shareableCSVLinkInputWrapper = document.getElementById('shareable-csv-link-input-wrapper');
+        this.shareableCSVLinkInput = document.getElementById('shareable-csv-link-input');
+        this.shareableExampleInputWrapper = document.getElementById('shareable-example-link-input-wrapper');
+        this.shareableExampleInput = document.getElementById('shareable-example-link-input');
         this.startRowSelect = document.getElementById('start-row-select');
         this.titleTextInput = document.getElementById('title-text-input');
         this.textInput = document.getElementById('text-input');
@@ -102,7 +104,8 @@ export class App {
         });
         this.filterInput.addEventListener('input', () => this.filterTable(this.filterInput.value));
         this.fontSelect.addEventListener('change', () => this.handleFontChange());
-        this.shareableUrlInput.addEventListener('click', (e) => e.target.select());
+        this.shareableCSVLinkInput.addEventListener('click', (e) => e.target.select());
+        this.shareableExampleInput.addEventListener('click', (e) => e.target.select());
 
         let resizeTimer;
         window.addEventListener('resize', () => {
@@ -198,13 +201,12 @@ export class App {
     handleDataLoad() {
         const urlExists = this.urlInput.value.length > 0;
         const textExists = this.textInput.value.length > 0;
-        const exampleSelectValue = this.sanitizeData(this.exampleSelect.value);
-        const exampleSelectTitle = this.sanitizeData(this.exampleSelect.options[this.exampleSelect.selectedIndex].text);
+        const example = this.sanitizeData(this.exampleSelect.value);
 
         if (urlExists && textExists) {
             this.choiceModal.show();
-        } else if (exampleSelectValue) {
-            this.loadExampleData(exampleSelectValue, exampleSelectTitle);
+        } else if (example) {
+            this.loadExampleData(example);
         } else if (urlExists) {
             this.loadFromSource('url');
         } else if (textExists) {
@@ -214,8 +216,26 @@ export class App {
         }
     }
 
-    async loadExampleData(type, title) {
+    async loadExampleData(example) {
         let filePath = '';
+
+        if (example === 'exemple-simple') {
+            filePath = 'csv/exemple-simple.csv';
+        } else if (example === 'tables-multiplication') {
+            filePath = 'csv/tables-de-multiplication.csv';
+        } else if (example === 'verbes-irreguliers') {
+            filePath = 'csv/verbes-irreguliers-3ème.csv';
+        } else if (example === 'elements-chimiques') {
+            filePath = 'csv/elements-chimiques-symbole-nom.csv';
+        }
+
+        if (!filePath) {
+            alert(`L'exemple "${example}" n'existe pas. Veuillez choisir une exemple disponible dans la liste.`);
+            this.updateShareableExample('');
+            return;
+        }
+
+        const title = this.sanitizeData(this.exampleSelect.options[this.exampleSelect.selectedIndex].text);
 
         if (this.textInput.value || this.urlInput.value) {
             if (!confirm(`Souhaitez-vous charger l'exemple "${title}" et écraser toutes les autres données (Google Sheets ou texte copié précédemment) ?`)) {
@@ -224,16 +244,6 @@ export class App {
 
             this.clearTextLocalStorage();
             this.clearUrlLocalStorage();
-        }
-
-        if (type === 'example') {
-            filePath = 'csv/exemple-simple.csv';
-        } else if (type === 'multiplication') {
-            filePath = 'csv/tables-de-multiplication.csv';
-        } else if (type === 'verbs') {
-            filePath = 'csv/verbes-irréguliers-3ème.csv';
-        } else if (type === 'periodic') {
-            filePath = 'csv/éléments-chimiques-symbole-nom.csv';
         }
 
         try {
@@ -247,6 +257,7 @@ export class App {
             this.textInput.value = await response.text();
             this.separatorSelect.value = ',';
             this.exampleSelect.value = '';
+            this.updateShareableExample(example);
             this.saveTextToLocalStorage();
             this.resetDataDisplaySection();
             this.loadFromSource('text');
@@ -306,7 +317,7 @@ export class App {
                 this.hideLoadingIndicator();
             }
 
-            this.updateShareableLink(title, url);
+            this.updateShareableCSVLink(url, title);
         } else if (source === 'text') {
             rawData = this.textInput.value;
 
@@ -333,7 +344,6 @@ export class App {
 
     updateTitle(title) {
         const finalTitle = title ? `Flashcards - ${title}` : 'Flashcards';
-        console.log(finalTitle);
         this.headTitle.forEach(element => element.textContent = finalTitle);
         this.h1MainTitle.textContent = finalTitle;
     }
@@ -576,17 +586,13 @@ export class App {
         this.selectAllCheckbox.checked = isChecked;
     }
 
-    loadFromLocalStorage() {
-        if (localStorage.getItem('flashcard-text-data')) {
+    loadFromLocalStorage(url, title, example) {
+        if (url && title) {
+            this.loadGoogleSheetDataFromCache(url, title);
+        } else if (example) {
+            this.loadExampleData(example);
+        } else if (localStorage.getItem('flashcard-text-data')) {
             this.loadTextFromLocalStorage();
-            return;
-        }
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const sheetUrl = urlParams.get('url');
-
-        if (sheetUrl) {
-            this.loadGoogleSheetDataFromCache();
         }
     }
 
@@ -656,7 +662,7 @@ export class App {
         this.titleUrlInput.value = '';
         this.urlInput.value = '';
         this.clearTitle();
-        this.updateShareableLink('', '');
+        this.updateShareableCSVLink('', '');
         this.resetDataDisplaySection();
     }
 
@@ -697,7 +703,7 @@ export class App {
 
     sanitizeData(text) {
         const tempElement = document.createElement('div');
-        tempElement.textContent = text.trim();
+        tempElement.textContent = text ? text.trim() : '';
         return tempElement.innerHTML;
     }
 
@@ -875,56 +881,70 @@ export class App {
         });
     }
 
-    loadGoogleSheetDataFromCache() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const title = this.sanitizeData(urlParams.get('title'));
-        const sheetUrl = urlParams.get('url');
+    loadGoogleSheetDataFromCache(url, title) {
         const separator = ',';
+        const textTab = document.getElementById('text-tab');
+        const textPane = document.getElementById('text-pane');
+        const sheetTab = document.getElementById('sheet-tab');
+        const sheetPane = document.getElementById('sheet-pane');
+        textTab.classList.remove('active');
+        textPane.classList.remove('active');
+        sheetTab.classList.add('active');
+        sheetPane.classList.add('active');
 
-        if (sheetUrl) {
-            const textTab = document.getElementById('text-tab');
-            const textPane = document.getElementById('text-pane');
-            const sheetTab = document.getElementById('sheet-tab');
-            const sheetPane = document.getElementById('sheet-pane');
-            textTab.classList.remove('active');
-            textPane.classList.remove('active');
-            sheetTab.classList.add('active');
-            sheetPane.classList.add('active');
+        this.titleUrlInput.value = title;
+        this.updateTitle(title);
+        this.urlInput.value = url;
+        const cachedData = localStorage.getItem(url);
 
-            this.titleUrlInput.value = title;
-            this.updateTitle(title);
-            this.urlInput.value = sheetUrl;
-            const cachedData = localStorage.getItem(sheetUrl);
+        if (cachedData) {
+            const parsedCache = JSON.parse(cachedData);
+            const cacheTime = new Date(parsedCache.timestamp);
+            const now = new Date();
+            const hoursDiff = (now - cacheTime) / (1000 * 60 * 60);
 
-            if (cachedData) {
-                const parsedCache = JSON.parse(cachedData);
-                const cacheTime = new Date(parsedCache.timestamp);
-                const now = new Date();
-                const hoursDiff = (now - cacheTime) / (1000 * 60 * 60);
-
-                if (hoursDiff < 24) {
-                    this.parseAndDisplayData(parsedCache.data, separator);
-                    this.showDataDisplaySection();
-                }
+            if (hoursDiff < 24) {
+                this.parseAndDisplayData(parsedCache.data, separator);
+                this.showDataDisplaySection();
             }
         }
     }
 
-    updateShareableLink(title, url) {
-        if (title && url) {
-            this.shareableUrlInput.value = `${window.location.origin}${window.location.pathname}?title=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
-            window.history.pushState({}, '', this.shareableUrlInput.value);
-            this.shareableUrlInputWrapper.classList.remove('d-none');
+    updateShareableCSVLink(url, title) {
+        if (url && title) {
+            this.shareableCSVLinkInput.value = `${window.location.origin}${window.location.pathname}?title=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+            window.history.pushState({}, '', this.shareableCSVLinkInput.value);
+            this.shareableCSVLinkInputWrapper.classList.remove('d-none');
             return;
         }
 
-        this.shareableUrlInputWrapper.classList.add('d-none');
-        this.shareableUrlInput.value = '';
+        this.shareableCSVLinkInputWrapper.classList.add('d-none');
+        this.shareableCSVLinkInput.value = '';
         window.history.pushState({}, '', window.location.pathname);
     }
 
-    copyShareableUrl() {
-        this.shareableUrlInput.select();
+    copyShareableCSVLink() {
+        this.shareableCSVLinkInput.select();
+        document.execCommand('copy');
+        alert('Lien copié dans le presse-papiers !');
+    }
+
+    updateShareableExample(example) {
+        if (example) {
+            this.shareableExampleInput.value = `${window.location.origin}${window.location.pathname}?example=${encodeURIComponent(example)}`;
+            window.history.pushState({}, '', this.shareableExampleInput.value);
+            this.shareableExampleInputWrapper.classList.remove('d-none');
+            return;
+        }
+
+        this.shareableExampleInputWrapper.classList.add('d-none');
+        this.shareableExampleInput.value = '';
+        this.exampleSelect.value = '';
+        window.history.pushState({}, '', window.location.pathname);
+    }
+
+    copyShareableExampleLink() {
+        this.shareableExampleInput.select();
         document.execCommand('copy');
         alert('Lien copié dans le presse-papiers !');
     }

@@ -4,15 +4,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const app = new App();
     const urlParams = new URLSearchParams(window.location.search);
     const title = app.sanitizeData(urlParams.get('title'));
-    const sheetUrl = urlParams.get('url');
+    const url = urlParams.get('url');
+    const example = app.sanitizeData(urlParams.get('example'));
 
-    app.loadFromLocalStorage();
+    if (url && title) {
+        app.titleUrlInput.value = title;
+        app.urlInput.value = url;
+        app.updateShareableCSVLink(url, title);
+    } else if (example) {
+        app.exampleSelect.value = example;
+        app.updateShareableExample(example);
+    }
+
+    app.loadFromLocalStorage(url, title, example);
     app.loadFontFromLocalStorage();
     app.initCardsSizeFromLocalStorage();
-
-    if (sheetUrl) {
-        app.titleUrlInput.value = title;
-        app.urlInput.value = sheetUrl;
-        app.updateShareableLink(title, sheetUrl);
-    }
 });
