@@ -143,7 +143,7 @@
             <label for="shareable-csv-link-input" class="form-label">Partager le lien :</label>
             <div class="input-group">
                 <input type="text" class="form-control" id="shareable-csv-link-input" readonly>
-                <button data-action="copyShareableUrl" class="btn btn-outline-secondary" type="button" id="copy-url-btn" title="Copier le lien">
+                <button data-action="copyShareableCSVLink" class="btn btn-outline-secondary" type="button" title="Copier le lien">
                     <ion-icon name="copy-outline"></ion-icon>
                 </button>
             </div>
@@ -152,6 +152,21 @@
                     <li><small>Le lien à partager contiendra en paramètres le titre de cette page et le lien vers le fichier CSV (Google Sheets) à charger.</small></li>
                     <li><small>Au tout premier chargement du lien copié, les données du fichier CSV (Google Sheets) seront téléchargées et gardées 24 heures en mémoire dans le navigateur (Chrome, Firefox, Edge, ...).</small></li>
                     <li><small>Au-delà des 24 heures, les données du fichier CSV (Google Sheets) seront à nouveau téléchargées et mises à jour dans le navigateur.</small></li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="shareable-example-link-input-wrapper" class="mb-4 d-none">
+            <label for="shareable-example-link-input" class="form-label">Partager le lien :</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="shareable-example-link-input" readonly>
+                <button data-action="copyShareableExampleLink" class="btn btn-outline-secondary" type="button" title="Copier le lien">
+                    <ion-icon name="copy-outline"></ion-icon>
+                </button>
+            </div>
+            <div class="text-body-secondary">
+                <ul>
+                    <li><small>Le lien à partager contiendra en paramètres l'exemple à charger automatiquement.</small></li>
                 </ul>
             </div>
         </div>
